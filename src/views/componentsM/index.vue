@@ -3,7 +3,7 @@
     <div>
       <div class="row-fluid header">
           <a class="header-wrapper">
-            <span class="text">组件</span>
+            <span class="text">组件11</span>
           </a>
           <div class="span10 pull-right components-input">
 
