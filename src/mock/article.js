@@ -19,13 +19,17 @@ for (let i = 0; i < count; i++) {
     pageviews: '@integer(300, 5000)',
     username: /^[a-zA-Z0-9]{6,}$/,
     password: /^[a-zA-Z0-9]{8,12}$/,
-    projectName: /^[a-zA-Z0-9]{6,}$/
+    projectName: /^[a-zA-Z0-9]{6,}$/,
+    deviceName: /^[a-zA-Z0-9]{6,}$/,
+    deviceIP: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
+    devicePath: /^([a-zA-Z]:(\\))([a-zA-Z]*)|(\/([a-zA-Z]+))*\/$/,
+    'deviceState|1': ['在线', '离线']
   }))
 }
 
 export default {
   getList: config => {
-    const { importance, type, title, page = 1, limit = 20, sort, username, projectName } = param2Obj(config.url)
+    const { importance, type, title, page = 1, limit = 20, sort, username, projectName, deviceName } = param2Obj(config.url)
 
     let mockList = List.filter(item => {
       if (importance && item.importance !== +importance) return false
@@ -33,6 +37,7 @@ export default {
       if (title && item.title.indexOf(title) < 0) return false
       if (username && item.username.indexOf(username) < 0) return false
       if (projectName && item.projectName.indexOf(projectName) < 0) return false
+      if (deviceName && item.deviceName.indexOf(deviceName) < 0) return false
       return true
     })
 
