@@ -101,7 +101,6 @@
         <div>
             {{components}}
         </div> -->
-  </div>
 </template>
 
 <script>

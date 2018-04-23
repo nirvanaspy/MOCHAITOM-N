@@ -5,6 +5,21 @@
         <h3 class="title">{{$t('login.title')}}</h3>
         <lang-select class="set-language"></lang-select>
       </div>
+      <div class="ipContainer">
+        <el-form-item prop="ipConfig" class="ipform">
+          <span class="svg-container svg-container_ip">
+            <svg-icon icon-class="IP" />
+          </span>
+          <el-input name="ipConfig" type="text" v-model="loginForm.ipConfig" autoComplete="on" placeholder="IP地址" />
+        </el-form-item>
+        <span class="colon">:</span>
+        <el-form-item prop="port" class="portform">
+          <span class="svg-container">
+            <svg-icon icon-class="port" />
+          </span>
+          <el-input name="port" type="text" v-model="loginForm.port" autoComplete="on" placeholder="端口号" />
+        </el-form-item>
+      </div>
       <el-form-item prop="username">
         <span class="svg-container svg-container_login">
           <svg-icon icon-class="user" />
@@ -23,19 +38,23 @@
       </el-form-item>
 
       <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="handleLogin">{{$t('login.logIn')}}</el-button>
-
-      <div class="tips">
+      <div class="register-container">
+        <span class="register-tips">没有账号？</span>
+        <span class="register-btn" @click="jumpToRegister">注册</span>
+      </div>
+      <!--<div class="tips">
         <span>{{$t('login.username')}} : admin</span>
         <span>{{$t('login.password')}} : {{$t('login.any')}}</span>
-      </div>
-      <div class="tips">
+      </div>-->
+    <!--  <div class="tips">
         <span style="margin-right:18px;">{{$t('login.username')}} : editor</span>
         <span>{{$t('login.password')}} : {{$t('login.any')}}</span>
-      </div>
+      </div>-->
 
-      <el-button class="thirdparty-button" type="primary" @click="showDialog=true">{{$t('login.thirdparty')}}</el-button>
+      <!--<el-button class="thirdparty-button" type="primary" @click="showDialog=true">{{$t('login.thirdparty')}}</el-button>-->
     </el-form>
 
+<!--
     <el-dialog :title="$t('login.thirdparty')" :visible.sync="showDialog" append-to-body>
       {{$t('login.thirdpartyTips')}}
       <br/>
@@ -43,6 +62,7 @@
       <br/>
       <social-sign />
     </el-dialog>
+-->
 
   </div>
 </template>
@@ -58,14 +78,14 @@ export default {
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!isvalidUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+        callback(new Error('请输入正确的用户名！'))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
+        callback(new Error('请输入正确的密码！'))
       } else {
         callback()
       }
@@ -73,7 +93,9 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: '1111111'
+        password: '1111111',
+        ipConfig: '192.168.0.101',
+        port: 8080
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -85,6 +107,9 @@ export default {
     }
   },
   methods: {
+    jumpToRegister() {
+      this.$router.replace('/register')
+    },
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -166,6 +191,40 @@ $light_gray:#eee;
     border-radius: 5px;
     color: #454545;
   }
+  .ipContainer {
+    .el-form-item.ipform{
+      width:55%;
+      display: inline-block;
+    }
+    .ipform .el-input{
+      width:60%;
+    }
+    .colon {
+      display: inline-block;
+      text-align: center;
+      width: 3%;
+      color:#fff;
+    }
+    .el-form-item.portform{
+      width:40%;
+      display: inline-block;
+    }
+    .portform .el-input{
+      width:40%
+    }
+  }
+}
+.register-container{
+  text-align: center;
+  font-size: 14px;
+  color:$light_gray;
+  .register-tips{
+    margin-right: 4px;
+  }
+  .register-btn{
+    color:#36a3f7;
+    cursor: pointer;
+  }
 }
 </style>
 
@@ -203,7 +262,7 @@ $light_gray:#eee;
     vertical-align: middle;
     width: 30px;
     display: inline-block;
-    &_login {
+    &_login,&_ip {
       font-size: 20px;
     }
   }

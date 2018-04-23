@@ -11,7 +11,8 @@
   content: " ";
   width: 3px;
   background-color: #eeeeee;
-  left: 50%;
+  /*left: 50%;*/
+  left:20px;
   margin-left: -1.5px;
 }
 
@@ -41,8 +42,10 @@
 }
 
 .timeline > li > .timeline-panel {
-  width: 46%;
+  /*width: 46%;*/
+  width: 90%;
   float: left;
+  margin-left: 80px;
   border: 1px solid #d4d4d4;
   border-radius: 2px;
   padding: 20px;
@@ -54,7 +57,7 @@
 .timeline > li > .timeline-panel:before {
   position: absolute;
   top: 26px;
-  right: -15px;
+  left: -15px;
   display: inline-block;
   border-top: 15px solid transparent;
   border-left: 15px solid #ccc;
@@ -66,7 +69,7 @@
 .timeline > li > .timeline-panel:after {
   position: absolute;
   top: 27px;
-  right: -14px;
+  left: -14px;
   display: inline-block;
   border-top: 14px solid transparent;
   border-left: 14px solid #fff;
@@ -84,7 +87,8 @@
   text-align: center;
   position: absolute;
   top: 16px;
-  left: 50%;
+  /*left: 50%;*/
+  left:20px;
   margin-left: -25px;
   background-color: #999999;
   z-index: 100;
@@ -95,7 +99,8 @@
 }
 
 .timeline > li.timeline-inverted > .timeline-panel {
-  float: right;
+  /*float: right;*/
+  float: left;
 }
 
 .timeline > li.timeline-inverted > .timeline-panel:before {
@@ -134,7 +139,7 @@
 
 .timeline-title {
   margin-top: 0;
-  color: inherit;
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .timeline-body > p,

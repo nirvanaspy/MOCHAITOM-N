@@ -1,26 +1,30 @@
 <template>
   <el-row class="panel-group" :gutter="40">
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class='card-panel' @click="handleSetLineChartData('newVisitis')">
-        <div class="card-panel-icon-wrapper icon-people">
-          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+      <router-link to="/components/index">
+        <div class="card-panel" @click="handleSetLineChartData('messages')">
+          <div class="card-panel-icon-wrapper icon-components1">
+            <svg-icon icon-class="components1" class-name="card-panel-icon" />
+          </div>
+          <div class="card-panel-description">
+            <div class="card-panel-text">组件</div>
+            <count-to class="card-panel-num" :startVal="0" :endVal="81212" :duration="3000"></count-to>
+          </div>
         </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">New Visits</div>
-          <count-to class="card-panel-num" :startVal="0" :endVal="102400" :duration="2600"></count-to>
-        </div>
-      </div>
+      </router-link>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('messages')">
-        <div class="card-panel-icon-wrapper icon-message">
-          <svg-icon icon-class="message" class-name="card-panel-icon" />
+      <router-link to="/device/index">
+        <div class='card-panel' @click="handleSetLineChartData('newVisitis')">
+          <div class="card-panel-icon-wrapper icon-computer">
+            <svg-icon icon-class="computer" class-name="card-panel-icon" />
+          </div>
+          <div class="card-panel-description">
+            <div class="card-panel-text">设备</div>
+            <count-to class="card-panel-num" :startVal="0" :endVal="102400" :duration="2600"></count-to>
+          </div>
         </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">Messages</div>
-          <count-to class="card-panel-num" :startVal="0" :endVal="81212" :duration="3000"></count-to>
-        </div>
-      </div>
+      </router-link>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('purchases')">
@@ -82,10 +86,17 @@ export default {
       .card-panel-icon-wrapper {
         color: #fff;
       }
-      .icon-people {
+      /*.icon-people {
          background: #40c9c6;
+      }*/
+      .icon-computer{
+        background: #40c9c6;
+        color:#fff;
       }
-      .icon-message {
+     /* .icon-message {
+        background: #36a3f7;
+      }*/
+      .icon-components1 {
         background: #36a3f7;
       }
       .icon-money {
@@ -95,10 +106,16 @@ export default {
         background: #34bfa3
       }
     }
-    .icon-people {
+   /* .icon-people {
+      color: #40c9c6;
+    }*/
+    .icon-computer{
       color: #40c9c6;
     }
-    .icon-message {
+   /* .icon-message {
+      color: #36a3f7;
+    }*/
+    .icon-components1 {
       color: #36a3f7;
     }
     .icon-money {
