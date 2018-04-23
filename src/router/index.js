@@ -258,11 +258,11 @@ export const asyncRouterMap = [
     component: Layout,
     children: [{ path: 'device', component: _import('device/device'), name: 'device', meta: { title: 'device', icon: 'computer' }}]
   },
-  /* {
-    path: '/scan',
+  {
+    path: '/project',
     component: Layout,
-    children: [{ path: 'index', component: _import('scan/index'), name: 'scan', meta: { title: 'scan', icon: 'computer' }}]
-  },*/
+    children: [{ path: 'project', component: _import('project/project'), name: 'project', meta: { title: 'project', icon: 'excel' }}]
+  },
   {
     path: '/usermanage',
     component: Layout,

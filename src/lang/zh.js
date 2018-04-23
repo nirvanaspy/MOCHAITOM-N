@@ -49,14 +49,15 @@ export default {
     clipboardDemo: 'Clipboard',
     i18n: '国际化',
     componentsM: '组件',
-    device: '设备',
+    device: '设备管理',
     deploy: '部署',
     usermanage: '用户管理',
     username: '用户名',
     password: '密码',
     newpassword: '新密码',
     register: '注册',
-    scan: '扫描'
+    scan: '扫描',
+    project: '项目管理'
   },
   navbar: {
     logOut: '退出登录',
@@ -122,10 +123,11 @@ export default {
     devicePath: '路径',
     deviceState: '状态',
     deviceTitle: '设备名',
-    cancel: '取 消',
     username: '用户名',
     password: '密码',
-    newpassword: '新密码'
+    newpassword: '新密码',
+    projectName: '项目名',
+    projectDesc: '描述'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

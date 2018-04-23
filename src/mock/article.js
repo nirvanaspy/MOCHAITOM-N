@@ -18,19 +18,21 @@ for (let i = 0; i < count; i++) {
     display_time: '@datetime',
     pageviews: '@integer(300, 5000)',
     username: /^[a-zA-Z0-9]{6,}$/,
-    password: /^[a-zA-Z0-9]{8,12}$/
+    password: /^[a-zA-Z0-9]{8,12}$/,
+    projectName: /^[a-zA-Z0-9]{6,}$/
   }))
 }
 
 export default {
   getList: config => {
-    const { importance, type, title, page = 1, limit = 20, sort, username } = param2Obj(config.url)
+    const { importance, type, title, page = 1, limit = 20, sort, username, projectName } = param2Obj(config.url)
 
     let mockList = List.filter(item => {
       if (importance && item.importance !== +importance) return false
       if (type && item.type !== type) return false
       if (title && item.title.indexOf(title) < 0) return false
       if (username && item.username.indexOf(username) < 0) return false
+      if (projectName && item.projectName.indexOf(projectName) < 0) return false
       return true
     })
 
