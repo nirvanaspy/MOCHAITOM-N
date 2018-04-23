@@ -121,7 +121,11 @@ export default {
     deviceIP: 'IP',
     devicePath: '路径',
     deviceState: '状态',
-    deviceTitle: '设备名'
+    deviceTitle: '设备名',
+    cancel: '取 消',
+    username: '用户名',
+    password: '密码',
+    newpassword: '新密码'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
