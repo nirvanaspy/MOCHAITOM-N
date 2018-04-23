@@ -256,7 +256,7 @@ export const asyncRouterMap = [
   {
     path: '/device',
     component: Layout,
-    children: [{ path: 'index', component: _import('device/index'), name: 'device', meta: { title: 'device', icon: 'computer' }}]
+    children: [{ path: 'device', component: _import('device/device'), name: 'device', meta: { title: 'device', icon: 'computer' }}]
   },
   /* {
     path: '/scan',
