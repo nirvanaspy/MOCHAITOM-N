@@ -117,9 +117,11 @@ export default {
     delete: '删除',
     cancel: '取 消',
     confirm: '确 定',
-    username: '用户名',
-    password: '密码',
-    newpassword: '新密码'
+    deviceName: '设备名',
+    deviceIP: 'IP',
+    devicePath: '路径',
+    deviceState: '状态',
+    deviceTitle: '设备名'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
