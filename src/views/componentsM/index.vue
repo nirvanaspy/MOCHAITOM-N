@@ -3,7 +3,7 @@
     <div>
       <div class="row-fluid header">
           <a class="header-wrapper">
-            <span class="text">组件11</span>
+            <span class="text">组件</span>
           </a>
           <div class="span10 pull-right components-input">
 
@@ -101,7 +101,6 @@
         <div>
             {{components}}
         </div> -->
-  </div>
 </template>
 
 <script>

@@ -50,7 +50,13 @@ export default {
     i18n: '国际化',
     componentsM: '组件',
     device: '设备',
-    deploy: '部署'
+    deploy: '部署',
+    usermanage: '用户管理',
+    username: '用户名',
+    password: '密码',
+    newpassword: '新密码',
+    register: '注册',
+    scan: '扫描'
   },
   navbar: {
     logOut: '退出登录',
@@ -66,7 +72,8 @@ export default {
     password: '密码',
     any: '随便填',
     thirdparty: '第三方登录',
-    thirdpartyTips: '本地不能模拟，请结合自己业务进行模拟！！！'
+    thirdpartyTips: '本地不能模拟，请结合自己业务进行模拟！！！',
+    register: '注册新用户'
   },
   documentation: {
     documentation: '文档',
@@ -110,11 +117,9 @@ export default {
     delete: '删除',
     cancel: '取 消',
     confirm: '确 定',
-    deviceName: '设备名',
-    deviceIP: 'IP',
-    devicePath: '路径',
-    deviceState: '状态',
-    deviceTitle: '设备名'
+    username: '用户名',
+    password: '密码',
+    newpassword: '新密码'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

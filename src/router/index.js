@@ -29,6 +29,7 @@ import Layout from '../views/layout/Layout'
 **/
 export const constantRouterMap = [
   { path: '/login', component: _import('login/index'), hidden: true },
+  { path: '/register', component: _import('register/index'), hidden: true },
   { path: '/authredirect', component: _import('login/authredirect'), hidden: true },
   { path: '/404', component: _import('errorPage/404'), hidden: true },
   { path: '/401', component: _import('errorPage/401'), hidden: true },
@@ -250,12 +251,25 @@ export const asyncRouterMap = [
   {
     path: '/components',
     component: Layout,
-    children: [{ path: 'index', component: _import('componentsM/index'), name: 'componentsM', meta: { title: 'componentsM', icon: 'component' }}]
+    children: [{ path: 'index', component: _import('componentsM/index'), name: 'componentsM', meta: { title: 'componentsM', icon: 'components1' }}]
   },
   {
     path: '/device',
     component: Layout,
-    children: [{ path: 'device', component: _import('device/device'), name: 'device', meta: { title: 'device', icon: 'component' }}]
+    children: [{ path: 'index', component: _import('device/index'), name: 'device', meta: { title: 'device', icon: 'computer' }}]
+  },
+  {
+    path: '/scan',
+    component: Layout,
+    children: [{ path: 'index', component: _import('scan/index'), name: 'scan', meta: { title: 'scan', icon: 'computer' }}]
+  },
+  {
+    path: '/usermanage',
+    component: Layout,
+    meta: {
+      title: 'usermanage',
+      roles: ['admin'] // or you can only set roles in sub nav
+    },
+    children: [{ path: 'index', component: _import('usermanage/index'), name: 'usermanage', meta: { title: 'usermanage', icon: 'peoples' }}]
   }
-
 ]
