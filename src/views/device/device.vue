@@ -138,6 +138,7 @@
           oldList: [],
           newList: [],
           temp: {
+            id: undefined,
             name: '',
             ip: '',
             path: ''
