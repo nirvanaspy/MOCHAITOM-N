@@ -57,7 +57,8 @@ export default {
     newpassword: '新密码',
     register: '注册',
     scan: '扫描',
-    project: '项目管理'
+    project: '项目管理',
+    baseline: '基线'
   },
   navbar: {
     logOut: '退出登录',
@@ -137,7 +138,9 @@ export default {
     compDesc: '描述',
     compUpload: '上传文件',
     deployFileName: '文件名',
-    deployState: '状态'
+    deployState: '状态',
+    baselineName: '名称',
+    baselineDesc: '描述'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

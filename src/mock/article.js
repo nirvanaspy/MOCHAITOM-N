@@ -32,7 +32,9 @@ for (let i = 0; i < count; i++) {
     compPath: /^(\/([a-zA-Z]+))*\/$/,
     compDesc: '@title(5, 10)',
     deployFileName: /^[a-zA-Z0-9]{6,12}$/,
-    'deployState|1': ['部署成功', '部署失败']
+    'deployState|1': ['部署成功', '部署失败'],
+    baselineName: /^[a-zA-Z0-9]{6,12}$/,
+    baselineDesc: '@title(5, 10)'
   }))
 }
 
@@ -47,7 +49,7 @@ for (let i = 0; i < count; i++) {
 
 export default {
   getList: config => {
-    const { importance, type, title, page = 1, limit = 20, sort, username, projectName, deviceName, compName } = param2Obj(config.url)
+    const { importance, type, title, page = 1, limit = 20, sort, username, projectName, deviceName, compName, baselineName } = param2Obj(config.url)
 
     let mockList = List.filter(item => {
       if (importance && item.importance !== +importance) return false
@@ -57,6 +59,7 @@ export default {
       if (projectName && item.projectName.indexOf(projectName) < 0) return false
       if (deviceName && item.deviceName.indexOf(deviceName) < 0) return false
       if (compName && item.compName.indexOf(compName) < 0) return false
+      if (baselineName && item.baselineName.indexOf(baselineName) < 0) return false
       return true
     })
 
