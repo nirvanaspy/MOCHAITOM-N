@@ -135,6 +135,7 @@ export default {
     compSize: '大小',
     compPath: '相对路径',
     compDesc: '描述',
+    compUpload: '上传文件',
     deployFileName: '文件名',
     deployState: '状态'
   },

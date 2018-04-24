@@ -27,6 +27,10 @@ for (let i = 0; i < count; i++) {
     'deviceState|1': ['在线', '离线'],
     progress: '@integer(1, 100)',
     compName: /^[a-zA-Z0-9]{6,12}$/,
+    compVersion: /^\d{1,2}(\.\d{1,2}){2,3}$/,
+    compSize: '@integer(100, 1000)',
+    compPath: /^(\/([a-zA-Z]+))*\/$/,
+    compDesc: '@title(5, 10)',
     deployFileName: /^[a-zA-Z0-9]{6,12}$/,
     'deployState|1': ['部署成功', '部署失败']
   }))

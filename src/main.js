@@ -1,4 +1,7 @@
 import Vue from 'vue'
+import uploader from 'vue-simple-uploader'
+
+Vue.use(uploader)
 
 import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 
