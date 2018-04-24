@@ -127,7 +127,16 @@ export default {
     password: '密码',
     newpassword: '新密码',
     projectName: '项目名',
-    projectDesc: '描述'
+    projectDesc: '描述',
+    deployProgress: '发送进度',
+    deployDetail: '部署详情',
+    compName: '组件名',
+    compVersion: '版本',
+    compSize: '大小',
+    compPath: '相对路径',
+    compDesc: '描述',
+    deployFileName: '文件名',
+    deployState: '状态'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

@@ -3,6 +3,7 @@ import { param2Obj } from '@/utils'
 
 const List = []
 const count = 100
+const deployList = []
 
 for (let i = 0; i < count; i++) {
   List.push(Mock.mock({
@@ -23,13 +24,26 @@ for (let i = 0; i < count; i++) {
     deviceName: /^[a-zA-Z0-9]{6,}$/,
     deviceIP: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
     devicePath: /^([a-zA-Z]:(\\))([a-zA-Z]*)|(\/([a-zA-Z]+))*\/$/,
-    'deviceState|1': ['在线', '离线']
+    'deviceState|1': ['在线', '离线'],
+    progress: '@integer(1, 100)',
+    compName: /^[a-zA-Z0-9]{6,12}$/,
+    deployFileName: /^[a-zA-Z0-9]{6,12}$/,
+    'deployState|1': ['部署成功', '部署失败']
+  }))
+}
+
+for (let i = 0; i < count; i++) {
+  deployList.push(Mock.mock({
+    id: '@increment',
+    compName: /^[a-zA-Z0-9]{6,12}$/,
+    deployFileName: /^[a-zA-Z0-9]{6,12}$/,
+    'deployState|1': ['部署成功', '部署失败']
   }))
 }
 
 export default {
   getList: config => {
-    const { importance, type, title, page = 1, limit = 20, sort, username, projectName, deviceName } = param2Obj(config.url)
+    const { importance, type, title, page = 1, limit = 20, sort, username, projectName, deviceName, compName } = param2Obj(config.url)
 
     let mockList = List.filter(item => {
       if (importance && item.importance !== +importance) return false
@@ -38,6 +52,7 @@ export default {
       if (username && item.username.indexOf(username) < 0) return false
       if (projectName && item.projectName.indexOf(projectName) < 0) return false
       if (deviceName && item.deviceName.indexOf(deviceName) < 0) return false
+      if (compName && item.compName.indexOf(compName) < 0) return false
       return true
     })
 
