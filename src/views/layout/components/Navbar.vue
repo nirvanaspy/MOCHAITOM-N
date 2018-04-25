@@ -25,6 +25,21 @@
           <i class="el-icon-caret-bottom proIcon"></i>
         </div>
         <el-dropdown-menu slot="dropdown">
+          <el-select
+            v-model="value10"
+            filterable
+            allow-create
+            default-first-option
+            placeholder="选择或创建项目">
+            <el-option
+              v-for="item in options5"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-dropdown-menu>
+        <!--<el-dropdown-menu slot="dropdown">
           <el-dropdown-item>
             项目1
           </el-dropdown-item>
@@ -32,7 +47,7 @@
             项目2
           </el-dropdown-item>
 
-        </el-dropdown-menu>
+        </el-dropdown-menu>-->
       </el-dropdown>
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
@@ -79,6 +94,21 @@
       Screenfull,
       LangSelect,
       ThemePicker
+    },
+    data() {
+      return {
+        options5: [{
+          value: 'HTML',
+          label: 'HTML'
+        }, {
+          value: 'CSS',
+          label: 'CSS'
+        }, {
+          value: 'JavaScript',
+          label: 'JavaScript'
+        }],
+        value10: []
+      }
     },
     computed: {
       ...mapGetters([
