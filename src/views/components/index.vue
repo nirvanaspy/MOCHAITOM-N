@@ -1,14 +1,20 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" :placeholder="$t('table.compName')" v-model="listQuery.compName">
+      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"
+                :placeholder="$t('table.compName')" v-model="listQuery.compName">
       </el-input>
 
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
-      <el-button class="filter-item pull-right" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
+      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">
+        {{$t('table.search')}}
+      </el-button>
+      <el-button class="filter-item pull-right" style="margin-left: 10px;" @click="handleCreate" type="primary"
+                 icon="el-icon-edit">{{$t('table.add')}}
+      </el-button>
     </div>
 
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit
+              highlight-current-row
               style="width: 100%">
 
       <el-table-column align="center" :label="$t('table.compName')" width="100">
@@ -49,53 +55,17 @@
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                     :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit"
+                     layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
     <!-- 创建 -->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="10vh" width="60%" v-if="dialogStatus=='create'">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='height: 400px;overflow-y: auto;padding-right: 10%;padding-left: 10%;'>
-        <el-form-item :label="$t('table.compName')" prop="name">
-          <el-input v-model="temp.compName"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('table.compVersion')" prop="version">
-          <el-input v-model="temp.compVersion"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('table.compPath')" prop="path">
-          <el-input v-model="temp.compPath"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('table.compDesc')" prop="desc">
-          <el-input v-model="temp.compDesc"></el-input>
-        </el-form-item>
-
-        <el-form-item :label="$t('table.compUpload')" prop="desc">
-            <uploader :options="options"
-                      :autoStart="autoStart"
-                      :file-status-text="statusText"
-                      :started="started"
-                      ref="uploader"
-                      class="uploader-example">
-              <uploader-unsupport></uploader-unsupport>
-              <uploader-drop>
-                <p>拖拽文件到此处或</p>
-                <uploader-btn>选择文件</uploader-btn>
-                <uploader-btn :directory="true">选择文件夹</uploader-btn>
-              </uploader-drop>
-              <uploader-list></uploader-list>
-            </uploader>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button type="primary" @click="createData">{{$t('table.confirm')}}</el-button>
-      </div>
-    </el-dialog>
-
-    <!-- 修改 -->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="10vh" width="80%" v-else>
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="10vh" width="60%"
+               v-if="dialogStatus=='create'">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px"
-               style='height: 400px;overflow-y: auto;width: 60%;border-right: 1px solid lightgrey;padding-right: 30px;'>
+               style='height: 400px;overflow-y: auto;padding-right: 10%;padding-left: 10%;'>
         <el-form-item :label="$t('table.compName')" prop="name">
           <el-input v-model="temp.compName"></el-input>
         </el-form-item>
@@ -126,12 +96,57 @@
           </uploader>
         </el-form-item>
       </el-form>
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px"
-               style='height: 400px;overflow-y: auto;width: 40%;'>
-        <div id="areaTree">
-              <ul id="treeDemo" class="ztree"></ul>
-        </div>
-      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button type="primary" @click="createData">{{$t('table.confirm')}}</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 修改 -->
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="7vh" width="80%" v-else>
+
+        <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px"
+                 style='width: 100%;'>
+          <div style="height: 400px;overflow-y: auto;width: 60%;float: left;border-right: 1px solid lightgrey;padding-right: 30px;">
+            <el-form-item :label="$t('table.compName')" prop="name">
+              <el-input v-model="temp.compName"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('table.compVersion')" prop="version">
+              <el-input v-model="temp.compVersion"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('table.compPath')" prop="path">
+              <el-input v-model="temp.compPath"></el-input>
+            </el-form-item>
+            <el-form-item :label="$t('table.compDesc')" prop="desc">
+              <el-input v-model="temp.compDesc"></el-input>
+            </el-form-item>
+
+            <el-form-item :label="$t('table.compUpload')" prop="desc">
+            <uploader :options="options"
+                      :autoStart="autoStart"
+                      :file-status-text="statusText"
+                      :started="started"
+                      ref="uploader"
+                      class="uploader-example">
+              <uploader-unsupport></uploader-unsupport>
+              <uploader-drop>
+                <p>拖拽文件到此处或</p>
+                <uploader-btn>选择文件</uploader-btn>
+                <uploader-btn :directory="true">选择文件夹</uploader-btn>
+              </uploader-drop>
+              <uploader-list></uploader-list>
+            </uploader>
+          </el-form-item>
+          </div>
+
+          <div style="height: 400px;overflow: auto;width: 40%;float: right;padding-left: 30px;padding-top: 5px;">
+            <label style="width: 100%;font-size: 14px;">组件详细信息</label>
+            <br/>
+            <ul id="treeDemo" class="ztree"></ul>
+          </div>
+        </el-form>
+
+
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
         <el-button type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
@@ -185,9 +200,9 @@
         dialogPvVisible: false,
         pvData: [],
         rules: {
-          type: [{ required: true, message: 'type is required', trigger: 'change' }],
-          timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-          title: [{ required: true, message: 'title is required', trigger: 'blur' }]
+          type: [{required: true, message: 'type is required', trigger: 'change'}],
+          timestamp: [{type: 'date', required: true, message: 'timestamp is required', trigger: 'change'}],
+          title: [{required: true, message: 'title is required', trigger: 'blur'}]
         },
         downloadLoading: false,
         options: {
@@ -207,22 +222,11 @@
           waiting: '等待中'
         },
         started: false,
-        autoStart: '',
-
-        setting: {
-
-        },
-        zNodes: [
-          {name:"test1", open:true, children:[
-              {name:"test1_1"}, {name:"test1_2"}]},
-          {name:"test2", open:true, children:[
-              {name:"test2_1"}, {name:"test2_2"}]}
-        ]
+        autoStart: ''
       }
     },
     created() {
       this.getList()
-      $.fn.zTree.init($("#treeDemo"), this.setting, this.zNodes);
     },
     methods: {
       getList() {
@@ -324,13 +328,34 @@
         this.dialogFormVisible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
+
+          let zTreeObj;
+          // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
+          let setting = {};
+          // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
+          let zNodes = [
+            {
+              name: "test1", open: true, children: [
+                {name: "test1_1"}, {name: "test1_2"}]
+            },
+            {
+              name: "test2", open: true, children: [
+                {name: "test2_1"}, {name: "test2_2"}]
+            }
+          ];
+          $(document).ready(function () {
+            console.log("hhhhhh--");
+            console.log(zNodes);
+            zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+            console.log("aaaaaaa--");
+          });
         })
       },
       setSort() {
         const el = document.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
         this.sortable = Sortable.create(el, {
           ghostClass: 'sortable-ghost', // Class name for the drop placeholder,
-          setData: function(dataTransfer) {
+          setData: function (dataTransfer) {
             dataTransfer.setData('Text', '')
             // to avoid Firefox bug
             // Detail see : https://github.com/RubaXa/Sortable/issues/1012
@@ -371,11 +396,6 @@
           })
         })
       }
-    },
-    mounted: function(){
-      /*this.$nextTick(function () {
-        $.fn.zTree.init($("#treeDemo"), this.setting, this.zNodes);
-      })*/
     }
   }
 </script>
@@ -389,7 +409,8 @@
     height: 440px;
     overflow-y: auto;
   }
-  .el-dialog{
+
+  .el-dialog {
     margin-top: 10vh;
   }
 
