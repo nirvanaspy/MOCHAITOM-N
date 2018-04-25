@@ -1,7 +1,7 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" :placeholder="$t('table.deviceTitle')" v-model="listQuery.title">
+      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" :placeholder="$t('table.deviceName')" v-model="listQuery.deviceName">
       </el-input>
 
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
@@ -12,91 +12,53 @@
               style="width: 100%">
    <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
 
-      <el-table-column align="center" :label="$t('table.deviceName')" width="65">
+      <el-table-column align="center" :label="$t('table.deviceName')" width="100">
         <template slot-scope="scope">
-          <span>设备1</span>
+          <span>{{scope.row.deviceName}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.deviceIP')">
         <template slot-scope="scope">
-          <span>192.168.0.111</span>
+          <span>{{scope.row.deviceIP}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.devicePath')">
         <template slot-scope="scope">
-          <span>D:/</span>
+          <span>{{scope.row.devicePath}}</span>
         </template>
       </el-table-column>
       <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">离线</el-tag>
+          <el-tag :type="scope.row.deviceState | statusFilter">{{scope.row.deviceState}}</el-tag>
         </template>
-        <!--<template slot-scope="scope">
-          <span>离线</span>
-        </template>-->
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button size="mini" type="success">{{$t('table.publish')}}
           </el-button>
-          <el-button size="mini" type="danger">{{$t('table.delete')}}
+          <el-button size="mini" type="danger" @click="deleteDevice($event)">{{$t('table.delete')}}
           </el-button>
         </template>
       </el-table-column>
 
     </el-table>
 
-    <!--<el-table  border fit highlight-current-row
-              style="width: 100%">
-      <el-table-column align="center" :label="$t('table.deviceName')" width="65">
-        <template slot-scope="scope">
-          <span>设备1</span>
-        </template>
-      </el-table-column>
-      <el-table-column width="150px" align="center" :label="$t('table.deviceIP')">
-        <template slot-scope="scope">
-          <span>192.168.0.111</span>
-        </template>
-      </el-table-column>
-      <el-table-column min-width="150px" :label="$t('table.devicePath')">
-        <template slot-scope="scope">
-          <span class="link-type">D:/</span>
-        </template>
-      </el-table-column>
-      <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
-        <template slot-scope="scope">
-          <span>离线</span>
-        </template>
-      </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button type="primary" size="mini">{{$t('table.edit')}}</el-button>
-          <el-button>{{$t('table.publish')}}
-          </el-button>
-          <el-button>{{$t('table.draft')}}
-          </el-button>
-          <el-button>{{$t('table.delete')}}
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>-->
-
-    <!--<div class="pagination-container">
+    <div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
-    </div>-->
+    </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.deviceName')" prop="name">
-          <el-input v-model="temp.name"></el-input>
+          <el-input v-model="temp.deviceName"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.deviceIP')" prop="ip">
-          <el-input v-model="temp.ip"></el-input>
+          <el-input v-model="temp.deviceIP"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.devicePath')" prop="path">
-          <el-input v-model="temp.path"></el-input>
+          <el-input v-model="temp.devicePath"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -110,7 +72,7 @@
 </template>
 
 <script>
-  import { fetchList } from '@/api/article'
+  import { fetchList, createArticle, updateArticle } from '@/api/article'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
 
@@ -132,15 +94,17 @@
             importance: undefined,
             title: undefined,
             type: undefined,
-            sort: '+id'
+            sort: '+id',
+            deviceName: undefined
           },
           sortable: null,
           oldList: [],
           newList: [],
           temp: {
-            name: '',
-            ip: '',
-            path: ''
+            id: undefined,
+            deviceName: undefined,
+            deviceIP: undefined,
+            devicePath: undefined
           },
           dialogFormVisible: false,
           dialogStatus: '',
@@ -159,13 +123,12 @@
         }
       },
       filters: {
-        statusFilter(status) {
+        statusFilter(deviceState) {
           const statusMap = {
-            published: 'success',
-            draft: 'info',
-            deleted: 'danger'
+            在线: 'success',
+            离线: 'info'
           }
-          return statusMap[status]
+          return statusMap[deviceState]
         }
       },
       created() {
@@ -186,8 +149,23 @@
           })
         },
         handleFilter() {
-          this.listQuery.page = 1;
+          this.listQuery.page = 1
           this.getList()
+        },
+        handleSizeChange(val) {
+          this.listQuery.limit = val
+          this.getList()
+        },
+        handleCurrentChange(val) {
+          this.listQuery.page = val
+          this.getList()
+        },
+        handleModifyStatus(row, status) {
+          this.$message({
+            message: '操作成功',
+            type: 'success'
+          })
+          row.status = status
         },
         resetTemp() {
           this.temp = {
@@ -196,7 +174,7 @@
             remark: '',
             timestamp: new Date(),
             title: '',
-            status: 'published',
+            deviceState: '在线',
             type: ''
           }
         },
@@ -235,9 +213,17 @@
         createData() {
           this.$refs['dataForm'].validate((valid) => {
             if (valid) {
-              this.temp.name = '设备1';
-              this.temp.ip = '192.168.0.111';
-              this.temp.path = 'D:/';
+              this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+              createArticle(this.temp).then(() => {
+                this.list.unshift(this.temp)
+                this.dialogFormVisible = false
+                this.$notify({
+                  title: '成功',
+                  message: '创建成功',
+                  type: 'success',
+                  duration: 2000
+                })
+              })
             }
           })
         },
@@ -267,6 +253,32 @@
               const tempIndex = this.newList.splice(evt.oldIndex, 1)[0]
               this.newList.splice(evt.newIndex, 0, tempIndex)
             }
+          })
+        },
+        deleteDevice(event) {
+          console.log(event.target.tagName)
+          const target_btn = event.target
+          this.$confirm('确认删除吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            console.log(target_btn.parentNode.parentNode.parentNode)
+            const target_tr = target_btn.parentNode.parentNode.parentNode
+            if (target_tr.tagName.toLowerCase() === 'tr') {
+              target_tr.style.display = 'none'
+            } else if (target_tr.parentNode.tagName.toLowerCase() === 'tr') {
+              target_tr.parentNode.style.display = 'none'
+            }
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
           })
         }
       }
