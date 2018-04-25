@@ -45,8 +45,9 @@ export default {
 }
 
 .pan-info-roles-container {
-  padding: 20px;
+  font-size: 12px;
   text-align: center;
+  line-height: 45px;
 }
 
 .pan-thumb {
