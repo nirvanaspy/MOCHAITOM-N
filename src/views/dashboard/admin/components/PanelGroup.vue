@@ -14,7 +14,7 @@
       </router-link>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <router-link to="/device/index">
+      <router-link to="/device/device">
         <div class='card-panel' @click="handleSetLineChartData('newVisitis')">
           <div class="card-panel-icon-wrapper icon-computer">
             <svg-icon icon-class="computer" class-name="card-panel-icon" />

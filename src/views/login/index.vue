@@ -70,10 +70,10 @@
 <script>
 import { isvalidUsername } from '@/utils/validate'
 import LangSelect from '@/components/LangSelect'
-import SocialSign from './socialsignin'
+/*import SocialSign from './socialsignin'*/
 
 export default {
-  components: { LangSelect, SocialSign },
+  components: { LangSelect},
   name: 'login',
   data() {
     const validateUsername = (rule, value, callback) => {
@@ -93,9 +93,9 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: '1111111',
-        ipConfig: '192.168.0.101',
-        port: 8080
+        password: '111111',
+        ipConfig: '192.168.0.107',
+        port: 9090
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -150,6 +150,82 @@ export default {
       //     this.$router.push({ path: '/' })
       //   })
       // }
+    },
+    login: function () {
+      /*let username = $("input#username").val();
+      let password = $("input#password").val();*/
+      let username = this.loginForm.username;
+      let password = this.loginForm.password;
+      /*let ip = $("input#ip").val();
+      let port = $("input#port").val();*/
+      let ip = this.loginForm.ipConfig;
+      let port = this.loginForm.port;
+      //let expireDays = 1000 * 60 * 60 * 24 * 15;
+      let expireDays = 30;        //天数
+
+      if (username.length == 0 || password.length == 0) {
+        //alert("请输入正确的用户名或密码。");
+        /*layer.msg('请输入正确的用户名或密码！');*/
+        return;
+      } else {
+        this.setCookie('username', username, expireDays);
+        this.setCookie('password', password, expireDays);
+      }
+
+      //ip地址
+      var exp = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+      var reg = ip.match(exp);
+      if (reg == null) {
+        //alert("IP地址不合法！");
+        /*layer.msg('IP地址不合法！');*/
+        return;
+      } else {
+        this.setCookie('ip', ip, expireDays);
+      }
+
+      if (port.length == 0) {
+        /*layer.msg('请输入端口号！');*/
+        return;
+      } else {
+        this.setCookie('port', port, expireDays);
+      }
+
+//alert(this.getIP());
+      this.$axios.get(this.getIP() + "users/login",
+        {
+          auth: {
+            username: username,
+            password: password
+          }
+        }
+      )
+        .then(res => {
+          this.setCookie('Admin-Token',"admin",expireDays)
+          console.log('success')
+          this.$router.replace('/')
+          console.log(2)
+          //将用户名、密码的值存入cookie中
+          this.setCookie('username', username, expireDays);
+          this.setCookie('password', password, expireDays);
+          this.setCookie('userId', res.data.data.id, expireDays);
+          this.setCookie('ip', ip, expireDays);
+          this.setCookie('port', port, expireDays);
+
+
+        })
+        .catch(function (error) {
+          //console.log(res.data.data);
+          console.log(typeof(error.response));
+          if(typeof(error.response) == "undefined"){
+            /*layer.msg('请检查IP或端口号是否正确！');*/
+          }else{
+            /*layer.msg('请输入正确的用户名或密码！');*/
+            error.response.data.length = 0;
+          }
+          //console.log(error.response.data);
+
+
+        });
     }
   },
   created() {

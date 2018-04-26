@@ -1,83 +1,38 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width:200px;" class="filter-item" :placeholder="$t('table.username')" v-model="listQuery.username">
+      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" :placeholder="$t('table.softPackageName')" v-model="listQuery.title">
       </el-input>
-      <!--<el-select clearable style="width: 90px" class="filter-item" v-model="listQuery.importance" :placeholder="$t('table.importance')">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item">
-        </el-option>
-      </el-select>-->
-      <!--<el-select clearable class="filter-item" style="width: 130px" v-model="listQuery.type" :placeholder="$t('table.type')">
-        <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name+'('+item.key+')'" :value="item.key">
-        </el-option>
-      </el-select>-->
-      <!--<el-select @change='handleFilter' style="width: 140px" class="filter-item" v-model="listQuery.sort">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key">
-        </el-option>
-      </el-select>-->
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-item" style="float:right;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
-      <!--<el-button class="filter-item" type="primary" :loading="downloadLoading" v-waves icon="el-icon-download" @click="handleDownload">{{$t('table.export')}}</el-button>-->
-      <!--<el-checkbox class="filter-item" style='margin-left:15px;' @change='tableKey=tableKey+1' v-model="showReviewer">{{$t('table.reviewer')}}</el-checkbox>-->
     </div>
-
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
               style="width: 100%">
-      <!--<el-table-column align="center" :label="$t('table.id')" width="65">
+      <el-table-column width="200px" align="center" :label="$t('table.softPackageName')">
         <template slot-scope="scope">
-          <span>{{scope.row.id}}</span>
-        </template>
-      </el-table-column>-->
-     <!-- <el-table-column width="150px" align="center" :label="$t('table.date')">
-        <template slot-scope="scope">
-          <span>{{scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
-        </template>
-      </el-table-column>-->
-      <!--<el-table-column min-width="150px" :label="$t('table.title')">-->
-      <el-table-column min-width="150px" :label="$t('table.username')">
-        <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.username}}</span>
-          <!--<el-tag>{{scope.row.type | typeFilter}}</el-tag>-->
+          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.softPackageName}}</span>
         </template>
       </el-table-column>
-      <!--<el-table-column width="110px" align="center" :label="$t('table.author')">
+      <el-table-column align="center" width="80px" :label="$t('table.packageVersion')">
         <template slot-scope="scope">
-          <span>{{scope.row.author}}</span>
-        </template>
-      </el-table-column>-->
-      <!--<el-table-column width="110px" v-if='showReviewer' align="center" :label="$t('table.reviewer')">
-        <template slot-scope="scope">
-          <span style='color:red;'>{{scope.row.reviewer}}</span>
-        </template>
-      </el-table-column>-->
-     <!-- <el-table-column width="80px" :label="$t('table.importance')">
-        <template slot-scope="scope">
-          <svg-icon v-for="n in +scope.row.importance" icon-class="star" class="meta-item__icon" :key="n"></svg-icon>
+          <span>{{scope.row.packageVersion}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.readings')" width="95">
+      <el-table-column align="center" min-width="100px" :label="$t('table.componentsName')">
         <template slot-scope="scope">
-          <span v-if="scope.row.pageviews" class="link-type" @click='handleFetchPv(scope.row.pageviews)'>{{scope.row.pageviews}}</span>
-          <span v-else>0</span>
+          <span>{{scope.row.componentsName}}</span>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" :label="$t('table.status')" width="100">
+      <el-table-column min-width="180px" align="center" :label="$t('table.packageDescription')">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{scope.row.status}}</el-tag>
+          <span>{{scope.row.packageDescription}}</span>
         </template>
-      </el-table-column>-->
+      </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-       <!--   <el-button v-if="scope.row.status!='published'" size="mini" type="success" @click="handleModifyStatus(scope.row,'published')">{{$t('table.publish')}}
-          </el-button>
-          <el-button v-if="scope.row.status!='draft'" size="mini" @click="handleModifyStatus(scope.row,'draft')">{{$t('table.draft')}}
-          </el-button>-->
-          <!--<el-button v-if="scope.row.status!='deleted'" size="mini" type="danger" @click="handleModifyStatus(scope.row,'deleted')">{{$t('table.delete')}}
-          </el-button>-->
           <el-button size="mini" type="danger" @click="deleteuser($event)">{{$t('table.delete')}}
           </el-button>
-          <!--<input type="button" class="btn-flat danger" value="删除" @click="deleteuser($event)"/>-->
         </template>
       </el-table-column>
     </el-table>
@@ -88,38 +43,54 @@
     </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <!--<el-form-item :label="$t('table.type')" prop="type">
-          <el-select class="filter-item" v-model="temp.type" placeholder="Please select">
-            <el-option v-for="item in  calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key">
-            </el-option>
-          </el-select>
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 80%; margin-left:50px;'>
+        <el-form-item :label="$t('table.name')">
+          <el-input v-model="temp.softPackageName"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('table.date')" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date">
-          </el-date-picker>
+        <el-form-item :label="$t('table.packageVersion')">
+          <el-input v-model="temp.packageVersion"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('table.title')" prop="title">
-          <el-input v-model="temp.title"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('table.status')">
-          <el-select class="filter-item" v-model="temp.status" placeholder="Please select">
-            <el-option v-for="item in  statusOptions" :key="item" :label="item" :value="item">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('table.importance')">
-          <el-rate style="margin-top:8px;" v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max='3'></el-rate>
-        </el-form-item>
-        <el-form-item :label="$t('table.remark')">
-          <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="Please input" v-model="temp.remark">
+        <el-form-item :label="$t('table.packageDescription')">
+          <el-input :autosize="{ minRows: 1, maxRows: 1}" placeholder="Please input" v-model="temp.packageDescription">
           </el-input>
-        </el-form-item>-->
-        <el-form-item :label="$t('table.username')" prop="username">
-          <el-input v-model="temp.username"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('table.password')" prop="password">
-          <el-input v-model="temp.password" type="password"></el-input>
+        <el-form-item :label="$t('table.chooseComponents')">
+          <el-table
+            :key='tableKey' :data="list"
+            id="packageTable"
+            ref="multipleTable"
+            tooltip-effect="dark"
+            border
+            height="200"
+            max-height="200"
+            @selection-change="handleSelectionChange">
+            <el-table-column
+              type="selection"
+              width="30">
+            </el-table-column>
+            <el-table-column
+              prop="componentsName"
+              label="组件名称"
+              width="100">
+            </el-table-column>
+            <el-table-column
+              prop="fileSize"
+              label="大小(MB)"
+              width="90">
+            </el-table-column>
+            <el-table-column
+              prop="address"
+              label="相对路径"
+              min-width="100"
+              show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column
+              prop="packageDescription"
+              label="描述"
+              width="120"
+              show-overflow-tooltip>
+            </el-table-column>
+          </el-table>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -161,7 +132,7 @@
   }, {})
 
   export default {
-    name: 'usermanage',
+    name: 'complexTable',
     directives: {
       waves
     },
@@ -177,8 +148,7 @@
           importance: undefined,
           title: undefined,
           type: undefined,
-          sort: '+id',
-          username: undefined
+          sort: '+id'
         },
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
@@ -227,6 +197,9 @@
       this.getList()
     },
     methods: {
+      handleSelectionChange(val) {
+        this.multipleSelection = val
+      },
       deleteuser(event) {
         const target_btn = event.target
         this.$confirm('确认删除吗？', '提示', {

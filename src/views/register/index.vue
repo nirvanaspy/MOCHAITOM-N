@@ -25,13 +25,13 @@
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
-        <el-input name="password" :type="passwordType" @keyup.enter.native="handleLogin" v-model="loginForm.password" autoComplete="on" placeholder="再次输入密码" />
+        <el-input name="password" :type="passwordType" @keyup.enter.native="handleLogin" v-model="loginForm.againPassword" autoComplete="on" placeholder="再次输入密码" />
         <span class="show-pwd" @click="showPwd">
           <svg-icon icon-class="eye" />
         </span>
       </el-form-item>
 
-      <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="handleLogin">注册</el-button>
+      <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="addUser">注册</el-button>
       <div class="register-container">
         <span class="register-tips">已有账号？</span>
         <span class="register-btn" @click="jumpToLogin">登录</span>
@@ -87,11 +87,13 @@
       return {
         loginForm: {
           username: '',
-          password: ''
+          password: '',
+          againPassword: ''
         },
         loginRules: {
           username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-          password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+          password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+          againPassword: [{ required: true, trigger: 'blur', validator: validatePassword }]
         },
         passwordType: 'password',
         loading: false,
@@ -125,23 +127,63 @@
           }
         })
       },
-      afterQRScan() {
-        // const hash = window.location.hash.slice(1)
-        // const hashObj = getQueryObject(hash)
-        // const originUrl = window.location.origin
-        // history.replaceState({}, '', originUrl)
-        // const codeMap = {
-        //   wechat: 'code',
-        //   tencent: 'code'
-        // }
-        // const codeName = hashObj[codeMap[this.auth_type]]
-        // if (!codeName) {
-        //   alert('第三方登录失败')
-        // } else {
-        //   this.$store.dispatch('LoginByThirdparty', codeName).then(() => {
-        //     this.$router.push({ path: '/' })
-        //   })
-        // }
+      addUser: function () {
+        var qs = require('qs');
+        var reg1 = /^[a-zA-Z]{6,}$/;
+        var reg2 = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+
+        /*let username = $("input[name='add-name']").val();
+        let password = $("input[name='add-password']").val();
+        let password2 = $("input[name='again-password']").val();*/
+        let username = this.loginForm.username;
+        let password = this.loginForm.password;
+        let password2 = this.loginForm.againPassword;
+
+        if (username == "") {
+       /*   layer.msg("请输入用户名！");
+        } else if (password == "") {
+          layer.msg("请输入密码！");
+        } else if (password2 == "") {
+          layer.msg("请再次输入密码！");
+        } else if (password !== password2) {
+          layer.msg("两次输入密码不一致！");
+        } else if (!reg1.test(username)) {
+          layer.msg("用户名必须是英文字母，至少6位")
+        } else if (!reg2.test(password)) {
+          layer.msg('密码必须是大小写英文字母和数字混合，至少6位！')*/
+          return
+        }
+        else {
+          this.$axios.post(this.getIP() + 'users', qs.stringify({
+            /*"username": $("input[name='add-name']").val(),
+            "password": $("input[name='add-password']").val()*/
+            "username": username,
+            "password": password
+          }), {
+
+            params: {  //get请求在第二个位置，post在第三个位置
+              isAdmin: false
+            },
+
+            //设置头
+            headers: {
+              'content-type': 'application/x-www-form-urlencoded'
+            },
+            auth: {
+              username: 'admin',
+              password: 'admin'
+            }
+          }).then(res => {
+            //this.users = res.data.data
+            //console.log(res);
+            this.$router.replace({path: '/login'})
+          }).catch(err => {
+            //alert("请重新输入用户名！");
+            layer.msg("添加失败！");
+          })
+
+        }
+        ;
       }
     },
     created() {

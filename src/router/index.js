@@ -102,7 +102,7 @@ export const asyncRouterMap = [
       icon: 'component'
     },
     children: [
-      { path: 'tinymce', component: _import('components-demo/tinymce'), name: 'tinymce-demo', meta: { title: 'tinymce' }},
+      /* { path: 'tinymce', component: _import('components-demo/tinymce'), name: 'tinymce-demo', meta: { title: 'tinymce' }},*/
       { path: 'markdown', component: _import('components-demo/markdown'), name: 'markdown-demo', meta: { title: 'markdown' }},
       { path: 'json-editor', component: _import('components-demo/jsonEditor'), name: 'jsonEditor-demo', meta: { title: 'jsonEditor' }},
       { path: 'dnd-list', component: _import('components-demo/dndList'), name: 'dndList-demo', meta: { title: 'dndList' }},
@@ -259,19 +259,19 @@ export const asyncRouterMap = [
     children: [{ path: 'device', component: _import('device/device'), name: 'device', meta: { title: 'device', icon: 'computer' }}]
   },
   {
-    path: '/project',
+    path: '/scan',
     component: Layout,
-    children: [{ path: 'project', component: _import('project/project'), name: 'project', meta: { title: 'project', icon: 'excel' }}]
+    children: [{ path: 'index', component: _import('scan/index'), name: 'scan', meta: { title: 'scan', icon: 'scan2' }}]
   },
   {
-    path: '/deploy',
+    path: '/log',
     component: Layout,
-    children: [{ path: 'deploy', component: _import('deploy/deploy'), name: 'deploy', meta: { title: 'deploy', icon: 'excel' }}]
+    children: [{ path: 'index', component: _import('log/index'), name: 'log', meta: { title: 'log', icon: 'log' }}]
   },
   {
-    path: '/baseline',
+    path: '/softPackage',
     component: Layout,
-    children: [{ path: 'baseline', component: _import('baseline/baseline'), name: 'baseline', meta: { title: 'baseline', icon: 'example' }}]
+    children: [{ path: 'index', component: _import('softPackage/index'), name: 'softPackage', meta: { title: 'softPackage', icon: 'package' }}]
   },
   {
     path: '/deployPlan',
@@ -298,5 +298,20 @@ export const asyncRouterMap = [
       roles: ['admin'] // or you can only set roles in sub nav
     },
     children: [{ path: 'index', component: _import('usermanage/index'), name: 'usermanage', meta: { title: 'usermanage', icon: 'peoples' }}]
+  },
+  {
+    path: '/project',
+    component: Layout,
+    children: [{ path: 'project', component: _import('project/project'), name: 'project', meta: { title: 'project', icon: 'excel' }}]
+  },
+  {
+    path: '/deploy',
+    component: Layout,
+    children: [{ path: 'deploy', component: _import('deploy/deploy'), name: 'deploy', meta: { title: 'deploy', icon: 'excel' }}]
+  },
+  {
+    path: '/baseline',
+    component: Layout,
+    children: [{ path: 'baseline', component: _import('baseline/baseline'), name: 'baseline', meta: { title: 'baseline', icon: 'example' }}]
   }
 ]

@@ -56,7 +56,9 @@ export default {
     password: '密码',
     newpassword: '新密码',
     register: '注册',
-    scan: '扫描',
+    scan: '在线监控',
+    log: '日志',
+    softPackage: '软件包',
     project: '项目管理',
     baseline: '基线',
     deployPlan: '部署设计',
@@ -68,7 +70,8 @@ export default {
     dashboard: '首页',
     github: '项目地址',
     screenfull: '全屏',
-    theme: '换肤'
+    theme: '换肤',
+    editPassword: '修改密码'
   },
   login: {
     title: '系统登录',
@@ -129,6 +132,16 @@ export default {
     deviceTitle: '设备名',
     username: '用户名',
     password: '密码',
+    componentsName: '组件名称',
+    startTime: '开始时间',
+    endTime: '结束时间',
+    fileSize: '文件大小',
+    deployStatus: '部署状态',
+    softPackageName: '软件包',
+    packageVersion: '版本',
+    packageDescription: '描述',
+    name: '名称',
+    chooseComponents: '选择组件',
     newpassword: '新密码',
     projectName: '项目名',
     projectDesc: '描述',
@@ -147,7 +160,12 @@ export default {
     deployPlanName: '名称',
     deployPlanDesc: '描述',
     deployBindDetail: '绑定详情',
-    bindAction: '选择组件'
+    bindAction: '选择组件',
+    fileName: '文件名',
+    path: '路径',
+    fileType: '文件类型',
+    editDate: '修改日期',
+    versionStatus: '版本状态'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
