@@ -274,6 +274,11 @@ export const asyncRouterMap = [
     children: [{ path: 'baseline', component: _import('baseline/baseline'), name: 'baseline', meta: { title: 'baseline', icon: 'example' }}]
   },
   {
+    path: '/deployPlan',
+    component: Layout,
+    children: [{ path: 'deployPlan', component: _import('deployPlan/deployPlan'), name: 'deployPlan', meta: { title: 'deployPlan', icon: 'example' }}]
+  },
+  {
     path: '/usermanage',
     component: Layout,
     meta: {
