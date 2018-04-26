@@ -80,3 +80,11 @@
     display: block
   }
 }
+ #packageTable {
+   thead{
+     th{
+       padding-top:0;
+       padding-bottom:0;
+     }
+   }
+ }

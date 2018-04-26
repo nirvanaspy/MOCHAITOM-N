@@ -61,16 +61,36 @@
               {{$t('navbar.dashboard')}}
             </el-dropdown-item>
           </router-link>
-          <!-- <a target='_blank' href="https://github.com/PanJiaChen/vue-element-admin/">
-             <el-dropdown-item>
-               {{$t('navbar.github')}}
-             </el-dropdown-item>
-           </a>-->
+         <!-- <a target='_blank' href="https://github.com/PanJiaChen/vue-element-admin/">
+            <el-dropdown-item>
+              {{$t('navbar.github')}}
+            </el-dropdown-item>
+          </a>-->
           <el-dropdown-item divided>
             <span @click="logout" style="display:block;">{{$t('navbar.logOut')}}</span>
           </el-dropdown-item>
+          <el-dropdown-item divided v-if="roles.indexOf('admin') < 0">
+            <span @click="dialogFormVisible = true" style="display:block;">{{$t('navbar.editPassword')}}</span>
+          </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+      <el-dialog title="修改密码" :visible.sync="dialogFormVisible">
+        <el-form :model="form" style="width: 400px; margin-left:50px;">
+          <el-form-item label="原密码" :label-width="formLabelWidth">
+            <el-input type="password" v-model="form.passwordOld" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="新密码" :label-width="formLabelWidth">
+            <el-input type="password" v-model="form.passwordNew" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="再次输入密码" :label-width="formLabelWidth">
+            <el-input type="password" v-model="form.passwordNew" auto-complete="off"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
   </el-menu>
 </template>
@@ -107,14 +127,21 @@
           value: 'JavaScript',
           label: 'JavaScript'
         }],
-        value10: []
+        value10: [],
+        dialogFormVisible: false,
+        form: {
+          passwordOld: '',
+          passwordNew: ''
+        },
+        formLabelWidth: '100px'
       }
     },
     computed: {
       ...mapGetters([
         'sidebar',
         'name',
-        'avatar'
+        'avatar',
+        'roles'
       ])
     },
     methods: {

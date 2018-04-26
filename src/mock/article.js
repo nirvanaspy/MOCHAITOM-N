@@ -36,7 +36,15 @@ for (let i = 0; i < count; i++) {
     baselineName: /^[a-zA-Z0-9]{6,12}$/,
     baselineDesc: '@title(5, 10)',
     deployPlanName: /^[a-zA-Z0-9]{6,12}$/,
-    deployPlanDesc: '@title(5, 10)'
+    deployPlanDesc: '@title(5, 10)',
+    componentsName: Mock.Random.string('lower', 7, 9),
+    startTime: +Mock.Random.date('T'),
+    endTime: +Mock.Random.date('T'),
+    fileSize: '@integer(20, 4000)' + 'M',
+    'deployStatus|1': ['部署中', '成功', '失败'],
+    softPackageName: Mock.Random.string('upper', 5, 7),
+    packageVersion: Mock.Random.float(1, 2, 1, 2),
+    packageDescription: Mock.Random.cparagraph(1, 1)
   }))
 }
 
@@ -51,13 +59,17 @@ for (let i = 0; i < count; i++) {
 
 export default {
   getList: config => {
-    const { importance, type, title, page = 1, limit = 20, sort, username, projectName, deviceName, compName, baselineName, deployPlanName } = param2Obj(config.url)
+    const { importance, type, title, page = 1, limit = 20, sort, username, projectName, deviceName, compName, baselineName, deployPlanName, deviceIP, componentsName, deployStatus, softPackageName  } = param2Obj(config.url)
 
     let mockList = List.filter(item => {
       if (importance && item.importance !== +importance) return false
       if (type && item.type !== type) return false
       if (title && item.title.indexOf(title) < 0) return false
       if (username && item.username.indexOf(username) < 0) return false
+      if (deviceIP && item.deviceIP.indexOf(deviceIP) < 0) return false
+      if (componentsName && item.componentsName.indexOf(componentsName) < 0) return false
+      if (deployStatus && item.deployStatus.indexOf(deployStatus) < 0) return false
+      if (softPackageName && item.componentsName.indexOf(softPackageName) < 0) return false
       if (projectName && item.projectName.indexOf(projectName) < 0) return false
       if (deviceName && item.deviceName.indexOf(deviceName) < 0) return false
       if (compName && item.compName.indexOf(compName) < 0) return false
