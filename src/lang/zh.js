@@ -58,7 +58,10 @@ export default {
     register: '注册',
     scan: '扫描',
     project: '项目管理',
-    baseline: '基线'
+    baseline: '基线',
+    deployPlan: '部署设计',
+    deployPlanDetail: '绑定详情,',
+    deployBind: '绑定'
   },
   navbar: {
     logOut: '退出登录',
@@ -140,7 +143,11 @@ export default {
     deployFileName: '文件名',
     deployState: '状态',
     baselineName: '名称',
-    baselineDesc: '描述'
+    baselineDesc: '描述',
+    deployPlanName: '名称',
+    deployPlanDesc: '描述',
+    deployBindDetail: '绑定详情',
+    bindAction: '选择组件'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',
