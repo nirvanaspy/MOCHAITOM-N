@@ -36,6 +36,7 @@
     "vue-count-to": "1.0.13",
     "vue-i18n": "7.3.2",
     "vue-multiselect": "2.0.8",
+    "vue-popper": "^0.3.8",
     "vue-router": "3.0.1",
     "vue-simple-uploader": "^0.4.2",
     "vue-splitpane": "1.0.2",
