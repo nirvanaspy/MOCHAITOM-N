@@ -287,6 +287,7 @@ export const asyncRouterMap = [
   {
     path: '/deployBind',
     component: Layout,
+    hidden: true,
     children: [{ path: 'deployBind', component: _import('deployBind/deployBind'), name: 'deployBind', meta: { title: 'deployBind', icon: 'example' }}]
   },
   {

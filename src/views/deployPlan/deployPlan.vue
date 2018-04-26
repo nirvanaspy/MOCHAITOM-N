@@ -28,7 +28,8 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="300" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button size="mini" type="success">设计</el-button>
+          <router-link class="pan-btn green-btn" to="/deployBind/deployBind">设计</router-link>
+          <!--<el-button size="mini" type="success">设计</el-button>-->
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button size="mini" type="danger" @click="deleteDeployPlan($event)">{{$t('table.delete')}}</el-button>
           <el-button size="mini" type="info">基线</el-button>
