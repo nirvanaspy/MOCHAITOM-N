@@ -59,7 +59,8 @@ export default {
     scan: '扫描',
     project: '项目管理',
     baseline: '基线',
-    deployPlan: '部署设计'
+    deployPlan: '部署设计',
+    deployPlanDetail: '绑定详情'
   },
   navbar: {
     logOut: '退出登录',
