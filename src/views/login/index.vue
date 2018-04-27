@@ -95,8 +95,8 @@ export default {
       loginForm: {
         username: 'admin',
         password: 'admin',
-        ipConfig: '192.168.0.107',
-        port: 9090
+        ipConfig: '192.168.0.102',
+        port: 8080
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -204,7 +204,7 @@ export default {
           console.log('success')
           /*commit('SET_TOKEN', role)*/
           /*this.$store.commit('SET_TOKEN','Admin-Token')*/
-          this.setToken('Admin-Token')
+         /* this.setToken('Admin-Token')*/
 
           console.log(res.data)
           /*this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {

@@ -5,7 +5,7 @@
     <breadcrumb class="breadcrumb-container"></breadcrumb>
 
     <div class="right-menu">
-      <error-log class="errLog-container right-menu-item"></error-log>
+      <!--<error-log class="errLog-container right-menu-item"></error-log>-->
 
       <el-tooltip effect="dark" :content="$t('navbar.screenfull')" placement="bottom">
         <screenfull class="screenfull right-menu-item"></screenfull>
@@ -69,9 +69,9 @@
           <el-dropdown-item divided>
             <span @click="logout" style="display:block;">{{$t('navbar.logOut')}}</span>
           </el-dropdown-item>
-          <el-dropdown-item divided v-if="roles.indexOf('admin') < 0">
+          <!--<el-dropdown-item divided v-if="roles.indexOf('admin') < 0">
             <span @click="dialogFormVisible = true" style="display:block;">{{$t('navbar.editPassword')}}</span>
-          </el-dropdown-item>
+          </el-dropdown-item>-->
         </el-dropdown-menu>
       </el-dropdown>
       <el-dialog title="修改密码" :visible.sync="dialogFormVisible">
