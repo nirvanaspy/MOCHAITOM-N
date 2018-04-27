@@ -37,7 +37,7 @@
         </span>
       </el-form-item>
 
-      <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="handleLogin">{{$t('login.logIn')}}</el-button>
+      <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="login">{{$t('login.logIn')}}</el-button>
       <div class="register-container">
         <span class="register-tips">没有账号？</span>
         <span class="register-btn" @click="jumpToRegister">注册</span>
@@ -70,6 +70,7 @@
 <script>
 import { isvalidUsername } from '@/utils/validate'
 import LangSelect from '@/components/LangSelect'
+import {mapMutations} from 'vuex'
 /*import SocialSign from './socialsignin'*/
 
 export default {
@@ -93,9 +94,9 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: '111111',
-        ipConfig: '192.168.0.107',
-        port: 9090
+        password: 'admin',
+        ipConfig: '192.168.0.102',
+        port: 8080
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -200,9 +201,16 @@ export default {
         }
       )
         .then(res => {
-          this.setCookie('Admin-Token',"admin",expireDays)
           console.log('success')
-          this.$router.replace('/')
+          /*commit('SET_TOKEN', role)*/
+          /*this.$store.commit('SET_TOKEN','Admin-Token')*/
+         /* this.setToken('Admin-Token')*/
+
+          console.log(res.data)
+          /*this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
+            this.$router.replace('/')
+          })*/
+          let userData = res.data
           console.log(2)
           //将用户名、密码的值存入cookie中
           this.setCookie('username', username, expireDays);
@@ -210,8 +218,25 @@ export default {
           this.setCookie('userId', res.data.data.id, expireDays);
           this.setCookie('ip', ip, expireDays);
           this.setCookie('port', port, expireDays);
+          this.setCookie('Admin-Token','admin', expireDays);
+          let userInfo1 = {
+            username: userData.username,
+            password: 'admin',
+            /*password: userData.data.password,
+            ip: userData.ip,
+            port: userData.port,*/
+            userId: userData.data.id
+          }
+          console.log(userInfo1)
+        /*  this.$store.dispatch('LoginByUsername', userInfo1).then(() => {
+            this.loading = false
+            this.$router.push({ path: '/' })
+          }).catch(() => {
+            console.log('loginByUserNameError')
+            this.loading = false
+          })*/
 
-
+          this.$router.replace('/')
         })
         .catch(function (error) {
           //console.log(res.data.data);
@@ -223,10 +248,13 @@ export default {
             error.response.data.length = 0;
           }
           //console.log(error.response.data);
-
-
         });
-    }
+    },
+    ...mapMutations({
+      setToken: 'SET_TOKEN',
+      setRoles: 'SET_ROLES',
+      setName: 'SET_NAME',
+    })
   },
   created() {
     // window.addEventListener('hashchange', this.afterQRScan)
