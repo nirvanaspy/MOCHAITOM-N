@@ -22,3 +22,15 @@ export function createProject(data) {
     data
   })
 }
+
+export function updateProject(data, id) {
+  return request({
+    url: '/projects/' + id,
+    method: 'patch',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    },
+    data
+  })
+}

@@ -64,9 +64,9 @@
 </template>
 
 <script>
-  import { fetchPv, updateArticle } from '@/api/article'
+  import { fetchPv } from '@/api/article'
   import waves from '@/directive/waves' // 水波纹指令
-  import { projectList, createProject } from '@/api/project'
+  import { projectList, createProject, updateProject } from '@/api/project'
   /* eslint-disable */
   export default {
     name: 'project',
@@ -75,6 +75,7 @@
     },
     data() {
       return {
+        selectedId: '',
         tableKey: 0,
         list: null,
         total: null,
@@ -93,7 +94,7 @@
         statusOptions: ['published', 'draft', 'deleted'],
         showReviewer: false,
         temp: {
-          id: undefined,
+          id: '',
           name: '',
           description: ''
         },
@@ -157,7 +158,7 @@
       },
       resetTemp() {
         this.temp = {
-          id: undefined,
+          id: '',
           name: '',
           description: ''
         }
@@ -193,6 +194,8 @@
         })
       },
       handleUpdate(row) {
+        this.selectedId = row.id;
+        console.log(this.selectedId);
         this.temp = Object.assign({}, row) // copy obj
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
@@ -201,11 +204,20 @@
         })
       },
       updateData() {
+        let qs = require('qs');
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            let data = {
+              'name': this.temp.name,
+              'description': this.temp.description
+            };
+
             const tempData = Object.assign({}, this.temp)
-            tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-            updateArticle(tempData).then(() => {
+            /*const id = tempData.id*/
+            const id = this.selectedId;
+            console.log(id);
+            let proData = qs.stringify(data);
+            updateProject(proData, id).then(() => {
               for (const v of this.list) {
                 if (v.id === this.temp.id) {
                   const index = this.list.indexOf(v)
