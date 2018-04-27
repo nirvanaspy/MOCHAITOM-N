@@ -19,27 +19,27 @@
 
       <el-table-column align="center" :label="$t('table.compName')" width="100">
         <template slot-scope="scope">
-          <span>{{scope.row.compName}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.compVersion')">
         <template slot-scope="scope">
-          <span>{{scope.row.compVersion}}</span>
+          <span>{{scope.row.version}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.compSize')">
         <template slot-scope="scope">
-          <span>{{scope.row.compSize}}M</span>
+          <span>{{scope.row.displaySize}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.compPath')">
         <template slot-scope="scope">
-          <span>{{scope.row.compPath}}</span>
+          <span>{{scope.row.deployPath}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.compDesc')">
         <template slot-scope="scope">
-          <span>{{scope.row.compDesc}}</span>
+          <span>{{scope.row.description}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
@@ -157,7 +157,8 @@
 </template>
 
 <script>
-  import { fetchList, createArticle, updateArticle } from '@/api/article'
+  import { createArticle, updateArticle } from '@/api/article'
+  import { compList } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
 
@@ -231,15 +232,17 @@
     methods: {
       getList() {
         this.listLoading = true
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
+        compList(this.listQuery).then(response => {
+          this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
-          this.oldList = this.list.map(v => v.id);
+          /*this.oldList = this.list.map(v => v.id);
           this.newList = this.oldList.slice();
           this.$nextTick(() => {
             this.setSort()
-          })
+          })*/
+
+          console.log(this.list);
         })
       },
       handleFilter() {
@@ -351,7 +354,7 @@
           });
         })
       },
-      setSort() {
+      /*setSort() {
         const el = document.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
         this.sortable = Sortable.create(el, {
           ghostClass: 'sortable-ghost', // Class name for the drop placeholder,
@@ -369,7 +372,7 @@
             this.newList.splice(evt.newIndex, 0, tempIndex)
           }
         })
-      },
+      },*/
       deleteDevice(event) {
         console.log(event.target.tagName)
         const target_btn = event.target
