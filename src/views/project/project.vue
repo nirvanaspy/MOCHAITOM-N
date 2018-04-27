@@ -212,8 +212,6 @@
               'description': this.temp.description
             };
 
-            const tempData = Object.assign({}, this.temp)
-            /*const id = tempData.id*/
             const id = this.selectedId;
             console.log(id);
             let proData = qs.stringify(data);
