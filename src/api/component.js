@@ -13,3 +13,19 @@ export function compList() {
     }
   })
 }
+
+export function createComp(data) {
+  return request({
+    url: '/components',
+    method: 'post',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    },
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
+    data
+  })
+}
+

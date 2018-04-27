@@ -67,19 +67,19 @@
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px"
                style='height: 400px;overflow-y: auto;padding-right: 10%;padding-left: 10%;'>
         <el-form-item :label="$t('table.compName')" prop="name">
-          <el-input v-model="temp.compName"></el-input>
+          <el-input v-model="temp.name"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.compVersion')" prop="version">
-          <el-input v-model="temp.compVersion"></el-input>
+          <el-input v-model="temp.version"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.compPath')" prop="path">
-          <el-input v-model="temp.compPath"></el-input>
+          <el-input v-model="temp.deployPath"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.compDesc')" prop="desc">
-          <el-input v-model="temp.compDesc"></el-input>
+          <el-input v-model="temp.description"></el-input>
         </el-form-item>
 
-        <el-form-item :label="$t('table.compUpload')" prop="desc">
+        <el-form-item :label="$t('table.compUpload')" prop="files">
           <uploader :options="options"
                     :autoStart="autoStart"
                     :file-status-text="statusText"
@@ -157,10 +157,9 @@
 </template>
 
 <script>
-  import { createArticle, updateArticle } from '@/api/article'
-  import { compList } from '@/api/component'
+  import { updateArticle } from '@/api/article'
+  import { compList, createComp } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
-  import Sortable from 'sortablejs'
 
   /* eslint-disable */
   export default {
@@ -187,10 +186,12 @@
         oldList: [],
         newList: [],
         temp: {
-          id: undefined,
-          deviceName: undefined,
-          deviceIP: undefined,
-          devicePath: undefined
+          id: '',
+          name: '',
+          version: '',
+          deployPath: '',
+          description: '',
+          files: ''
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -223,7 +224,9 @@
           waiting: '等待中'
         },
         started: false,
-        autoStart: ''
+        autoStart: '',
+
+        fileAll: []
       }
     },
     created() {
@@ -266,13 +269,12 @@
       },
       resetTemp() {
         this.temp = {
-          id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          deviceState: '在线',
-          type: ''
+          id: '',
+          name: '',
+          version: '',
+          deployPath: '',
+          description: '',
+          files: ''
         }
       },
       handleCreate() {
@@ -310,8 +312,29 @@
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-            createArticle(this.temp).then(() => {
+            let formData = new FormData();
+
+            this.fileAll = this.$refs.uploader.uploader.files;
+
+            formData.append('name', this.temp.name);
+            formData.append('version', this.temp.version);
+            formData.append('deployPath', this.temp.deployPath);
+            //formData.append('size', this.size);
+            formData.append('description', this.temp.description);
+
+            //开始上传后去掉暂停和删除按钮
+            $(".uploader-file-actions").children(".uploader-file-pause").removeClass("uploader-file-pause");
+            $(".uploader-file-actions").children(".uploader-file-remove").removeClass("uploader-file-remove");
+
+            formData.append('enctype', "multipart/form-data");
+
+            for (var i = 0; i < this.fileAll.length; i++) {
+              //判断数组里是文件夹还是文件
+              formData.append('componentfiles', this.fileAll[i].file);
+
+            }
+
+            createComp(formData).then(() => {
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.$notify({
@@ -320,6 +343,8 @@
                 type: 'success',
                 duration: 2000
               })
+
+              this.getList()
             })
           }
         })
