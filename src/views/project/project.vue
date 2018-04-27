@@ -12,12 +12,12 @@
               style="width: 100%">
       <el-table-column min-width="150px" :label="$t('table.projectName')">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.projectName}}</span>
+          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="150px" :label="$t('table.projectDesc')">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row.title }}</span>
+          <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row.description }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
@@ -64,8 +64,10 @@
 </template>
 
 <script>
-  import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+  import { fetchPv, createArticle, updateArticle } from '@/api/article'
   import waves from '@/directive/waves' // 水波纹指令
+  import { projectList } from '@/api/project'
+
   export default {
     name: 'project',
     directives: {
@@ -127,8 +129,8 @@
     methods: {
       getList() {
         this.listLoading = true
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
+        projectList(this.listQuery).then(response => {
+          this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
         })
