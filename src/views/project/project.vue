@@ -36,11 +36,11 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item :label="$t('table.projectName')" prop="projectName">
-          <el-input v-model="temp.projectName"></el-input>
+        <el-form-item :label="$t('table.projectName')" prop="name">
+          <el-input v-model="temp.name"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('table.projectDesc')" prop="title">
-          <el-input v-model="temp.title"></el-input>
+        <el-form-item :label="$t('table.projectDesc')" prop="description">
+          <el-input v-model="temp.description"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -64,10 +64,10 @@
 </template>
 
 <script>
-  import { fetchPv, createArticle, updateArticle } from '@/api/article'
+  import { fetchPv, updateArticle } from '@/api/article'
   import waves from '@/directive/waves' // 水波纹指令
-  import { projectList } from '@/api/project'
-
+  import { projectList, createProject } from '@/api/project'
+  /* eslint-disable */
   export default {
     name: 'project',
     directives: {
@@ -94,8 +94,8 @@
         showReviewer: false,
         temp: {
           id: undefined,
-          projectName: '',
-          title: ''
+          name: '',
+          description: ''
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -158,12 +158,8 @@
       resetTemp() {
         this.temp = {
           id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          status: 'published',
-          type: ''
+          name: '',
+          description: ''
         }
       },
       handleCreate() {
@@ -174,12 +170,16 @@
           this.$refs['dataForm'].clearValidate()
         })
       },
-      createData() {
+      createData() {        //创建项目
+        let qs = require('qs');
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-            this.temp.author = 'vue-element-admin'
-            createArticle(this.temp).then(() => {
+            let data = {
+              'name': this.temp.name,
+              'description': this.temp.description
+            };
+            let proData = qs.stringify(data);
+            createProject(proData).then(() => {
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.$notify({
@@ -194,7 +194,6 @@
       },
       handleUpdate(row) {
         this.temp = Object.assign({}, row) // copy obj
-        this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
         this.$nextTick(() => {

@@ -10,3 +10,15 @@ export function projectList() {
     }
   })
 }
+
+export function createProject(data) {
+  return request({
+    url: '/projects',
+    method: 'post',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    },
+    data
+  })
+}
