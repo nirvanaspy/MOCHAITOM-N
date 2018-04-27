@@ -109,16 +109,16 @@
                  style='width: 100%;'>
           <div style="height: 400px;overflow-y: auto;width: 60%;float: left;border-right: 1px solid lightgrey;padding-right: 30px;">
             <el-form-item :label="$t('table.compName')" prop="name">
-              <el-input v-model="temp.compName"></el-input>
+              <el-input v-model="temp.name"></el-input>
             </el-form-item>
             <el-form-item :label="$t('table.compVersion')" prop="version">
-              <el-input v-model="temp.compVersion"></el-input>
+              <el-input v-model="temp.version"></el-input>
             </el-form-item>
             <el-form-item :label="$t('table.compPath')" prop="path">
-              <el-input v-model="temp.compPath"></el-input>
+              <el-input v-model="temp.deployPath"></el-input>
             </el-form-item>
             <el-form-item :label="$t('table.compDesc')" prop="desc">
-              <el-input v-model="temp.compDesc"></el-input>
+              <el-input v-model="temp.description"></el-input>
             </el-form-item>
 
             <el-form-item :label="$t('table.compUpload')" prop="desc">
@@ -157,8 +157,7 @@
 </template>
 
 <script>
-  import { updateArticle } from '@/api/article'
-  import { compList, createComp } from '@/api/component'
+  import { compList, createComp, updateComp } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
 
   /* eslint-disable */
@@ -169,6 +168,7 @@
     },
     data() {
       return {
+        selectedId: '',
         tableKey: 0,
         list: null,
         total: null,
@@ -285,30 +285,6 @@
           this.$refs['dataForm'].clearValidate()
         })
       },
-      updateData() {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            const tempData = Object.assign({}, this.temp)
-            tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-            updateArticle(tempData).then(() => {
-              for (const v of this.list) {
-                if (v.id === this.temp.id) {
-                  const index = this.list.indexOf(v)
-                  this.list.splice(index, 1, this.temp)
-                  break
-                }
-              }
-              this.dialogFormVisible = false
-              this.$notify({
-                title: '成功',
-                message: '更新成功',
-                type: 'success',
-                duration: 2000
-              })
-            })
-          }
-        })
-      },
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
@@ -350,6 +326,7 @@
         })
       },
       handleUpdate(row) {
+        this.selectedId = row.id;
         this.temp = Object.assign({}, row) // copy obj
         this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
@@ -377,6 +354,52 @@
             zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
             console.log("aaaaaaa--");
           });
+        })
+      },
+      updateData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            const id = this.selectedId;
+
+            let formData = new FormData();
+
+            this.fileAll = this.$refs.uploader.uploader.files;
+
+            formData.append('name', this.temp.name);
+            formData.append('version', this.temp.version);
+            formData.append('deployPath', this.temp.deployPath);
+            //formData.append('size', this.size);
+            formData.append('description', this.temp.description);
+
+            //开始上传后去掉暂停和删除按钮
+            $(".uploader-file-actions").children(".uploader-file-pause").removeClass("uploader-file-pause");
+            $(".uploader-file-actions").children(".uploader-file-remove").removeClass("uploader-file-remove");
+
+            formData.append('enctype', "multipart/form-data");
+
+            for (var i = 0; i < this.fileAll.length; i++) {
+              //判断数组里是文件夹还是文件
+              formData.append('componentfiles', this.fileAll[i].file);
+
+            }
+
+            updateComp(formData,id).then(() => {
+              for (const v of this.list) {
+                if (v.id === this.temp.id) {
+                  const index = this.list.indexOf(v)
+                  this.list.splice(index, 1, this.temp)
+                  break
+                }
+              }
+              this.dialogFormVisible = false
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              })
+            })
+          }
         })
       },
       /*setSort() {

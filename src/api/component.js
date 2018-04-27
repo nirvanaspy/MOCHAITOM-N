@@ -29,3 +29,15 @@ export function createComp(data) {
   })
 }
 
+export function updateComp(data, id) {
+  return request({
+    url: '/components/' + id + '/update',
+    method: 'post',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    },
+    data
+  })
+}
+
