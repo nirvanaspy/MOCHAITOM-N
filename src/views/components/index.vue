@@ -46,6 +46,9 @@
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button size="mini" type="success" @click="compCopy(scope.row)">复制</el-button>
+          <a @click="exportLink(scope.row)">
+            <el-button size="mini" type="info">导出</el-button>
+          </a>
           <el-button size="mini" type="danger" @click="deleteDevice($event)">{{$t('table.delete')}}
           </el-button>
         </template>
@@ -468,6 +471,15 @@
             message: '已取消删除'
           })
         })
+      },
+
+      exportLink(row) {
+
+        let id = row.id;
+        this.exportUrl = this.getIP() + 'components/' + id + '/export';
+
+        console.log(this.exportUrl);
+        window.open(this.exportUrl);
       }
     }
   }
