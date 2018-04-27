@@ -41,3 +41,18 @@ export function updateComp(data, id) {
   })
 }
 
+export function copyComp(data, id) {
+  return request({
+    url: '/components/' + id + '/copy',
+    method: 'post',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    },
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    },
+    data
+  })
+}
+

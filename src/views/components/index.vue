@@ -45,8 +45,7 @@
       <el-table-column align="center" :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button size="mini" type="success">{{$t('table.publish')}}
-          </el-button>
+          <el-button size="mini" type="success" @click="compCopy(scope.row)">复制</el-button>
           <el-button size="mini" type="danger" @click="deleteDevice($event)">{{$t('table.delete')}}
           </el-button>
         </template>
@@ -157,7 +156,7 @@
 </template>
 
 <script>
-  import { compList, createComp, updateComp } from '@/api/component'
+  import { compList, createComp, updateComp, copyComp } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
 
   /* eslint-disable */
@@ -354,6 +353,29 @@
             zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
             console.log("aaaaaaa--");
           });
+        })
+      },
+      compCopy(row) {
+        let qs = require('qs');
+        let id = row.id;
+        this.temp = Object.assign({}, row) // copy obj
+
+        let data = {
+          'name': this.temp.name
+        };
+        let proData = qs.stringify(data);
+
+        copyComp(proData, id).then(() => {
+          this.list.unshift(this.temp)
+          this.dialogFormVisible = false
+          this.$notify({
+            title: '成功',
+            message: '复制成功',
+            type: 'success',
+            duration: 2000
+          })
+
+          this.getList()
         })
       },
       updateData() {
