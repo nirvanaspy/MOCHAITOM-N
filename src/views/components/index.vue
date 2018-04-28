@@ -136,7 +136,7 @@
               <el-input v-model="temp.description"></el-input>
             </el-form-item>
 
-            <el-form-item :label="$t('table.compUpload')" prop="desc">
+            <el-form-item :label="$t('table.compUpload')" prop="fileAll">
             <uploader :options="options"
                       :autoStart="autoStart"
                       :file-status-text="statusText"
@@ -172,7 +172,7 @@
 </template>
 
 <script>
-  import { compList, createComp, updateComp, copyComp, importComp, deleteComp } from '@/api/component'
+  import { compList, createComp, updateComp, copyComp, importComp, deleteComp, compSingle } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
 
   /* eslint-disable */
@@ -184,8 +184,11 @@
     data() {
       return {
         selectedId: '',
+        treeInfo: [],
+        fileList: [],
         tableKey: 0,
         list: null,
+        singleComp: null,
         total: null,
         listLoading: true,
         listQuery: {
@@ -206,7 +209,7 @@
           version: '',
           deployPath: '',
           description: '',
-          files: ''
+          fileAll: ''
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -241,11 +244,19 @@
         started: false,
         autoStart: '',
 
+        fileInfo: [],
+        folderInfo: [],
+        files: [],
+        folderClearData: [],        //文件夹需要清空的内容数组
+        fileClearData: [],          //文件需要清空的内容数组
+
         fileAll: []
       }
     },
     created() {
-      this.getList()
+      this.getList();
+
+      this.autoStart = false;      //取消自动上传
     },
     methods: {
       getList() {
@@ -289,11 +300,12 @@
           version: '',
           deployPath: '',
           description: '',
-          files: ''
+          fileAll: ''
         }
       },
       handleCreate() {
-        this.resetTemp()
+        this.resetTemp();
+
         this.dialogStatus = 'create'
         this.dialogFormVisible = true
         this.$nextTick(() => {
@@ -347,28 +359,114 @@
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
         this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
+          this.$refs['dataForm'].clearValidate();
 
-          let zTreeObj;
-          // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
-          let setting = {};
-          // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
-          let zNodes = [
-            {
-              name: "test1", open: true, children: [
-                {name: "test1_1"}, {name: "test1_2"}]
-            },
-            {
-              name: "test2", open: true, children: [
-                {name: "test2_1"}, {name: "test2_2"}]
-            }
-          ];
-          $(document).ready(function () {
-            console.log("hhhhhh--");
+          //树
+          compSingle(this.selectedId).then(response => {
+            this.singleComp = response.data.data;
+            this.listLoading = false
+
+            console.log("树信息-------------------");
+            console.log(this.singleComp);
+
+            //对比时，是路径节点与根节点下的孩子节点比较
+            let componentFile = this.singleComp.componentDetailEntities;//组件
+
+            let zNodes = [];
+            let item;
+            for (let m = 0; m < componentFile.length; m++) {
+
+              this.treeInfo.push(componentFile[m]);//放所有文件信息，用于树点击id的选择
+
+              item = this.singleComp;
+
+              let path = (componentFile[m].path).split('/');
+
+              for (let i = 1; i < path.length; i++) {
+                item = this.$options.methods.handleInfo(item, path[i]);
+              }
+            };
+
+            zNodes.push(this.singleComp);
+
             console.log(zNodes);
-            zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
-            console.log("aaaaaaa--");
+
+            let forderTemp = [];
+
+            for (let i = 0; i < this.singleComp.componentDetailEntities.length; i++) {
+              let info = this.singleComp.componentDetailEntities[i].path.split('/');
+              let clearId = this.singleComp.componentDetailEntities[i].id;
+
+              if (info.length > 2) {
+
+                if (forderTemp.length > 0) {
+                  let flag = true;
+
+                  for (let j = 0; j < forderTemp.length; j++) {
+                    if (forderTemp[j].name == info[1]) {
+                      flag = false;
+                    }
+                  }
+
+                  if (flag) {
+                    let info2 = {};
+                    info2.name = info[1];
+                    forderTemp.push(info2);
+                  }
+
+                } else {
+                  let info2 = {};
+                  info2.name = info[1];
+                  forderTemp.push(info2);
+                }
+
+
+                this.folderClearData.push(clearId);
+                console.log(this.folderClearData);
+              } else {
+                this.fileInfo.push(this.singleComp.componentDetailEntities[i]);
+                this.fileClearData.push(clearId);
+              }
+            }
+
+            console.log(forderTemp);
+
+            for (let i = 0; i < forderTemp.length; i++) {
+              this.folderInfo.push(forderTemp[i]);
+            }
+
+
+            let setting = {
+              view: {
+                dblClickExpand: false,
+                addHoverDom: this.addHoverDom,
+                removeHoverDom: this.removeHoverDom,
+                selectedMulti: this.true
+              },
+              edit: {
+                enable: true,
+                showRenameBtn: false,
+                showRemoveBtn: false
+              },
+              data: {
+                simpleData: {
+                  enable: true
+                }
+              },
+              callback: {
+                beforeDrag: this.beforeDrag,
+                beforeEditName: this.beforeEditName,
+                beforeRemove: this.beforeRemove,
+                beforeRename: this.beforeRename,
+                onRemove: this.onRemove,
+                onRename: this.onRename,
+                onClick: this.zTreeOnClick
+              }
+            };
+
+            $.fn.zTree.init($("#treeDemo"), setting, zNodes);
           });
+
         })
       },
       compCopy(row) {
@@ -514,7 +612,51 @@
           .catch(err => {
             console.log(err);
           })
-      }
+      },
+
+      handleInfo: function (item, path) {
+        if (item == null)
+          return;
+
+        if (item.hasOwnProperty("children")) {
+          let flag;
+          for (let i = 0; i < item.children.length; i++) {
+            flag = true;
+            if (item.children[i].name == path) {
+              item = item.children[i];
+              flag = false;
+              return item;
+            }
+          }
+
+          if (flag) {
+            item.children.push({"name": path});
+            item = item.children[item.children.length - 1];
+            return item;
+          }
+
+        } else {
+          item.children = [];
+          item.children.push({"name": path});
+          item = item.children[0];
+          return item;
+        }
+
+      },
+
+      zTreeOnClick: function (e, treeId, treeNode) {
+
+        let zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        let id;
+
+        for (let i = 0; i < treeInfo.length; i++) {
+          if (this.treeInfo[i].name == zTree.getSelectedNodes()[0].name) {
+            id = this.treeInfo[i].id;
+            break;
+          }
+        }
+
+      },
     }
   }
 </script>

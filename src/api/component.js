@@ -82,3 +82,16 @@ export function deleteComp(id) {
   })
 }
 
+export function compSingle(id) {
+  return request({
+    url: '/components/' + id,
+    method: 'get',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    },
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    },
+  })
+}
