@@ -37,7 +37,7 @@
         </span>
       </el-form-item>
 
-      <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="login">{{$t('login.logIn')}}</el-button>
+      <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="handleLogin">{{$t('login.logIn')}}</el-button>
       <div class="register-container">
         <span class="register-tips">没有账号？</span>
         <span class="register-btn" @click="jumpToRegister">注册</span>
@@ -85,7 +85,7 @@ export default {
       }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
+      if (value.length < 1) {
         callback(new Error('请输入正确的密码！'))
       } else {
         callback()
@@ -120,8 +120,18 @@ export default {
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
+        let username = this.loginForm.username;
+        let password = this.loginForm.password;
+        let ip = this.loginForm.ipConfig;
+        let port = this.loginForm.port;
+        let expireDays = 30;
         if (valid) {
           this.loading = true
+          this.setloginname(username)
+          this.setIP(ip)
+          this.setPort(port)
+          this.setCookie('username', username, expireDays);
+          this.setCookie('password', password, expireDays);
           this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({ path: '/' })
@@ -183,7 +193,6 @@ export default {
       } else {
         this.setCookie('ip', ip, expireDays);
       }
-
       if (port.length == 0) {
         /*layer.msg('请输入端口号！');*/
         return;
@@ -191,7 +200,10 @@ export default {
         this.setCookie('port', port, expireDays);
       }
 
-//alert(this.getIP());
+      this.setIP(ip)
+      this.setPort(port)
+      this.setloginname(username)
+      /*alert(this.getIP())*/
       this.$axios.get(this.getIP() + "users/login",
         {
           auth: {
@@ -213,6 +225,7 @@ export default {
           let userData = res.data
           console.log(2)
           //将用户名、密码的值存入cookie中
+          console.log(username)
           this.setCookie('username', username, expireDays);
           this.setCookie('password', password, expireDays);
           this.setCookie('userId', res.data.data.id, expireDays);
@@ -235,7 +248,6 @@ export default {
             console.log('loginByUserNameError')
             this.loading = false
           })*/
-
           this.$router.replace('/')
         })
         .catch(function (error) {
@@ -254,6 +266,9 @@ export default {
       setToken: 'SET_TOKEN',
       setRoles: 'SET_ROLES',
       setName: 'SET_NAME',
+      setIP: 'SET_IP',
+      setPort: 'SET_PORT',
+      setloginname: 'SET_LOGINNAME'
     })
   },
   created() {

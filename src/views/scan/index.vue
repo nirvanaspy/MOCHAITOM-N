@@ -251,7 +251,7 @@
           </el-col>
           <el-col class="pan-btn light-blue-btn" style="width:150px" @click="scanQuick1()"><svg-icon icon-class="lightning"></svg-icon>快速扫描
           </el-col>
-          <el-col class="pan-btn green-btn pull-right" style="width:130px"><svg-icon icon-class="upload"></svg-icon>上传
+          <el-col class="pan-btn green-btn" style="width:130px; float: right;margin-right: 0"><svg-icon icon-class="upload"></svg-icon>上传
           </el-col>
         </div>
         <!-- <div class="btn-group pull-right" style="margin-top: 20px;">

@@ -11,6 +11,9 @@ const user = {
     avatar: '',
     introduction: '',
     roles: [],
+    ipconfig: '',
+    port: '',
+    loginname: '',
     setting: {
       articlePlatform: []
     }
@@ -40,12 +43,22 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       state.roles = roles
+    },
+    SET_IP: (state, ipconfig) => {
+      state.ipconfig = ipconfig
+    },
+    SET_PORT: (state, port) => {
+      state.port = port
+    },
+    SET_LOGINNAME: (state, loginname) => {
+      state.loginname = loginname
     }
   },
 
   actions: {
     // 用户名登录
-    LoginByUsername({ commit }, userInfo) {
+    // 原始版本LoginByUsername
+    /*LoginByUsername({ commit }, userInfo) {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         loginByUsername(username, userInfo.password).then(response => {
@@ -57,15 +70,27 @@ const user = {
           reject(error)
         })
       })
+    },*/
+    LoginByUsername({ commit }, userInfo) {
+      const username = userInfo.username.trim()
+      return new Promise((resolve, reject) => {
+        loginByUsername(username, userInfo.password).then(response => {
+          const data = response.data
+          commit('SET_TOKEN', 'admin')
+          setToken('admin')
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
     },
-
-    // 获取用户信息
-    GetUserInfo({ commit, state }) {
+    // 获取用户信息 原始版本
+    /*GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(response => {
           if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
             reject('error')
-            /*console.log('getUserInfoError')*/
+            /!*console.log('getUserInfoError')*!/
           }
           const data = response.data
           commit('SET_ROLES', data.roles)
@@ -77,8 +102,29 @@ const user = {
           reject(error)
         })
       })
+    },*/
+    GetUserInfo({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        getUserInfo(state.token).then(response => {
+          console.log('getUserInfosuccess')
+          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
+            reject('error')
+            /*console.log('getUserInfoError')*/
+          }
+          const data = response.data
+          console.log(data)
+          const rolesset = data.username === 'admin' ? 'admin' : 'editor'
+          commit('SET_ROLES', rolesset)
+          commit('SET_NAME', data.username)
+          commit('SET_AVATAR', '')
+          commit('SET_INTRODUCTION', '')
+          resolve(response)
+        }).catch(error => {
+          console.log('getuserinfoerror')
+          reject(error)
+        })
+      })
     },
-
     // 第三方验证登录
     // LoginByThirdparty({ commit, state }, code) {
     //   return new Promise((resolve, reject) => {
@@ -109,8 +155,10 @@ const user = {
 
     // 前端 登出
     FedLogOut({ commit }) {
+      console.log('FedLogOutsuccess')
       return new Promise(resolve => {
         commit('SET_TOKEN', '')
+        commit('SET_ROLES', [])
         removeToken()
         resolve()
       })

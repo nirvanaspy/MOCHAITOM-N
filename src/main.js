@@ -56,6 +56,13 @@ function getCookie(name) {
   else
     return null;
 }
+export function getCookies(name) {
+  var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
+  if (arr = document.cookie.match(reg))
+    return (arr[2]);
+  else
+    return null;
+}
 Vue.prototype.getCookie = getCookie;
 //删除cookie
 Vue.prototype.delCookie =(name) => {
