@@ -20,11 +20,7 @@
                  :show-file-list="false"
                  multiple>
 
-        <el-button class="filter-item" type="primary" style="margin-left: 10px;" v-waves icon="el-icon-download" @click="uploadCom">导入</el-button>
-        <!--<el-button class="filter-item pull-right" style="margin-left: 10px;" @click="uploadCom" type="primary"-->
-                   <!--icon="icon-cloud-download">导入-->
-        <!--</el-button>-->
-
+        <el-button class="filter-item" type="primary" style="margin-left: 10px;" v-waves icon="el-icon-download">导入</el-button>
 
       </el-upload>
 
@@ -499,9 +495,12 @@
       uploadCom: function (file) {
         let formData = new FormData();
 
+        console.log("导入组件文件----------");
+        console.log(file);
+
         formData.append('importComponents', file.file);
 
-        importComp(formData,id).then(() => {
+        importComp(formData).then(() => {
           this.$notify({
             title: '成功',
             message: '导入成功',
