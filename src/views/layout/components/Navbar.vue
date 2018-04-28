@@ -93,7 +93,7 @@
   import Screenfull from '@/components/Screenfull'
   import LangSelect from '@/components/LangSelect'
   import ThemePicker from '@/components/ThemePicker'
-  import { projectList, createProject, updateProject, deleteProject } from '@/api/project'
+  import { projectList, createProject } from '@/api/project'
 
   /* eslint-disable */
   export default {
@@ -111,14 +111,19 @@
         list: null,
         total: null,
         listLoading: true,
-        proId: '',
+        proName: '',
         selected: '',
         dialogFormVisible: false,
         form: {
           passwordOld: '',
           passwordNew: ''
         },
-        formLabelWidth: '100px'
+        formLabelWidth: '100px',
+        temp: {
+          id: '',
+          name: '',
+          description: ''
+        },
       }
     },
     created() {
@@ -145,9 +150,42 @@
 
       //下拉框选择部署设计
       changePro: function () {
-        this.proId = this.selected;
+        this.proName = this.selected;
         //alert(this.proId);
 
+        //不存在则创建项目
+        let isReal = false;
+
+        for(let i=0;i<this.list.length;i++){
+          if(this.proName == this.list[i].name){
+            isReal = true;
+            break;
+          }
+        }
+        console.log("是否存在");
+        console.log(isReal);
+        if(!isReal){
+          alert("hhhhh");
+
+          let qs = require('qs');
+          let data = {
+            'name': this.proName,
+            'description': ''
+          };
+          let proData = qs.stringify(data);
+          createProject(proData).then(() => {
+            this.list.unshift(this.temp)
+            this.dialogFormVisible = false
+            this.$notify({
+              title: '成功',
+              message: '创建成功',
+              type: 'success',
+              duration: 2000
+            })
+            this.getList()
+          })
+
+        }
       },
 
       toggleSideBar() {
