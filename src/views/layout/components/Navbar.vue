@@ -26,28 +26,20 @@
         </div>
         <el-dropdown-menu slot="dropdown">
           <el-select
-            v-model="value10"
+            v-model="selected"
             filterable
+            remote
             allow-create
             default-first-option
-            placeholder="选择或创建项目">
+            placeholder="选择或创建项目"
+            @change="changePro">
             <el-option
-              v-for="item in options5"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              v-for="item in list"
+              :key="item.name"
+              :value="item.name">
             </el-option>
           </el-select>
         </el-dropdown-menu>
-        <!--<el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>
-            项目1
-          </el-dropdown-item>
-          <el-dropdown-item>
-            项目2
-          </el-dropdown-item>
-
-        </el-dropdown-menu>-->
       </el-dropdown>
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
@@ -61,17 +53,9 @@
               {{$t('navbar.dashboard')}}
             </el-dropdown-item>
           </router-link>
-         <!-- <a target='_blank' href="https://github.com/PanJiaChen/vue-element-admin/">
-            <el-dropdown-item>
-              {{$t('navbar.github')}}
-            </el-dropdown-item>
-          </a>-->
           <el-dropdown-item divided>
             <span @click="logout" style="display:block;">{{$t('navbar.logOut')}}</span>
           </el-dropdown-item>
-          <!--<el-dropdown-item divided v-if="roles.indexOf('admin') < 0">
-            <span @click="dialogFormVisible = true" style="display:block;">{{$t('navbar.editPassword')}}</span>
-          </el-dropdown-item>-->
         </el-dropdown-menu>
       </el-dropdown>
       <el-dialog title="修改密码" :visible.sync="dialogFormVisible">
@@ -104,7 +88,9 @@
   import Screenfull from '@/components/Screenfull'
   import LangSelect from '@/components/LangSelect'
   import ThemePicker from '@/components/ThemePicker'
+  import { projectList, createProject, updateProject, deleteProject } from '@/api/project'
 
+  /* eslint-disable */
   export default {
     components: {
       PanThumb,
@@ -117,17 +103,11 @@
     },
     data() {
       return {
-        options5: [{
-          value: 'HTML',
-          label: 'HTML'
-        }, {
-          value: 'CSS',
-          label: 'CSS'
-        }, {
-          value: 'JavaScript',
-          label: 'JavaScript'
-        }],
-        value10: [],
+        list: null,
+        total: null,
+        listLoading: true,
+        proId: '',
+        selected: '',
         dialogFormVisible: false,
         form: {
           passwordOld: '',
@@ -135,6 +115,9 @@
         },
         formLabelWidth: '100px'
       }
+    },
+    created() {
+      this.getList()
     },
     computed: {
       ...mapGetters([
@@ -145,6 +128,23 @@
       ])
     },
     methods: {
+      getList() {
+        this.listLoading = true
+        projectList(this.listQuery).then(response => {
+          this.list = response.data.data
+          this.list.value = '';
+          this.total = response.data.total
+          this.listLoading = false
+        })
+      },
+
+      //下拉框选择部署设计
+      changePro: function () {
+        this.proId = this.selected;
+        //alert(this.proId);
+
+      },
+
       toggleSideBar() {
         this.$store.dispatch('toggleSideBar')
       },
