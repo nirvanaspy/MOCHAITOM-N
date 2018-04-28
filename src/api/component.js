@@ -56,4 +56,29 @@ export function copyComp(data, id) {
   })
 }
 
+export function importComp(data) {
+  return request({
+    url: '/components/import',
+    method: 'post',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    },
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    },
+    data
+  })
+}
+
+export function deleteComp(id) {
+  return request({
+    url: '/components/' + id,
+    method: 'delete',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    }
+  })
+}
 

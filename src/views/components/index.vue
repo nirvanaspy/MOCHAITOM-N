@@ -5,12 +5,29 @@
                 :placeholder="$t('table.compName')" v-model="listQuery.compName">
       </el-input>
 
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">
-        {{$t('table.search')}}
-      </el-button>
       <el-button class="filter-item pull-right" style="margin-left: 10px;" @click="handleCreate" type="primary"
                  icon="el-icon-edit">{{$t('table.add')}}
       </el-button>
+
+      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">
+        {{$t('table.search')}}
+      </el-button>
+      <el-upload style="float: right;"
+                 class="upload-demo"
+                 action=""
+                 :file-list="fileList"
+                 :httpRequest="uploadCom"
+                 :show-file-list="false"
+                 multiple>
+
+        <el-button class="filter-item" type="primary" style="margin-left: 10px;" v-waves icon="el-icon-download" @click="uploadCom">导入</el-button>
+        <!--<el-button class="filter-item pull-right" style="margin-left: 10px;" @click="uploadCom" type="primary"-->
+                   <!--icon="icon-cloud-download">导入-->
+        <!--</el-button>-->
+
+
+      </el-upload>
+
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit
@@ -49,7 +66,7 @@
           <a @click="exportLink(scope.row)">
             <el-button size="mini" type="info">导出</el-button>
           </a>
-          <el-button size="mini" type="danger" @click="deleteDevice($event)">{{$t('table.delete')}}
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}
           </el-button>
         </template>
       </el-table-column>
@@ -159,7 +176,7 @@
 </template>
 
 <script>
-  import { compList, createComp, updateComp, copyComp } from '@/api/component'
+  import { compList, createComp, updateComp, copyComp, importComp, deleteComp } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
 
   /* eslint-disable */
@@ -446,24 +463,21 @@
           }
         })
       },*/
-      deleteDevice(event) {
-        console.log(event.target.tagName)
-        const target_btn = event.target
+      handleDelete(row) {
+        let id = row.id;
         this.$confirm('确认删除吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          console.log(target_btn.parentNode.parentNode.parentNode)
-          const target_tr = target_btn.parentNode.parentNode.parentNode
-          if (target_tr.tagName.toLowerCase() === 'tr') {
-            target_tr.style.display = 'none'
-          } else if (target_tr.parentNode.tagName.toLowerCase() === 'tr') {
-            target_tr.parentNode.style.display = 'none'
-          }
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
+          deleteComp(id).then(() => {
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+            this.getList()
           })
         }).catch(() => {
           this.$message({
@@ -480,6 +494,27 @@
 
         console.log(this.exportUrl);
         window.open(this.exportUrl);
+      },
+
+      uploadCom: function (file) {
+        let formData = new FormData();
+
+        formData.append('importComponents', file.file);
+
+        importComp(formData,id).then(() => {
+          this.$notify({
+            title: '成功',
+            message: '导入成功',
+            type: 'success',
+            duration: 2000
+          })
+          //导入成功后再次查询
+          this.getList()
+
+        })
+          .catch(err => {
+            console.log(err);
+          })
       }
     }
   }
