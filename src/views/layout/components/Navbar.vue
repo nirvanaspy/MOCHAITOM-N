@@ -11,11 +11,16 @@
         <screenfull class="screenfull right-menu-item"></screenfull>
       </el-tooltip>
 
-      <lang-select class="international right-menu-item"></lang-select>
+        <span style="font-weight: 400 !important;color: #97a8be;line-height: 50px;position: relative;top: -13px;">
+          {{selected}}
+        </span>
+
+
+      <!--<lang-select class="international right-menu-item"></lang-select>
 
       <el-tooltip effect="dark" :content="$t('navbar.theme')" placement="bottom">
         <theme-picker class="theme-switch right-menu-item"></theme-picker>
-      </el-tooltip>
+      </el-tooltip>-->
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="component-item proImg">
