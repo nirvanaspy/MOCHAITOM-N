@@ -23,7 +23,7 @@
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button size="mini" type="danger" @click="deleteProject($event)">{{$t('table.delete')}}
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}
           </el-button>
         </template>
       </el-table-column>
@@ -66,7 +66,7 @@
 <script>
   import { fetchPv } from '@/api/article'
   import waves from '@/directive/waves' // 水波纹指令
-  import { projectList, createProject, updateProject } from '@/api/project'
+  import { projectList, createProject, updateProject, deleteProject } from '@/api/project'
   /* eslint-disable */
   export default {
     name: 'project',
@@ -189,6 +189,7 @@
                 type: 'success',
                 duration: 2000
               })
+              this.getList()
             })
           }
         })
@@ -234,7 +235,7 @@
           }
         })
       },
-      handleDelete(row) {
+      /*handleDelete(row) {
         this.$notify({
           title: '成功',
           message: '删除成功',
@@ -243,31 +244,29 @@
         })
         const index = this.list.indexOf(row)
         this.list.splice(index, 1)
-      },
+      },*/
       handleFetchPv(pv) {
         fetchPv(pv).then(response => {
           this.pvData = response.data.pvData
           this.dialogPvVisible = true
         })
       },
-      deleteProject(event) {
-        console.log(event.target.tagName)
-        const target_btn = event.target
+      handleDelete(row) {
+        let id = row.id;
+        alert(id);
         this.$confirm('确认删除吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          console.log(target_btn.parentNode.parentNode.parentNode)
-          const target_tr = target_btn.parentNode.parentNode.parentNode
-          if (target_tr.tagName.toLowerCase() === 'tr') {
-            target_tr.style.display = 'none'
-          } else if (target_tr.parentNode.tagName.toLowerCase() === 'tr') {
-            target_tr.parentNode.style.display = 'none'
-          }
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
+          deleteProject(id).then(() => {
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+            this.getList()
           })
         }).catch(() => {
           this.$message({

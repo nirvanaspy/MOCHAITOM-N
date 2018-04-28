@@ -34,3 +34,14 @@ export function updateProject(data, id) {
     data
   })
 }
+
+export function deleteProject(id) {
+  return request({
+    url: '/projects/' + id,
+    method: 'delete',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    }
+  })
+}
