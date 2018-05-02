@@ -11,6 +11,7 @@ const service = axios.create({
   /*baseURL: config_set,// api的base_url*/
   baseURL: "http://192.168.0.102:8080",// api的base_url
   timeout: 5000 // request timeout
+
 })
 
 // request interceptor

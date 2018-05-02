@@ -12,18 +12,18 @@
               style="width: 100%">
       <el-table-column min-width="150px" :label="$t('table.projectName')">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.projectName}}</span>
+          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="150px" :label="$t('table.projectDesc')">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row.title }}</span>
+          <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row.description }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button size="mini" type="danger" @click="deleteProject($event)">{{$t('table.delete')}}
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}
           </el-button>
         </template>
       </el-table-column>
@@ -36,11 +36,11 @@
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item :label="$t('table.projectName')" prop="projectName">
-          <el-input v-model="temp.projectName"></el-input>
+        <el-form-item :label="$t('table.projectName')" prop="name">
+          <el-input v-model="temp.name"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('table.projectDesc')" prop="title">
-          <el-input v-model="temp.title"></el-input>
+        <el-form-item :label="$t('table.projectDesc')" prop="description">
+          <el-input v-model="temp.description"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -64,8 +64,10 @@
 </template>
 
 <script>
-  import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+  import { fetchPv } from '@/api/article'
   import waves from '@/directive/waves' // 水波纹指令
+  import { projectList, createProject, updateProject, deleteProject } from '@/api/project'
+  /* eslint-disable */
   export default {
     name: 'project',
     directives: {
@@ -73,6 +75,7 @@
     },
     data() {
       return {
+        selectedId: '',
         tableKey: 0,
         list: null,
         total: null,
@@ -91,9 +94,9 @@
         statusOptions: ['published', 'draft', 'deleted'],
         showReviewer: false,
         temp: {
-          id: undefined,
-          projectName: '',
-          title: ''
+          id: '',
+          name: '',
+          description: ''
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -127,8 +130,8 @@
     methods: {
       getList() {
         this.listLoading = true
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
+        projectList(this.listQuery).then(response => {
+          this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
         })
@@ -155,13 +158,9 @@
       },
       resetTemp() {
         this.temp = {
-          id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          status: 'published',
-          type: ''
+          id: '',
+          name: '',
+          description: ''
         }
       },
       handleCreate() {
@@ -172,12 +171,16 @@
           this.$refs['dataForm'].clearValidate()
         })
       },
-      createData() {
+      createData() {        //创建项目
+        let qs = require('qs');
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-            this.temp.author = 'vue-element-admin'
-            createArticle(this.temp).then(() => {
+            let data = {
+              'name': this.temp.name,
+              'description': this.temp.description
+            };
+            let proData = qs.stringify(data);
+            createProject(proData).then(() => {
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.$notify({
@@ -186,13 +189,15 @@
                 type: 'success',
                 duration: 2000
               })
+              this.getList()
             })
           }
         })
       },
       handleUpdate(row) {
+        this.selectedId = row.id;
+        console.log(this.selectedId);
         this.temp = Object.assign({}, row) // copy obj
-        this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
         this.$nextTick(() => {
@@ -200,11 +205,18 @@
         })
       },
       updateData() {
+        let qs = require('qs');
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            const tempData = Object.assign({}, this.temp)
-            tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-            updateArticle(tempData).then(() => {
+            let data = {
+              'name': this.temp.name,
+              'description': this.temp.description
+            };
+
+            const id = this.selectedId;
+            console.log(id);
+            let proData = qs.stringify(data);
+            updateProject(proData, id).then(() => {
               for (const v of this.list) {
                 if (v.id === this.temp.id) {
                   const index = this.list.indexOf(v)
@@ -223,7 +235,7 @@
           }
         })
       },
-      handleDelete(row) {
+      /*handleDelete(row) {
         this.$notify({
           title: '成功',
           message: '删除成功',
@@ -232,31 +244,28 @@
         })
         const index = this.list.indexOf(row)
         this.list.splice(index, 1)
-      },
+      },*/
       handleFetchPv(pv) {
         fetchPv(pv).then(response => {
           this.pvData = response.data.pvData
           this.dialogPvVisible = true
         })
       },
-      deleteProject(event) {
-        console.log(event.target.tagName)
-        const target_btn = event.target
+      handleDelete(row) {
+        let id = row.id;
         this.$confirm('确认删除吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          console.log(target_btn.parentNode.parentNode.parentNode)
-          const target_tr = target_btn.parentNode.parentNode.parentNode
-          if (target_tr.tagName.toLowerCase() === 'tr') {
-            target_tr.style.display = 'none'
-          } else if (target_tr.parentNode.tagName.toLowerCase() === 'tr') {
-            target_tr.parentNode.style.display = 'none'
-          }
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
+          deleteProject(id).then(() => {
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+            this.getList()
           })
         }).catch(() => {
           this.$message({

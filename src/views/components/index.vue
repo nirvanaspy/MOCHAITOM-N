@@ -5,12 +5,25 @@
                 :placeholder="$t('table.compName')" v-model="listQuery.compName">
       </el-input>
 
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">
-        {{$t('table.search')}}
-      </el-button>
       <el-button class="filter-item pull-right" style="margin-left: 10px;" @click="handleCreate" type="primary"
                  icon="el-icon-edit">{{$t('table.add')}}
       </el-button>
+
+      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">
+        {{$t('table.search')}}
+      </el-button>
+      <el-upload style="float: right;"
+                 class="upload-demo"
+                 action=""
+                 :file-list="fileList"
+                 :httpRequest="uploadCom"
+                 :show-file-list="false"
+                 multiple>
+
+        <el-button class="filter-item" type="primary" style="margin-left: 10px;" v-waves icon="el-icon-download">导入</el-button>
+
+      </el-upload>
+
     </div>
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit
@@ -19,35 +32,37 @@
 
       <el-table-column align="center" :label="$t('table.compName')" width="100">
         <template slot-scope="scope">
-          <span>{{scope.row.compName}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.compVersion')">
         <template slot-scope="scope">
-          <span>{{scope.row.compVersion}}</span>
+          <span>{{scope.row.version}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.compSize')">
         <template slot-scope="scope">
-          <span>{{scope.row.compSize}}M</span>
+          <span>{{scope.row.displaySize}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.compPath')">
         <template slot-scope="scope">
-          <span>{{scope.row.compPath}}</span>
+          <span>{{scope.row.deployPath}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.compDesc')">
         <template slot-scope="scope">
-          <span>{{scope.row.compDesc}}</span>
+          <span>{{scope.row.description}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button size="mini" type="success">{{$t('table.publish')}}
-          </el-button>
-          <el-button size="mini" type="danger" @click="deleteDevice($event)">{{$t('table.delete')}}
+          <el-button size="mini" type="success" @click="compCopy(scope.row)">复制</el-button>
+          <a @click="exportLink(scope.row)">
+            <el-button size="mini" type="info">导出</el-button>
+          </a>
+          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}
           </el-button>
         </template>
       </el-table-column>
@@ -67,19 +82,19 @@
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px"
                style='height: 400px;overflow-y: auto;padding-right: 10%;padding-left: 10%;'>
         <el-form-item :label="$t('table.compName')" prop="name">
-          <el-input v-model="temp.compName"></el-input>
+          <el-input v-model="temp.name"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.compVersion')" prop="version">
-          <el-input v-model="temp.compVersion"></el-input>
+          <el-input v-model="temp.version"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.compPath')" prop="path">
-          <el-input v-model="temp.compPath"></el-input>
+          <el-input v-model="temp.deployPath"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.compDesc')" prop="desc">
-          <el-input v-model="temp.compDesc"></el-input>
+          <el-input v-model="temp.description"></el-input>
         </el-form-item>
 
-        <el-form-item :label="$t('table.compUpload')" prop="desc">
+        <el-form-item :label="$t('table.compUpload')" prop="files">
           <uploader :options="options"
                     :autoStart="autoStart"
                     :file-status-text="statusText"
@@ -109,19 +124,19 @@
                  style='width: 100%;'>
           <div style="height: 400px;overflow-y: auto;width: 60%;float: left;border-right: 1px solid lightgrey;padding-right: 30px;">
             <el-form-item :label="$t('table.compName')" prop="name">
-              <el-input v-model="temp.compName"></el-input>
+              <el-input v-model="temp.name"></el-input>
             </el-form-item>
             <el-form-item :label="$t('table.compVersion')" prop="version">
-              <el-input v-model="temp.compVersion"></el-input>
+              <el-input v-model="temp.version"></el-input>
             </el-form-item>
             <el-form-item :label="$t('table.compPath')" prop="path">
-              <el-input v-model="temp.compPath"></el-input>
+              <el-input v-model="temp.deployPath"></el-input>
             </el-form-item>
             <el-form-item :label="$t('table.compDesc')" prop="desc">
-              <el-input v-model="temp.compDesc"></el-input>
+              <el-input v-model="temp.description"></el-input>
             </el-form-item>
 
-            <el-form-item :label="$t('table.compUpload')" prop="desc">
+            <el-form-item :label="$t('table.compUpload')" prop="fileAll">
             <uploader :options="options"
                       :autoStart="autoStart"
                       :file-status-text="statusText"
@@ -157,9 +172,8 @@
 </template>
 
 <script>
-  import { fetchList, createArticle, updateArticle } from '@/api/article'
+  import { compList, createComp, updateComp, copyComp, importComp, deleteComp, compSingle } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
-  import Sortable from 'sortablejs'
 
   /* eslint-disable */
   export default {
@@ -169,8 +183,12 @@
     },
     data() {
       return {
+        selectedId: '',
+        treeInfo: [],
+        fileList: [],
         tableKey: 0,
         list: null,
+        singleComp: null,
         total: null,
         listLoading: true,
         listQuery: {
@@ -186,10 +204,12 @@
         oldList: [],
         newList: [],
         temp: {
-          id: undefined,
-          deviceName: undefined,
-          deviceIP: undefined,
-          devicePath: undefined
+          id: '',
+          name: '',
+          version: '',
+          deployPath: '',
+          description: '',
+          fileAll: ''
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -222,24 +242,36 @@
           waiting: '等待中'
         },
         started: false,
-        autoStart: ''
+        autoStart: '',
+
+        fileInfo: [],
+        folderInfo: [],
+        files: [],
+        folderClearData: [],        //文件夹需要清空的内容数组
+        fileClearData: [],          //文件需要清空的内容数组
+
+        fileAll: []
       }
     },
     created() {
-      this.getList()
+      this.getList();
+
+      this.autoStart = false;      //取消自动上传
     },
     methods: {
       getList() {
         this.listLoading = true
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
+        compList(this.listQuery).then(response => {
+          this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
-          this.oldList = this.list.map(v => v.id);
+          /*this.oldList = this.list.map(v => v.id);
           this.newList = this.oldList.slice();
           this.$nextTick(() => {
             this.setSort()
-          })
+          })*/
+
+          console.log(this.list);
         })
       },
       handleFilter() {
@@ -263,29 +295,231 @@
       },
       resetTemp() {
         this.temp = {
-          id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          deviceState: '在线',
-          type: ''
+          id: '',
+          name: '',
+          version: '',
+          deployPath: '',
+          description: '',
+          fileAll: ''
         }
       },
       handleCreate() {
-        this.resetTemp()
+        this.resetTemp();
+
         this.dialogStatus = 'create'
         this.dialogFormVisible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
         })
       },
+      createData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+            let formData = new FormData();
+
+            this.fileAll = this.$refs.uploader.uploader.files;
+
+            formData.append('name', this.temp.name);
+            formData.append('version', this.temp.version);
+            formData.append('deployPath', this.temp.deployPath);
+            //formData.append('size', this.size);
+            formData.append('description', this.temp.description);
+
+            //开始上传后去掉暂停和删除按钮
+            $(".uploader-file-actions").children(".uploader-file-pause").removeClass("uploader-file-pause");
+            $(".uploader-file-actions").children(".uploader-file-remove").removeClass("uploader-file-remove");
+
+            formData.append('enctype', "multipart/form-data");
+
+            for (var i = 0; i < this.fileAll.length; i++) {
+              //判断数组里是文件夹还是文件
+              formData.append('componentfiles', this.fileAll[i].file);
+
+            }
+
+            createComp(formData).then(() => {
+              this.list.unshift(this.temp)
+              this.dialogFormVisible = false
+              this.$notify({
+                title: '成功',
+                message: '创建成功',
+                type: 'success',
+                duration: 2000
+              })
+
+              this.getList()
+            })
+          }
+        })
+      },
+      handleUpdate(row) {
+        this.selectedId = row.id;
+        this.temp = Object.assign({}, row) // copy obj
+        this.temp.timestamp = new Date(this.temp.timestamp)
+        this.dialogStatus = 'update'
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['dataForm'].clearValidate();
+
+          //树
+          compSingle(this.selectedId).then(response => {
+            this.singleComp = response.data.data;
+            this.listLoading = false
+
+            console.log("树信息-------------------");
+            console.log(this.singleComp);
+
+            //对比时，是路径节点与根节点下的孩子节点比较
+            let componentFile = this.singleComp.componentDetailEntities;//组件
+
+            let zNodes = [];
+            let item;
+            for (let m = 0; m < componentFile.length; m++) {
+
+              this.treeInfo.push(componentFile[m]);//放所有文件信息，用于树点击id的选择
+
+              item = this.singleComp;
+
+              let path = (componentFile[m].path).split('/');
+
+              for (let i = 1; i < path.length; i++) {
+                item = this.$options.methods.handleInfo(item, path[i]);
+              }
+            };
+
+            zNodes.push(this.singleComp);
+
+            console.log(zNodes);
+
+            let forderTemp = [];
+
+            for (let i = 0; i < this.singleComp.componentDetailEntities.length; i++) {
+              let info = this.singleComp.componentDetailEntities[i].path.split('/');
+              let clearId = this.singleComp.componentDetailEntities[i].id;
+
+              if (info.length > 2) {
+
+                if (forderTemp.length > 0) {
+                  let flag = true;
+
+                  for (let j = 0; j < forderTemp.length; j++) {
+                    if (forderTemp[j].name == info[1]) {
+                      flag = false;
+                    }
+                  }
+
+                  if (flag) {
+                    let info2 = {};
+                    info2.name = info[1];
+                    forderTemp.push(info2);
+                  }
+
+                } else {
+                  let info2 = {};
+                  info2.name = info[1];
+                  forderTemp.push(info2);
+                }
+
+
+                this.folderClearData.push(clearId);
+                console.log(this.folderClearData);
+              } else {
+                this.fileInfo.push(this.singleComp.componentDetailEntities[i]);
+                this.fileClearData.push(clearId);
+              }
+            }
+
+            console.log(forderTemp);
+
+            for (let i = 0; i < forderTemp.length; i++) {
+              this.folderInfo.push(forderTemp[i]);
+            }
+
+
+            let setting = {
+              view: {
+                dblClickExpand: false,
+                addHoverDom: this.addHoverDom,
+                removeHoverDom: this.removeHoverDom,
+                selectedMulti: this.true
+              },
+              edit: {
+                enable: true,
+                showRenameBtn: false,
+                showRemoveBtn: false
+              },
+              data: {
+                simpleData: {
+                  enable: true
+                }
+              },
+              callback: {
+                beforeDrag: this.beforeDrag,
+                beforeEditName: this.beforeEditName,
+                beforeRemove: this.beforeRemove,
+                beforeRename: this.beforeRename,
+                onRemove: this.onRemove,
+                onRename: this.onRename,
+                onClick: this.zTreeOnClick
+              }
+            };
+
+            $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+          });
+
+        })
+      },
+      compCopy(row) {
+        let qs = require('qs');
+        let id = row.id;
+        this.temp = Object.assign({}, row) // copy obj
+
+        let data = {
+          'name': this.temp.name
+        };
+        let proData = qs.stringify(data);
+
+        copyComp(proData, id).then(() => {
+          this.list.unshift(this.temp)
+          this.dialogFormVisible = false
+          this.$notify({
+            title: '成功',
+            message: '复制成功',
+            type: 'success',
+            duration: 2000
+          })
+
+          this.getList()
+        })
+      },
       updateData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            const tempData = Object.assign({}, this.temp)
-            tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-            updateArticle(tempData).then(() => {
+            const id = this.selectedId;
+
+            let formData = new FormData();
+
+            this.fileAll = this.$refs.uploader.uploader.files;
+
+            formData.append('name', this.temp.name);
+            formData.append('version', this.temp.version);
+            formData.append('deployPath', this.temp.deployPath);
+            //formData.append('size', this.size);
+            formData.append('description', this.temp.description);
+
+            //开始上传后去掉暂停和删除按钮
+            $(".uploader-file-actions").children(".uploader-file-pause").removeClass("uploader-file-pause");
+            $(".uploader-file-actions").children(".uploader-file-remove").removeClass("uploader-file-remove");
+
+            formData.append('enctype', "multipart/form-data");
+
+            for (var i = 0; i < this.fileAll.length; i++) {
+              //判断数组里是文件夹还是文件
+              formData.append('componentfiles', this.fileAll[i].file);
+
+            }
+
+            updateComp(formData,id).then(() => {
               for (const v of this.list) {
                 if (v.id === this.temp.id) {
                   const index = this.list.indexOf(v)
@@ -304,54 +538,7 @@
           }
         })
       },
-      createData() {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-            createArticle(this.temp).then(() => {
-              this.list.unshift(this.temp)
-              this.dialogFormVisible = false
-              this.$notify({
-                title: '成功',
-                message: '创建成功',
-                type: 'success',
-                duration: 2000
-              })
-            })
-          }
-        })
-      },
-      handleUpdate(row) {
-        this.temp = Object.assign({}, row) // copy obj
-        this.temp.timestamp = new Date(this.temp.timestamp)
-        this.dialogStatus = 'update'
-        this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
-
-          let zTreeObj;
-          // zTree 的参数配置，深入使用请参考 API 文档（setting 配置详解）
-          let setting = {};
-          // zTree 的数据属性，深入使用请参考 API 文档（zTreeNode 节点数据详解）
-          let zNodes = [
-            {
-              name: "test1", open: true, children: [
-                {name: "test1_1"}, {name: "test1_2"}]
-            },
-            {
-              name: "test2", open: true, children: [
-                {name: "test2_1"}, {name: "test2_2"}]
-            }
-          ];
-          $(document).ready(function () {
-            console.log("hhhhhh--");
-            console.log(zNodes);
-            zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes);
-            console.log("aaaaaaa--");
-          });
-        })
-      },
-      setSort() {
+      /*setSort() {
         const el = document.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
         this.sortable = Sortable.create(el, {
           ghostClass: 'sortable-ghost', // Class name for the drop placeholder,
@@ -369,25 +556,22 @@
             this.newList.splice(evt.newIndex, 0, tempIndex)
           }
         })
-      },
-      deleteDevice(event) {
-        console.log(event.target.tagName)
-        const target_btn = event.target
+      },*/
+      handleDelete(row) {
+        let id = row.id;
         this.$confirm('确认删除吗？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          console.log(target_btn.parentNode.parentNode.parentNode)
-          const target_tr = target_btn.parentNode.parentNode.parentNode
-          if (target_tr.tagName.toLowerCase() === 'tr') {
-            target_tr.style.display = 'none'
-          } else if (target_tr.parentNode.tagName.toLowerCase() === 'tr') {
-            target_tr.parentNode.style.display = 'none'
-          }
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
+          deleteComp(id).then(() => {
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+            this.getList()
           })
         }).catch(() => {
           this.$message({
@@ -395,7 +579,84 @@
             message: '已取消删除'
           })
         })
-      }
+      },
+
+      exportLink(row) {
+
+        let id = row.id;
+        this.exportUrl = this.getIP() + 'components/' + id + '/export';
+
+        console.log(this.exportUrl);
+        window.open(this.exportUrl);
+      },
+
+      uploadCom: function (file) {
+        let formData = new FormData();
+
+        console.log("导入组件文件----------");
+        console.log(file);
+
+        formData.append('importComponents', file.file);
+
+        importComp(formData).then(() => {
+          this.$notify({
+            title: '成功',
+            message: '导入成功',
+            type: 'success',
+            duration: 2000
+          })
+          //导入成功后再次查询
+          this.getList()
+
+        })
+          .catch(err => {
+            console.log(err);
+          })
+      },
+
+      handleInfo: function (item, path) {
+        if (item == null)
+          return;
+
+        if (item.hasOwnProperty("children")) {
+          let flag;
+          for (let i = 0; i < item.children.length; i++) {
+            flag = true;
+            if (item.children[i].name == path) {
+              item = item.children[i];
+              flag = false;
+              return item;
+            }
+          }
+
+          if (flag) {
+            item.children.push({"name": path});
+            item = item.children[item.children.length - 1];
+            return item;
+          }
+
+        } else {
+          item.children = [];
+          item.children.push({"name": path});
+          item = item.children[0];
+          return item;
+        }
+
+      },
+
+      zTreeOnClick: function (e, treeId, treeNode) {
+
+        let zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        let id;
+
+        for (let i = 0; i < treeInfo.length; i++) {
+          if (this.treeInfo[i].name == zTree.getSelectedNodes()[0].name) {
+            id = this.treeInfo[i].id;
+            break;
+          }
+        }
+
+      },
     }
   }
 </script>

@@ -11,11 +11,16 @@
         <screenfull class="screenfull right-menu-item"></screenfull>
       </el-tooltip>
 
-      <lang-select class="international right-menu-item"></lang-select>
+        <span style="font-weight: 400 !important;color: #97a8be;line-height: 50px;position: relative;top: -13px;">
+          {{selected}}
+        </span>
+
+
+      <!--<lang-select class="international right-menu-item"></lang-select>
 
       <el-tooltip effect="dark" :content="$t('navbar.theme')" placement="bottom">
         <theme-picker class="theme-switch right-menu-item"></theme-picker>
-      </el-tooltip>
+      </el-tooltip>-->
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="component-item proImg">
@@ -26,28 +31,20 @@
         </div>
         <el-dropdown-menu slot="dropdown">
           <el-select
-            v-model="value10"
+            v-model="selected"
             filterable
+            remote
             allow-create
             default-first-option
-            placeholder="选择或创建项目">
+            placeholder="选择或创建项目"
+            @change="changePro">
             <el-option
-              v-for="item in options5"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
+              v-for="item in list"
+              :key="item.name"
+              :value="item.name">
             </el-option>
           </el-select>
         </el-dropdown-menu>
-        <!--<el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>
-            项目1
-          </el-dropdown-item>
-          <el-dropdown-item>
-            项目2
-          </el-dropdown-item>
-
-        </el-dropdown-menu>-->
       </el-dropdown>
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
@@ -99,7 +96,9 @@
   import Screenfull from '@/components/Screenfull'
   import LangSelect from '@/components/LangSelect'
   import ThemePicker from '@/components/ThemePicker'
+  import { projectList, createProject } from '@/api/project'
 
+  /* eslint-disable */
   export default {
     components: {
       PanThumb,
@@ -112,17 +111,11 @@
     },
     data() {
       return {
-        options5: [{
-          value: 'HTML',
-          label: 'HTML'
-        }, {
-          value: 'CSS',
-          label: 'CSS'
-        }, {
-          value: 'JavaScript',
-          label: 'JavaScript'
-        }],
-        value10: [],
+        list: null,
+        total: null,
+        listLoading: true,
+        proName: '',
+        selected: '',
         dialogFormVisible: false,
         form: {
           passwordOld: '',
@@ -133,7 +126,17 @@
       }
     },
     created () {
+
+    },
+
+    created() {
+      this.getList()
       this.title = '用户' + this.loginname + '修改密码'
+    /*  temp: {
+       id: '',
+       name: '',
+       description: ''
+      }*/
     },
     computed: {
       ...mapGetters([
@@ -147,6 +150,55 @@
     methods: {
       handleUpdate () {
         this.dialogFormVisible = false
+      },
+      getList() {
+        this.listLoading = true
+        projectList(this.listQuery).then(response => {
+          this.list = response.data.data
+          this.list.value = '';
+          this.total = response.data.total
+          this.listLoading = false
+        })
+      },
+
+      //下拉框选择部署设计
+      changePro: function () {
+        this.proName = this.selected;
+        //alert(this.proId);
+
+        //不存在则创建项目
+        let isReal = false;
+
+        for(let i=0;i<this.list.length;i++){
+          if(this.proName == this.list[i].name){
+            isReal = true;
+            break;
+          }
+        }
+        console.log("是否存在");
+        console.log(isReal);
+        if(!isReal){
+          alert("hhhhh");
+
+          let qs = require('qs');
+          let data = {
+            'name': this.proName,
+            'description': ''
+          };
+          let proData = qs.stringify(data);
+          createProject(proData).then(() => {
+            this.list.unshift(this.temp)
+            this.dialogFormVisible = false
+            this.$notify({
+              title: '成功',
+              message: '创建成功',
+              type: 'success',
+              duration: 2000
+            })
+            this.getList()
+          })
+
+        }
       },
       toggleSideBar() {
         this.$store.dispatch('toggleSideBar')
