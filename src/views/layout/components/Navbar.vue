@@ -49,7 +49,7 @@
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
-          <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
+          <img class="user-avatar" src="./2.jpg">
           <i class="el-icon-caret-bottom"></i>
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -61,9 +61,12 @@
           <el-dropdown-item divided>
             <span @click="logout" style="display:block;">{{$t('navbar.logOut')}}</span>
           </el-dropdown-item>
+          <el-dropdown-item divided v-if="loginname != 'admin'">
+            <span @click="dialogFormVisible = true" style="display:block;">{{$t('navbar.editPassword')}}</span>
+          </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-dialog title="修改密码" :visible.sync="dialogFormVisible">
+      <el-dialog :title="title" :visible.sync="dialogFormVisible">
         <el-form :model="form" style="width: 400px; margin-left:50px;">
           <el-form-item label="原密码" :label-width="formLabelWidth">
             <el-input type="password" v-model="form.passwordOld" auto-complete="off"></el-input>
@@ -77,7 +80,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+          <el-button type="primary" @click="handleUpdate">确 定</el-button>
         </div>
       </el-dialog>
     </div>
@@ -85,7 +88,7 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapMutations } from 'vuex'
   import PanThumb from '@/components/PanThumb'
   import Breadcrumb from '@/components/Breadcrumb'
   import Hamburger from '@/components/Hamburger'
@@ -119,25 +122,35 @@
           passwordNew: ''
         },
         formLabelWidth: '100px',
-        temp: {
-          id: '',
-          name: '',
-          description: ''
-        },
+        title: ''
       }
     },
+    created () {
+
+    },
+
     created() {
       this.getList()
+      this.title = '用户' + this.loginname + '修改密码'
+    /*  temp: {
+       id: '',
+       name: '',
+       description: ''
+      }*/
     },
     computed: {
       ...mapGetters([
         'sidebar',
         'name',
         'avatar',
-        'roles'
+        'roles',
+        'loginname'
       ])
     },
     methods: {
+      handleUpdate () {
+        this.dialogFormVisible = false
+      },
       getList() {
         this.listLoading = true
         projectList(this.listQuery).then(response => {
@@ -187,15 +200,22 @@
 
         }
       },
-
       toggleSideBar() {
         this.$store.dispatch('toggleSideBar')
       },
       logout() {
-        this.$store.dispatch('LogOut').then(() => {
-          location.reload()// In order to re-instantiate the vue-router object to avoid bugs
+        this.$store.dispatch('FedLogOut').then(() => {
+          this.$router.replace({ path: '/login' })
+          location.reload()
+          /*location.reload()*/// In order to re-instantiate the vue-router object to avoid bugs
         })
-      }
+        /*this.$store.dispatch('LogOut').then(() => {
+          this.$router.go('/login')// In order to re-instantiate the vue-router object to avoid bugs
+        })*/
+      },
+      ...mapMutations({
+        setroles: 'SET_ROLES'
+      })
     }
   }
 </script>

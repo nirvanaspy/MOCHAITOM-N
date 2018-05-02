@@ -43,8 +43,8 @@ export const constantRouterMap = [
       name: 'dashboard',
       meta: { title: 'dashboard', icon: 'dashboard', noCache: true }
     }]
-  },
-  {
+  }
+/*  {
     path: '/documentation',
     component: Layout,
     redirect: '/documentation/index',
@@ -54,7 +54,7 @@ export const constantRouterMap = [
       name: 'documentation',
       meta: { title: 'documentation', icon: 'documentation', noCache: true }
     }]
-  }
+  }*/
 ]
 
 export default new Router({
@@ -64,7 +64,9 @@ export default new Router({
 })
 
 export const asyncRouterMap = [
-  {
+  // 以下都不用
+
+/*  {
     path: '/permission',
     component: Layout,
     redirect: '/permission/index',
@@ -102,7 +104,7 @@ export const asyncRouterMap = [
       icon: 'component'
     },
     children: [
-      /* { path: 'tinymce', component: _import('components-demo/tinymce'), name: 'tinymce-demo', meta: { title: 'tinymce' }},*/
+      /!* { path: 'tinymce', component: _import('components-demo/tinymce'), name: 'tinymce-demo', meta: { title: 'tinymce' }},*!/
       { path: 'markdown', component: _import('components-demo/markdown'), name: 'markdown-demo', meta: { title: 'markdown' }},
       { path: 'json-editor', component: _import('components-demo/jsonEditor'), name: 'jsonEditor-demo', meta: { title: 'jsonEditor' }},
       { path: 'dnd-list', component: _import('components-demo/dndList'), name: 'dndList-demo', meta: { title: 'dndList' }},
@@ -245,8 +247,9 @@ export const asyncRouterMap = [
     path: '/i18n',
     component: Layout,
     children: [{ path: 'index', component: _import('i18n-demo/index'), name: 'i18n', meta: { title: 'i18n', icon: 'international' }}]
-  },
+  },*/
 
+//  以上都不用
   { path: '*', redirect: '/404', hidden: true },
   {
     path: '/components',

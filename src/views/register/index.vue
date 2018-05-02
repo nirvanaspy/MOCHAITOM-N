@@ -3,7 +3,6 @@
     <el-form class="login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
       <div class="title-container">
         <h3 class="title">{{$t('login.register')}}</h3>
-        <lang-select class="set-language"></lang-select>
       </div>
       <el-form-item prop="username">
         <span class="svg-container svg-container_login">
@@ -31,7 +30,7 @@
         </span>
       </el-form-item>
 
-      <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="addUser">注册</el-button>
+      <el-button type="primary" style="width:100%;margin-bottom:30px;" :loading="loading" @click.native.prevent="registerUser">注册</el-button>
       <div class="register-container">
         <span class="register-tips">已有账号？</span>
         <span class="register-btn" @click="jumpToLogin">登录</span>
@@ -63,6 +62,7 @@
 
 <script>
   import { isvalidUsername } from '@/utils/validate'
+  import {addUser} from "../../api/getUsers"
   /* import LangSelect from '@/components/LangSelect'*/
   /* import SocialSign from './socialsignin'*/
 
@@ -127,63 +127,25 @@
           }
         })
       },
-      addUser: function () {
-        var qs = require('qs');
-        var reg1 = /^[a-zA-Z]{6,}$/;
-        var reg2 = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-
-        /*let username = $("input[name='add-name']").val();
-        let password = $("input[name='add-password']").val();
-        let password2 = $("input[name='again-password']").val();*/
-        let username = this.loginForm.username;
-        let password = this.loginForm.password;
-        let password2 = this.loginForm.againPassword;
-
-        if (username == "") {
-       /*   layer.msg("请输入用户名！");
-        } else if (password == "") {
-          layer.msg("请输入密码！");
-        } else if (password2 == "") {
-          layer.msg("请再次输入密码！");
-        } else if (password !== password2) {
-          layer.msg("两次输入密码不一致！");
-        } else if (!reg1.test(username)) {
-          layer.msg("用户名必须是英文字母，至少6位")
-        } else if (!reg2.test(password)) {
-          layer.msg('密码必须是大小写英文字母和数字混合，至少6位！')*/
-          return
+      registerUser: function () {
+        var qs = require('qs')
+        let data = {
+          'username': this.loginForm.username,
+          'password': this.loginForm.password
         }
-        else {
-          this.$axios.post(this.getIP() + 'users', qs.stringify({
-            /*"username": $("input[name='add-name']").val(),
-            "password": $("input[name='add-password']").val()*/
-            "username": username,
-            "password": password
-          }), {
-
-            params: {  //get请求在第二个位置，post在第三个位置
-              isAdmin: false
-            },
-
-            //设置头
-            headers: {
-              'content-type': 'application/x-www-form-urlencoded'
-            },
-            auth: {
-              username: 'admin',
-              password: 'admin'
-            }
-          }).then(res => {
-            //this.users = res.data.data
-            //console.log(res);
-            this.$router.replace({path: '/login'})
-          }).catch(err => {
-            //alert("请重新输入用户名！");
-            layer.msg("添加失败！");
+        let datapost = qs.stringify(data)
+        /*  this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+          this.temp.author = 'vue-element-admin'*/
+        addUser(datapost).then((res) => {
+         this.$notify({
+            title: '成功',
+            message: '注册成功',
+            type: 'success',
+            duration: 2000
           })
-
-        }
-        ;
+         this.$router.replace('/login')
+          /* this.getList()*/
+        })
       }
     },
     created() {
