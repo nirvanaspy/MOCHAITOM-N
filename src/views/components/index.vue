@@ -4,14 +4,15 @@
       <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"
                 :placeholder="$t('table.compName')" v-model="listQuery.compName">
       </el-input>
-
-      <el-button class="filter-item pull-right" style="margin-left: 10px;" @click="handleCreate" type="primary"
-                 icon="el-icon-edit">{{$t('table.add')}}
-      </el-button>
-
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">
         {{$t('table.search')}}
       </el-button>
+
+      <el-button class="filter-item pull-right" style="float: right;margin-left: 10px;" @click="handleCreate" type="primary"
+                 icon="el-icon-edit">{{$t('table.add')}}
+      </el-button>
+
+
       <el-upload style="float: right;"
                  class="upload-demo"
                  action=""
