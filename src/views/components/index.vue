@@ -30,12 +30,12 @@
               highlight-current-row
               style="width: 100%">
 
-      <el-table-column align="center" :label="$t('table.compName')" width="100">
+      <el-table-column :label="$t('table.compName')" width="100">
         <template slot-scope="scope">
-          <span>{{scope.row.name}}</span>
+          <span @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" align="center" :label="$t('table.compVersion')">
+      <el-table-column width="150px" :label="$t('table.compVersion')">
         <template slot-scope="scope">
           <span>{{scope.row.version}}</span>
         </template>
@@ -55,7 +55,7 @@
           <span>{{scope.row.description}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
+      <el-table-column :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button size="mini" type="success" @click="compCopy(scope.row)">复制</el-button>
@@ -149,7 +149,7 @@
                 <uploader-btn>选择文件</uploader-btn>
                 <uploader-btn :directory="true">选择文件夹</uploader-btn>
               </uploader-drop>
-              <uploader-list></uploader-list>
+              <uploader-list id="fileUp"></uploader-list>
             </uploader>
           </el-form-item>
           </div>
@@ -305,12 +305,24 @@
       },
       handleCreate() {
         this.resetTemp();
-
         this.dialogStatus = 'create'
         this.dialogFormVisible = true
+
+
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
+
+
+
+          console.log("文件信息");
+          console.log(this.$refs.uploader.uploader.files);
+          this.$refs.uploader.uploader.files.splice(0,this.$refs.uploader.uploader.files.length);
+          console.log(this.$refs.uploader.uploader.files);
+
+          this.getList()
         })
+
+        this.getList()
       },
       createData() {
         this.$refs['dataForm'].validate((valid) => {
@@ -348,6 +360,10 @@
               })
 
               this.getList()
+
+              console.log(document.getElementById('fileUp'));
+              document.getElementById('fileUp').innerHTML = "";
+              //this.$refs.uploader.uploader.files = [];
             })
           }
         })

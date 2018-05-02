@@ -1,7 +1,7 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" :placeholder="$t('table.projectName')" v-model="listQuery.projectName">
+      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" :placeholder="$t('table.projectName')" v-model="listQuery.name">
       </el-input>
 
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
@@ -17,7 +17,7 @@
       </el-table-column>
       <el-table-column min-width="150px" :label="$t('table.projectDesc')">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{ scope.row.description }}</span>
+          <span class="link-type">{{ scope.row.description }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
@@ -83,11 +83,9 @@
         listQuery: {
           page: 1,
           limit: 20,
-          importance: undefined,
-          title: undefined,
-          type: undefined,
-          sort: '+id',
-          projectName: undefined
+          sort: '',
+          name: '',
+          description: ''
         },
         importanceOptions: [1, 2, 3],
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
@@ -112,16 +110,6 @@
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
         downloadLoading: false
-      }
-    },
-    filters: {
-      statusFilter(status) {
-        const statusMap = {
-          published: 'success',
-          draft: 'info',
-          deleted: 'danger'
-        }
-        return statusMap[status]
       }
     },
     created() {
