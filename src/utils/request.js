@@ -9,7 +9,7 @@ let config_set = 'http://' + ip_set + ':' + port
 const service = axios.create({
   /*baseURL: process.env.BASE_API,*/
   /*baseURL: config_set,// api的base_url*/
-  baseURL: "http://192.168.0.107:9090",// api的base_url
+  baseURL: "http://192.168.0.102:8080",// api的base_url
   timeout: 5000 // request timeout
 })
 

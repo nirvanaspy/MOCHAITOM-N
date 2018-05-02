@@ -17,8 +17,8 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="230" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button size="mini" type="danger" @click="deleteuser(scope.row)">{{$t('table.delete')}}
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" v-if="scope.row.username != 'admin'">{{$t('table.edit')}}</el-button>
+          <el-button size="mini" type="danger" @click="deleteuser(scope.row)" v-if="scope.row.username != 'admin'">{{$t('table.delete')}}
           </el-button>
         </template>
       </el-table-column>
@@ -84,6 +84,7 @@
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
   import { UserList, updateUser, deleteUser, addUser} from "@/api/getUsers"
+  import { getCookies} from "../../main"
 
   const calendarTypeOptions = [
     { key: 'CN', display_name: 'China' },
@@ -151,7 +152,8 @@
           timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
-        downloadLoading: false
+        downloadLoading: false,
+        usernameFlag: 'admin'
       }
     },
     filters: {
@@ -169,6 +171,7 @@
     },
     created() {
       this.getList()
+      this.usernameFlag = getCookies('username')
     },
     methods: {
       deleteuser(row) {
