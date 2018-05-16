@@ -95,8 +95,8 @@ export default {
       loginForm: {
         username: 'admin',
         password: 'admin',
-        ipConfig: '192.168.0.102',
-        port: 8080
+        ipConfig: '192.168.0.107',
+        port: 9090
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -130,8 +130,10 @@ export default {
           this.setloginname(username)
           this.setIP(ip)
           this.setPort(port)
-          this.setCookie('username', username, expireDays);
-          this.setCookie('password', password, expireDays);
+          this.setCookie('username', username, expireDays)
+          this.setCookie('password', password, expireDays)
+          this.setCookie('ip', ip, expireDays)
+          this.setCookie('port', port, expireDays)
           this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({ path: '/' })

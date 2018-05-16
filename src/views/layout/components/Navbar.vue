@@ -61,7 +61,8 @@
           <el-dropdown-item divided>
             <span @click="logout" style="display:block;">{{$t('navbar.logOut')}}</span>
           </el-dropdown-item>
-          <el-dropdown-item divided v-if="loginname != 'admin'">
+          <!--<el-dropdown-item divided v-if="loginname != 'admin' && loginname != ''">-->
+          <el-dropdown-item divided v-if="userNameFlag != 'admin'">
             <span @click="dialogFormVisible = true" style="display:block;">{{$t('navbar.editPassword')}}</span>
           </el-dropdown-item>
         </el-dropdown-menu>
@@ -97,6 +98,7 @@
   import LangSelect from '@/components/LangSelect'
   import ThemePicker from '@/components/ThemePicker'
   import { projectList, createProject } from '@/api/project'
+  import {getCookies} from "../../../main";
 
   /* eslint-disable */
   export default {
@@ -122,16 +124,16 @@
           passwordNew: ''
         },
         formLabelWidth: '100px',
-        title: ''
+        title: '',
+        userNameFlag:'',
+        projectLength: 0
       }
-    },
-    created () {
-
     },
 
     created() {
       this.getList()
-      this.title = '用户' + this.loginname + '修改密码'
+      this.userNameFlag = getCookies('username')
+      this.title = '用户' + this.userNameFlag + '修改密码'
     /*  temp: {
        id: '',
        name: '',
@@ -158,6 +160,7 @@
           this.list.value = '';
           this.total = response.data.total
           this.listLoading = false
+          this.projectLength = response.data.data.length
         })
       },
 
@@ -168,6 +171,7 @@
 
         //不存在则创建项目
         let isReal = false;
+        console.log(this.list)
 
         for(let i=0;i<this.list.length;i++){
           if(this.proName == this.list[i].name){
@@ -196,6 +200,7 @@
               duration: 2000
             })
             this.getList()
+            this.setProjectNum(this.projectLength)
           })
 
         }
@@ -214,7 +219,8 @@
         })*/
       },
       ...mapMutations({
-        setroles: 'SET_ROLES'
+        setroles: 'SET_ROLES',
+        setProjectNum: 'SET_PROJECTNUM'
       })
     }
   }

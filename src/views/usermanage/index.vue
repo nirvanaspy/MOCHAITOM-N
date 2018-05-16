@@ -153,7 +153,7 @@
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
         downloadLoading: false,
-        usernameFlag: 'admin'
+        usernameFlag: ''
       }
     },
     filters: {
@@ -184,9 +184,11 @@
           type: 'warning'
         }).then(() => {
           deleteUser(id).then(() => {
-            this.$message({
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
               type: 'success',
-              message: '删除成功!'
+              duration: 2000
             })
             this.getList()
           })
