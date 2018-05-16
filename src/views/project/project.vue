@@ -67,6 +67,7 @@
   import { fetchPv } from '@/api/article'
   import waves from '@/directive/waves' // 水波纹指令
   import { projectList, createProject, updateProject, deleteProject } from '@/api/project'
+  import { mapGetters, mapMutations} from 'vuex'
   /* eslint-disable */
   export default {
     name: 'project',
@@ -109,12 +110,26 @@
           timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
-        downloadLoading: false
+        downloadLoading: false,
+        listLength: 0
       }
     },
     created() {
       this.getList()
     },
+    computed: {
+      ...mapGetters([
+        'projectNum'
+      ])
+    },
+/*   watch: {
+      projectNum(oldnum, newnum){
+        /!*console.log(oldnum, newnum)*!/
+        if (oldnum != newnum) {
+          console.log(233)
+        }
+      }
+    },*/
     methods: {
       getList() {
         this.listLoading = true
@@ -122,6 +137,7 @@
           this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
+          this.listLength = response.data.data.length
         })
       },
       handleFilter() {
@@ -178,6 +194,7 @@
                 duration: 2000
               })
               this.getList()
+              this.setProjectNum(this.listLength)
             })
           }
         })
@@ -261,7 +278,10 @@
             message: '已取消删除'
           })
         })
-      }
+      },
+      ...mapMutations ({
+        setProjectNum:'SET_PROJECTNUM'
+      })
     }
   }
 </script>

@@ -15,6 +15,7 @@ const getters = {
   errorLogs: state => state.errorLog.logs,
   ipconfig: state => state.user.ipconfig,
   port: state => state.user.port,
-  loginname: state => state.user.loginname
+  loginname: state => state.user.loginname,
+  projectNum: state => state.app.projectNum
 }
 export default getters
