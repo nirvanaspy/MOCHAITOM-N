@@ -10,7 +10,6 @@ const service = axios.create({
   baseURL: process.env.BASE_API,
   /*baseURL: config_set,// api的base_url*/
   /*baseURL: "http://192.168.0.107:9090",*/// api的base_url
-  timeout: 5000 // request timeout
 
 })
 
@@ -59,11 +58,11 @@ service.interceptors.response.use(
   //     }
   error => {
     console.log('err' + error)// for debug
-    Message({
+    /*  Message({
       message: error.message,
       type: 'error',
       duration: 5 * 1000
-    })
+    })*/
     return Promise.reject(error)
   })
 

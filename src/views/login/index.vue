@@ -95,8 +95,8 @@ export default {
       loginForm: {
         username: 'admin',
         password: 'admin',
-        ipConfig: '192.168.0.107',
-        port: 9090
+        ipConfig: '192.168.0.117',
+        port: 8080
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
