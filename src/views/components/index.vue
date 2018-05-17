@@ -1,12 +1,10 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item"
-                :placeholder="$t('table.compName')" v-model="listQuery.compName">
+      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" placeholder="标题" v-model="searchQuery">
       </el-input>
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">
-        {{$t('table.search')}}
-      </el-button>
+
+      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">搜索</el-button>
 
       <el-button class="filter-item pull-right" style="float: right;margin-left: 10px;" @click="handleCreate" type="primary"
                  icon="el-icon-edit">{{$t('table.add')}}
@@ -27,7 +25,7 @@
 
     </div>
 
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit
+    <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit
               highlight-current-row
               style="width: 100%">
 
@@ -188,7 +186,7 @@
         treeInfo: [],
         fileList: [],
         tableKey: 0,
-        list: null,
+        list: [],
         singleComp: null,
         total: null,
         listLoading: true,
@@ -251,7 +249,8 @@
         folderClearData: [],        //文件夹需要清空的内容数组
         fileClearData: [],          //文件需要清空的内容数组
 
-        fileAll: []
+        fileAll: [],
+        searchQuery: ''
       }
     },
     created() {
@@ -674,6 +673,14 @@
         }
 
       },
+    },
+    computed: {
+      listA: function () {
+        let self = this;
+        return self.list.filter(function (item) {
+          return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
+        })
+      }
     }
   }
 </script>
