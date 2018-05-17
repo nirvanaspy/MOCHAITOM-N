@@ -11,13 +11,12 @@
         <screenfull class="screenfull right-menu-item"></screenfull>
       </el-tooltip>
 
-        <span style="font-weight: 400 !important;color: #97a8be;line-height: 50px;position: relative;top: -13px;">
+      <span style="font-weight: 400 !important;color: #97a8be;line-height: 50px;position: relative;top: -13px;">
           {{selected}}
         </span>
 
 
       <!--<lang-select class="international right-menu-item"></lang-select>
-
       <el-tooltip effect="dark" :content="$t('navbar.theme')" placement="bottom">
         <theme-picker class="theme-switch right-menu-item"></theme-picker>
       </el-tooltip>-->
@@ -50,7 +49,7 @@
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
-          <img class="user-avatar" src="./2.jpg">
+          <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
           <i class="el-icon-caret-bottom"></i>
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -62,13 +61,9 @@
           <el-dropdown-item divided>
             <span @click="logout" style="display:block;">{{$t('navbar.logOut')}}</span>
           </el-dropdown-item>
-          <!--<el-dropdown-item divided v-if="loginname != 'admin' && loginname != ''">-->
-          <el-dropdown-item divided v-if="userNameFlag != 'admin'">
-            <span @click="dialogFormVisible = true" style="display:block;">{{$t('navbar.editPassword')}}</span>
-          </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-dialog :title="title" :visible.sync="dialogFormVisible">
+      <el-dialog title="修改密码" :visible.sync="dialogFormVisible">
         <el-form :model="form" style="width: 400px; margin-left:50px;">
           <el-form-item label="原密码" :label-width="formLabelWidth">
             <el-input type="password" v-model="form.passwordOld" auto-complete="off"></el-input>
@@ -82,7 +77,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="handleUpdate">确 定</el-button>
+          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
         </div>
       </el-dialog>
     </div>
@@ -99,8 +94,6 @@
   import LangSelect from '@/components/LangSelect'
   import ThemePicker from '@/components/ThemePicker'
   import { projectList, createProject } from '@/api/project'
-  import {getCookies} from "../../../main";
-
   /* eslint-disable */
   export default {
     components: {
@@ -125,45 +118,43 @@
           passwordNew: ''
         },
         formLabelWidth: '100px',
-        title: '',
-        userNameFlag:'',
-        projectLength: 0
+        temp: {
+          id: '',
+          name: '',
+          description: ''
+        },
+        projectLength: 0,
+        projectName: ''
       }
     },
-
     created() {
       this.getList()
-      this.userNameFlag = getCookies('username')
-      this.title = '用户' + this.userNameFlag + '修改密码'
-    /*  temp: {
-       id: '',
-       name: '',
-       description: ''
-      }*/
     },
     computed: {
       listenProLength() {
         return this.$store.state.app.projectNum
       },
+      listenProName(){
+        return this.$store.state.app.projectName
+      },
       ...mapGetters([
         'sidebar',
         'name',
         'avatar',
-        'roles',
-        'loginname'
+        'roles'
       ])
     },
     watch: {
       listenProLength: function(a,b) {
+        this.getList()
+      },
+      listenProName: function(a,b) {
         this.getList()
       }
     },
     methods: {
       onFocus() {
         this.getList()
-      },
-      handleUpdate () {
-        this.dialogFormVisible = false
       },
       getList() {
         this.listLoading = true
@@ -172,19 +163,14 @@
           this.list.value = '';
           this.total = response.data.total
           this.listLoading = false
-          this.projectLength = response.data.data.length
         })
       },
-
       //下拉框选择部署设计
       changePro: function () {
         this.proName = this.selected;
         //alert(this.proId);
-
         //不存在则创建项目
         let isReal = false;
-        console.log(this.list)
-
         for(let i=0;i<this.list.length;i++){
           if(this.proName == this.list[i].name){
             isReal = true;
@@ -195,7 +181,6 @@
         console.log(isReal);
         if(!isReal){
           alert("hhhhh");
-
           let qs = require('qs');
           let data = {
             'name': this.proName,
@@ -211,29 +196,24 @@
               type: 'success',
               duration: 2000
             })
-            this.getList()
-            this.setProjectNum(this.projectLength)
-            /*console.log(this.$store.state.app.projectNum,112112121)*/
-          })
+            // this.getList()
 
+            this.setProjectNum(this.projectLength)
+          })
         }
       },
       toggleSideBar() {
         this.$store.dispatch('toggleSideBar')
       },
       logout() {
-        this.$store.dispatch('FedLogOut').then(() => {
-          this.$router.replace({ path: '/login' })
-          location.reload()
-          /*location.reload()*/// In order to re-instantiate the vue-router object to avoid bugs
+        this.$store.dispatch('LogOut').then(() => {
+          location.reload()// In order to re-instantiate the vue-router object to avoid bugs
         })
-        /*this.$store.dispatch('LogOut').then(() => {
-          this.$router.go('/login')// In order to re-instantiate the vue-router object to avoid bugs
-        })*/
       },
       ...mapMutations({
         setroles: 'SET_ROLES',
-        setProjectNum: 'SET_PROJECTNUM'
+        setProjectNum: 'SET_PROJECTNUM',
+        setProjectName: 'SET_PROJECTNAME'
       })
     }
   }
