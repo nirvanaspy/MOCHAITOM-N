@@ -118,18 +118,18 @@
       this.getList()
     },
     computed: {
-      ...mapGetters([
+      /*...mapGetters([
         'projectNum'
-      ])
-    },
-/*   watch: {
-      projectNum(oldnum, newnum){
-        /!*console.log(oldnum, newnum)*!/
-        if (oldnum != newnum) {
-          console.log(233)
-        }
+      ]),*/
+      listenProjectNum() {
+        return this.$store.state.app.projectNum
       }
-    },*/
+    },
+    watch: {
+      listenProjectNum: function(a, b) {
+        this.getList()
+      }
+    },
     methods: {
       getList() {
         this.listLoading = true
@@ -271,6 +271,7 @@
               duration: 2000
             })
             this.getList()
+            this.setProjectNum(this.listLength)
           })
         }).catch(() => {
           this.$message({

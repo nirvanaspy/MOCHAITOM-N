@@ -173,6 +173,7 @@
 <script>
   import { compList, createComp, updateComp, copyComp, importComp, deleteComp, compSingle } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
+  import { Loading } from 'element-ui'
 
   /* eslint-disable */
   export default {
@@ -327,6 +328,11 @@
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            const createloading = Loading.service({
+              lock: true,
+              text: 'Loading',
+              spinner: 'el-icon-loading'
+            })
             let formData = new FormData();
 
             this.fileAll = this.$refs.uploader.uploader.files;
@@ -350,6 +356,7 @@
             }
 
             createComp(formData).then(() => {
+              createloading.close()
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.$notify({
@@ -494,10 +501,16 @@
           'name': this.temp.name
         };
         let proData = qs.stringify(data);
+        const copyloading = Loading.service({
+          lock: true,
+          text: 'Loading',
+          spinner: 'el-icon-loading'
+        })
 
         copyComp(proData, id).then(() => {
           this.list.unshift(this.temp)
           this.dialogFormVisible = false
+          copyloading.close()
           this.$notify({
             title: '成功',
             message: '复制成功',
@@ -511,6 +524,12 @@
       updateData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            const updateloading = Loading.service({
+              lock: true,
+              text: 'Loading',
+              spinner: 'el-icon-loading',
+              fullscreen: true
+            })
             const id = this.selectedId;
 
             let formData = new FormData();
@@ -543,6 +562,7 @@
                   break
                 }
               }
+              updateloading.close()
               this.dialogFormVisible = false
               this.$notify({
                 title: '成功',
@@ -613,8 +633,14 @@
         console.log(file);
 
         formData.append('importComponents', file.file);
+        const uploading = Loading.service({
+          lock: true,
+          text: 'Loading',
+          spinner: 'el-icon-loading'
+        })
 
         importComp(formData).then(() => {
+          uploading.close()
           this.$notify({
             title: '成功',
             message: '导入成功',
