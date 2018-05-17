@@ -201,6 +201,7 @@
             })
             this.getList()
             this.setProjectNum(this.projectLength)
+            /*console.log(this.$store.state.app.projectNum,112112121)*/
           })
 
         }
