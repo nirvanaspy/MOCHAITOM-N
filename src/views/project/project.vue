@@ -111,7 +111,8 @@
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
         downloadLoading: false,
-        listLength: 0
+        listLength: 0,
+        projectName: ''
       }
     },
     created() {
@@ -123,10 +124,16 @@
       ]),*/
       listenProjectNum() {
         return this.$store.state.app.projectNum
-      }
+      },
+      listenProName(){
+        return this.$store.state.app.projectName
+      },
     },
     watch: {
       listenProjectNum: function(a, b) {
+        this.getList()
+      },
+      listenProName: function(a,b) {
         this.getList()
       }
     },
@@ -236,6 +243,8 @@
                 type: 'success',
                 duration: 2000
               })
+
+              this.setProjectName(this.projectName)
             })
           }
         })
@@ -281,7 +290,8 @@
         })
       },
       ...mapMutations ({
-        setProjectNum:'SET_PROJECTNUM'
+        setProjectNum:'SET_PROJECTNUM',
+        setProjectName: 'SET_PROJECTNAME'
       })
     }
   }
