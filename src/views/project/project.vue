@@ -271,6 +271,7 @@
               duration: 2000
             })
             this.getList()
+            this.setProjectNum(this.listLength)
           })
         }).catch(() => {
           this.$message({

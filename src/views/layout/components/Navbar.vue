@@ -31,6 +31,7 @@
         </div>
         <el-dropdown-menu slot="dropdown">
           <el-select
+            @focus="onFocus"
             v-model="selected"
             filterable
             remote
@@ -141,6 +142,9 @@
       }*/
     },
     computed: {
+      listenProLength() {
+        return this.$store.state.app.projectNum
+      },
       ...mapGetters([
         'sidebar',
         'name',
@@ -149,7 +153,15 @@
         'loginname'
       ])
     },
+    watch: {
+      listenProLength: function(a,b) {
+        this.getList()
+      }
+    },
     methods: {
+      onFocus() {
+        this.getList()
+      },
       handleUpdate () {
         this.dialogFormVisible = false
       },
