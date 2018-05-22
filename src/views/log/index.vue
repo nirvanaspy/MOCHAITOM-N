@@ -39,32 +39,34 @@
               style="width: 100%">
       <el-table-column min-width="120px" :label="$t('table.deviceIP')">
         <template slot-scope="scope">
-          <span>{{scope.row.deviceIP}}</span>
+          <span>{{scope.row.ip}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="120px" :label="$t('table.componentsName')">
         <template slot-scope="scope">
-          <span>{{scope.row.componentsName}}</span>
+          <span>{{scope.row.componentEntity.name}}</span>
         </template>
       </el-table-column>
       <el-table-column width="180px" align="center" :label="$t('table.startTime')">
          <template slot-scope="scope">
-           <span>{{scope.row.startTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
+           <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
          </template>
        </el-table-column>
       <el-table-column width="180px" align="center" :label="$t('table.endTime')">
         <template slot-scope="scope">
-          <span>{{scope.row.endTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
+          <span>{{scope.row.finishTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" align="center" :label="$t('table.fileSize')">
         <template slot-scope="scope">
-          <span>{{scope.row.fileSize}}</span>
+          <span>{{scope.row.componentEntity.displaySize}}</span>
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" :label="$t('table.deployStatus')" width="120px">
+      <el-table-column width="150px" label="部署状态" prop="state">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.deployStatus | statusFilter">{{scope.row.deployStatus}}</el-tag>
+          <span class="el-tag el-tag--danger" v-if="scope.row.state == 0">部署异常</span>
+          <span class="el-tag el-tag--primary" v-else-if="scope.row.state == 1">部署进行中</span>
+          <span class="el-tag el-tag--success" v-else>部署完成</span>
         </template>
       </el-table-column>
     </el-table>
@@ -76,7 +78,7 @@
 </template>
 
 <script>
-  import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+  import { logList } from '@/api/log'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
 
@@ -101,7 +103,7 @@
     data() {
       return {
         tableKey: 0,
-        list: null,
+        list: [],
         total: null,
         listLoading: true,
         listQuery: {
@@ -226,8 +228,8 @@
       },
       getList() {
         this.listLoading = true
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
+        logList(this.listQuery).then(response => {
+          this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
         })
