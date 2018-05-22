@@ -53,8 +53,6 @@ export function copyDevices(data, id) {
     url: '/devices/' + id + '/copy',
     method: 'post',
     auth: {
-      /*username: userData.username,
-      password: userData.password*/
       username: 'admin',
       password: 'admin'
     },
