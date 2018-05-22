@@ -1,14 +1,14 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" :placeholder="$t('table.projectName')" v-model="listQuery.name">
+      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" placeholder="项目名" v-model="searchQuery">
       </el-input>
 
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
+      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" style="float:right;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
 
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+    <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
               style="width: 100%">
       <el-table-column min-width="150px" :label="$t('table.projectName')">
         <template slot-scope="scope">
@@ -78,7 +78,7 @@
       return {
         selectedId: '',
         tableKey: 0,
-        list: null,
+        list: [],
         total: null,
         listLoading: true,
         listQuery: {
@@ -112,7 +112,8 @@
         },
         downloadLoading: false,
         listLength: 0,
-        projectExist: true
+        projectExist: true,
+        searchQuery: ''
       }
     },
     created() {
@@ -312,6 +313,14 @@
         setProjectNum:'SET_PROJECTNUM',
         setProjectExist: 'SET_PROJECTEXIST'
       })
+    },
+    computed: {
+      listA: function () {
+        let self = this;
+        return self.list.filter(function (item) {
+          return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
+        })
+      }
     }
   }
 </script>
