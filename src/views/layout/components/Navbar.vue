@@ -196,9 +196,14 @@
         //alert(this.proId);
         //不存在则创建项目
         let isReal = false;
+        let projectId = '';
         for(let i=0;i<this.list.length;i++){
           if(this.proName == this.list[i].name){
             isReal = true;
+            projectId = this.list[i].id;
+            console.log(projectId);
+            let expireDays = 30;
+            this.setCookie('projectId', projectId, expireDays);
             break;
           }
         }
