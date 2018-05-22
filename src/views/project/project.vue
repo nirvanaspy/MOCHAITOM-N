@@ -67,7 +67,7 @@
   import { fetchPv } from '@/api/article'
   import waves from '@/directive/waves' // 水波纹指令
   import { projectList, createProject, updateProject, deleteProject } from '@/api/project'
-  import { mapGetters, mapMutations} from 'vuex'
+  import { mapMutations } from 'vuex'
   /* eslint-disable */
   export default {
     name: 'project',
@@ -112,7 +112,7 @@
         },
         downloadLoading: false,
         listLength: 0,
-        projectName: ''
+        projectExist: true
       }
     },
     created() {
@@ -125,15 +125,15 @@
       listenProjectNum() {
         return this.$store.state.app.projectNum
       },
-      listenProName(){
-        return this.$store.state.app.projectName
+      listenProExist(){
+        return this.$store.state.app.projectExist
       },
     },
     watch: {
       listenProjectNum: function(a, b) {
         this.getList()
       },
-      listenProName: function(a,b) {
+      listenProExist: function(a,b) {
         this.getList()
       }
     },
@@ -226,6 +226,20 @@
             };
 
             const id = this.selectedId;
+            let beforUpdateName = '';
+
+            console.log("改前改后-----------")
+
+
+            for(let i=0;i<this.list.length;i++){
+              if(id == this.list[i].id){
+                beforUpdateName = this.list[i].name;
+                console.log(beforUpdateName);
+              }
+            }
+
+            console.log(this.temp.name);
+
             console.log(id);
             let proData = qs.stringify(data);
             updateProject(proData, id).then(() => {
@@ -243,8 +257,13 @@
                 type: 'success',
                 duration: 2000
               })
+              // this.setProjectNum(this.listLength)
+              if(this.temp.name != beforUpdateName){
+                this.projectExist = false;
+              }
 
-              this.setProjectName(this.projectName)
+              this.setProjectExist(this.projectExist)
+
             })
           }
         })
@@ -291,7 +310,7 @@
       },
       ...mapMutations ({
         setProjectNum:'SET_PROJECTNUM',
-        setProjectName: 'SET_PROJECTNAME'
+        setProjectExist: 'SET_PROJECTEXIST'
       })
     }
   }

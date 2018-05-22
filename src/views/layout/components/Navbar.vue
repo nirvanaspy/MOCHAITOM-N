@@ -49,7 +49,7 @@
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
-          <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
+          <img class="user-avatar" src="./2.jpg">
           <i class="el-icon-caret-bottom"></i>
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -124,7 +124,7 @@
           description: ''
         },
         projectLength: 0,
-        projectName: ''
+        projectExist: true
       }
     },
     created() {
@@ -134,8 +134,11 @@
       listenProLength() {
         return this.$store.state.app.projectNum
       },
-      listenProName(){
-        return this.$store.state.app.projectName
+      listenProExist(){
+        console.log("哈哈哈哈哈哈哈哈-------------")
+        console.log(this.$store.state.app.projectExist);
+        return this.$store.state.app.projectExist
+
       },
       ...mapGetters([
         'sidebar',
@@ -148,7 +151,7 @@
       listenProLength: function(a,b) {
         this.getList()
       },
-      listenProName: function(a,b) {
+      listenProExist: function(a,b) {
         this.getList()
       }
     },
@@ -163,6 +166,28 @@
           this.list.value = '';
           this.total = response.data.total
           this.listLoading = false
+          this.projectLength = this.list.length
+
+          let isExist = false;
+          console.log(this.selected);
+          if(this.selected != ''){
+            console.log("有选择项目");
+            for(let i=0;i<this.list.length;i++){
+              if(this.selected == this.list[i].name){   //判断显示的在现在的列表中是否存在
+                isExist = true;
+                return;
+              }
+            }
+
+            if(!isExist){       //如果不存在
+              this.selected = '';
+              this.$message({
+                message: '请重新选择项目',
+                type: 'warning'
+              });
+            }
+          }
+
         })
       },
       //下拉框选择部署设计
@@ -196,24 +221,32 @@
               type: 'success',
               duration: 2000
             })
-            // this.getList()
+            this.getList()
 
-            this.setProjectNum(this.projectLength)
+            this.setProjectNum(this.projectLength);
           })
+
+        }else {
+          console.log("下拉改变--------");
+          console.log(this.projectExist);
+          this.getList();
+          this.setProjectExist(this.projectExist);
+
         }
+
       },
       toggleSideBar() {
         this.$store.dispatch('toggleSideBar')
       },
       logout() {
-        this.$store.dispatch('LogOut').then(() => {
+        this.$store.dispatch('FedLogOut').then(() => {
           location.reload()// In order to re-instantiate the vue-router object to avoid bugs
         })
       },
       ...mapMutations({
         setroles: 'SET_ROLES',
         setProjectNum: 'SET_PROJECTNUM',
-        setProjectName: 'SET_PROJECTNAME'
+        setProjectExist: 'SET_PROJECTEXIST'
       })
     }
   }
