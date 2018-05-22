@@ -63,7 +63,7 @@
 </template>
 
 <script>
-  import { deployplanList, createDeployplan } from '@/api/deployplan'
+  import { deployplanList, createDeployplan, updateDeployplan } from '@/api/deployplan'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
 
@@ -75,6 +75,7 @@
     },
     data() {
       return {
+        selectedId: '',
         tableKey: 0,
         list: null,
         total: null,
@@ -92,9 +93,9 @@
         oldList: [],
         newList: [],
         temp: {
-          id: undefined,
-          deployPlanName: undefined,
-          deployPlanDesc: undefined
+          id: '',
+          name: '',
+          description: ''
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -191,6 +192,8 @@
         })
       },
       handleUpdate(row) {
+        this.selectedId = row.id;
+
         this.temp = Object.assign({}, row) // copy obj
         this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
@@ -200,8 +203,34 @@
         })
       },
       updateData() {
+        let qs = require('qs');
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
+            let data = {
+              'name': this.temp.name,
+              'description': this.temp.description
+            };
+
+            const id = this.selectedId;
+
+            let deployplanData = qs.stringify(data);
+            updateDeployplan(deployplanData, id).then(() => {
+              for (const v of this.list) {
+                if (v.id === this.temp.id) {
+                  const index = this.list.indexOf(v)
+                  this.list.splice(index, 1, this.temp)
+                  break
+                }
+              }
+              this.dialogFormVisible = false
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              })
+
+            })
 
           }
         })

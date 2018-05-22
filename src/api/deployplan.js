@@ -23,3 +23,15 @@ export function createDeployplan(data, projectId) {
   })
 }
 
+export function updateDeployplan(data, id) {
+  return request({
+    url: 'deploymentdesigns/' + id,
+    method: 'patch',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    },
+    data
+  })
+}
+
