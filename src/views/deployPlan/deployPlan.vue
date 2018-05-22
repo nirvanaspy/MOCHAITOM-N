@@ -11,14 +11,14 @@
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
               style="width: 100%">
 
-      <el-table-column align="center" :label="$t('table.deployPlanName')" width="120">
+      <el-table-column align="center" :label="$t('table.deployPlanName')" width="200">
         <template slot-scope="scope">
-          <span>{{scope.row.deployPlanName}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="80px" align="center" :label="$t('table.deployPlanDesc')">
         <template slot-scope="scope">
-          <span>{{scope.row.deployPlanDesc}}</span>
+          <span>{{scope.row.description}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" width="100px" :label="$t('table.deployBindDetail')">
@@ -38,18 +38,18 @@
 
     </el-table>
 
-    <div class="pagination-container">
+    <!--<div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
-    </div>
+    </div>-->
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.deployPlanName')" prop="name">
-          <el-input v-model="temp.deployPlanName"></el-input>
+          <el-input v-model="temp.name"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.deployPlanDesc')" prop="desc">
-          <el-input v-model="temp.deployPlanDesc"></el-input>
+          <el-input v-model="temp.description"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -63,7 +63,7 @@
 </template>
 
 <script>
-  import { fetchList, createArticle, updateArticle } from '@/api/article'
+  import { deployplanList, createDeployplan } from '@/api/deployplan'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
 
@@ -117,30 +117,29 @@
     },
     methods: {
       getList() {
-        this.listLoading = true
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
+        this.listLoading = true;
+        let projectId = this.getCookie('projectId');
+
+        deployplanList(projectId).then(response => {
+          this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
-          this.oldList = this.list.map(v => v.id);
-          this.newList = this.oldList.slice();
-          this.$nextTick(() => {
-            this.setSort()
-          })
+
+          console.log(this.list);
         })
       },
       handleFilter() {
         this.listQuery.page = 1
         this.getList()
       },
-      handleSizeChange(val) {
+      /*handleSizeChange(val) {
         this.listQuery.limit = val
         this.getList()
       },
       handleCurrentChange(val) {
         this.listQuery.page = val
         this.getList()
-      },
+      },*/
       handleModifyStatus(row, status) {
         this.$message({
           message: '操作成功',
@@ -167,35 +166,16 @@
           this.$refs['dataForm'].clearValidate()
         })
       },
-      updateData() {
-        this.$refs['dataForm'].validate((valid) => {
-          if (valid) {
-            const tempData = Object.assign({}, this.temp)
-            tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-            updateArticle(tempData).then(() => {
-              for (const v of this.list) {
-                if (v.id === this.temp.id) {
-                  const index = this.list.indexOf(v)
-                  this.list.splice(index, 1, this.temp)
-                  break
-                }
-              }
-              this.dialogFormVisible = false
-              this.$notify({
-                title: '成功',
-                message: '更新成功',
-                type: 'success',
-                duration: 2000
-              })
-            })
-          }
-        })
-      },
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
-            this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-            createArticle(this.temp).then(() => {
+            let projectId = this.getCookie('projectId');
+            let formData = new FormData();
+
+            formData.append('name', this.temp.name);
+            formData.append('description', this.temp.description);
+
+            createDeployplan(formData, projectId).then(() => {
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.$notify({
@@ -204,6 +184,8 @@
                 type: 'success',
                 duration: 2000
               })
+
+              this.getList()
             })
           }
         })
@@ -215,6 +197,13 @@
         this.dialogFormVisible = true
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
+        })
+      },
+      updateData() {
+        this.$refs['dataForm'].validate((valid) => {
+          if (valid) {
+
+          }
         })
       },
       setSort() {
