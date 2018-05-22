@@ -1,13 +1,13 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width:200px;" class="filter-item" :placeholder="$t('table.username')" v-model="listQuery.username">
+      <el-input @keyup.enter.native="handleFilter" style="width:200px;" class="filter-item" :placeholder="$t('table.username')" v-model="searchQuery">
       </el-input>
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
       <el-button class="filter-item" style="float:right;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
 
-    <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+    <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
               style="width: 100%">
       <el-table-column min-width="150px" :label="$t('table.username')">
         <template slot-scope="scope">
@@ -109,7 +109,7 @@
         selectedId: '',
         deleteId: '',
         tableKey: 0,
-        list: null,
+        list: [],
         total: null,
         listLoading: true,
         listQuery: {
@@ -125,6 +125,7 @@
           username: '',
           self:[]
         },
+        searchQuery: '',
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
@@ -365,6 +366,14 @@
             return v[j]
           }
         }))
+      }
+    },
+    computed: {
+      listA: function () {
+        let self = this;
+        return self.list.filter(function (item) {
+          return item.username.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
+        })
       }
     }
   }

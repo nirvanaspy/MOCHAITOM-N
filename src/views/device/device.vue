@@ -14,30 +14,29 @@
 
       <el-table-column align="center" :label="$t('table.deviceName')" width="100">
         <template slot-scope="scope">
-          <span>{{scope.row.deviceName}}</span>
+          <span>{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.deviceIP')">
         <template slot-scope="scope">
-          <span>{{scope.row.deviceIP}}</span>
+          <span>{{scope.row.ip}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.devicePath')">
         <template slot-scope="scope">
-          <span>{{scope.row.devicePath}}</span>
+          <span>{{scope.row.deployPath}}</span>
         </template>
       </el-table-column>
       <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.deviceState | statusFilter">{{scope.row.deviceState}}</el-tag>
+          <el-tag :type="scope.row.online | statusFilter">{{scope.row.online | statusFilter}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button size="mini" type="success">{{$t('table.publish')}}
-          </el-button>
-          <el-button size="mini" type="danger" @click="deleteDevice($event)">{{$t('table.delete')}}
+          <el-button size="mini" type="success" @click="copyDevice(scope.row)">{{$t('table.copy')}}</el-button>
+          <el-button size="mini" type="danger" @click="deleteDevice(scope.row)">{{$t('table.delete')}}
           </el-button>
         </template>
       </el-table-column>
@@ -52,13 +51,16 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.deviceName')" prop="name">
-          <el-input v-model="temp.deviceName"></el-input>
+          <el-input v-model="temp.name"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.deviceIP')" prop="ip">
-          <el-input v-model="temp.deviceIP"></el-input>
+          <el-input v-model="temp.ip"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.devicePath')" prop="path">
-          <el-input v-model="temp.devicePath"></el-input>
+          <el-input v-model="temp.deployPath"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('table.deviceDesc')" prop="description">
+          <el-input v-model="temp.description"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -73,6 +75,7 @@
 
 <script>
   import { fetchList, createArticle, updateArticle } from '@/api/article'
+  import { getDevices, saveDevices, updateDevice, deleteDevice, copyDevices } from '@/api/device'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
 
@@ -88,6 +91,12 @@
           list: null,
           total: null,
           listLoading: true,
+          userData:{
+            username: '',
+            password: ''
+          },
+          proId: '',
+          deviceId: '',
           listQuery: {
             page: 1,
             limit: 10,
@@ -101,10 +110,10 @@
           oldList: [],
           newList: [],
           temp: {
-            id: undefined,
-            deviceName: undefined,
-            deviceIP: undefined,
-            devicePath: undefined
+            name: undefined,
+            ip: undefined,
+            deployPath: undefined,
+            description: undefined
           },
           dialogFormVisible: false,
           dialogStatus: '',
@@ -125,27 +134,34 @@
       filters: {
         statusFilter(deviceState) {
           const statusMap = {
-            在线: 'success',
-            离线: 'info'
+            /*'在线': true,
+            '离线': false*/
+            true: '在线',
+            false: '离线'
           }
           return statusMap[deviceState]
         }
       },
       created() {
+        this.userData.username = this.getCookie('username')
+        this.userData.password = this.getCookie('password')
+        this.proId = this.getCookie('projectId')
         this.getList()
       },
       methods: {
         getList() {
           this.listLoading = true
-          fetchList(this.listQuery).then(response => {
-            this.list = response.data.items
+          getDevices(this.proId, this.userData).then(response => {
+           /* this.list = response.data.items
             this.total = response.data.total
             this.listLoading = false
             this.oldList = this.list.map(v => v.id);
             this.newList = this.oldList.slice();
             this.$nextTick(() => {
               this.setSort()
-            })
+            })*/
+            this.list = response.data.data
+            this.listLoading = false
           })
         },
         handleFilter() {
@@ -179,8 +195,52 @@
           }
         },
         handleCreate() {
-          this.resetTemp()
+          /*this.resetTemp()*/
           this.dialogStatus = 'create'
+          this.dialogFormVisible = true
+          this.$nextTick(() => {
+            this.$refs['dataForm'].clearValidate()
+          })
+        },
+        createData() {
+          this.$refs['dataForm'].validate((valid) => {
+            if (valid) {
+              /*  this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+                createArticle(this.temp).then(() => {
+                  this.list.unshift(this.temp)
+                  this.dialogFormVisible = false
+                  this.$notify({
+                    title: '成功',
+                    message: '创建成功',
+                    type: 'success',
+                    duration: 2000
+                  })
+                })*/
+              let formData = new FormData();
+
+              formData.append('name', this.temp.name);
+              formData.append('ip', this.temp.ip);
+              formData.append('deployPath', this.temp.deployPath);
+              formData.append('description', this.temp.description);
+              saveDevices(this.proId, this.userData, formData).then((res) => {
+                console.log(res.data, 'createDeviceSuccess')
+                this.dialogFormVisible = false
+                this.$notify({
+                  title: '成功',
+                  message: '创建成功',
+                  type: 'success',
+                  duration: 2000
+                })
+                this.getList()
+              })
+            }
+          })
+        },
+        handleUpdate(row) {
+          this.temp = Object.assign({}, row) // copy obj
+          /*this.temp.timestamp = new Date(this.temp.timestamp)*/
+          this.dialogStatus = 'update'
+          this.deviceId = row.id
           this.dialogFormVisible = true
           this.$nextTick(() => {
             this.$refs['dataForm'].clearValidate()
@@ -189,7 +249,7 @@
         updateData() {
           this.$refs['dataForm'].validate((valid) => {
             if (valid) {
-              const tempData = Object.assign({}, this.temp)
+              /*const tempData = Object.assign({}, this.temp)
               tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
               updateArticle(tempData).then(() => {
                 for (const v of this.list) {
@@ -206,16 +266,15 @@
                   type: 'success',
                   duration: 2000
                 })
+              })*/
+              let qs = require('qs');
+              let tempData = qs.stringify({
+                "name": this.temp.name,
+                "ip": this.temp.ip,
+                "deployPath": this.temp.deployPath,
+                "description": this.temp.description
               })
-            }
-          })
-        },
-        createData() {
-          this.$refs['dataForm'].validate((valid) => {
-            if (valid) {
-              this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-              createArticle(this.temp).then(() => {
-                this.list.unshift(this.temp)
+              updateDevice(this.deviceId, this.userData, tempData).then((res) => {
                 this.dialogFormVisible = false
                 this.$notify({
                   title: '成功',
@@ -223,17 +282,76 @@
                   type: 'success',
                   duration: 2000
                 })
+                this.getList()
               })
             }
           })
         },
-        handleUpdate(row) {
+        deleteDevice(row) {
+          /*console.log(event.target.tagName)
+          const target_btn = event.target*/
+          this.$confirm('确认删除吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            let deleteId = row.id
+            deleteDevice(deleteId, this.userData).then(() => {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              })
+              this.getList()
+            })
+            /*console.log(target_btn.parentNode.parentNode.parentNode)
+            const target_tr = target_btn.parentNode.parentNode.parentNode
+            if (target_tr.tagName.toLowerCase() === 'tr') {
+              target_tr.style.display = 'none'
+            } else if (target_tr.parentNode.tagName.toLowerCase() === 'tr') {
+              target_tr.parentNode.style.display = 'none'
+            }*/
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            })
+          })
+        },
+        copyDevice1(row) {
+          let copyId = row.id
+          let qs = require('qs');
+          let copyData = qs.stringify({
+            "name": row.name
+          })
+          copyDevices(copyId, this.userData, copyData).then((res) => {
+            this.$message({
+              type: 'success',
+              message: '复制成功!'
+            })
+            this.getList()
+          })
+        },
+        copyDevice(row) {
+          let qs = require('qs');
+          let id = row.id;
           this.temp = Object.assign({}, row) // copy obj
-          this.temp.timestamp = new Date(this.temp.timestamp)
-          this.dialogStatus = 'update'
-          this.dialogFormVisible = true
-          this.$nextTick(() => {
-            this.$refs['dataForm'].clearValidate()
+
+          let data = {
+            'name': this.temp.name
+          };
+          let proData = qs.stringify(data);
+
+          copyDevices(proData, id).then(() => {
+            this.list.unshift(this.temp)
+            this.dialogFormVisible = false
+            this.$notify({
+              title: '成功',
+              message: '复制成功',
+              type: 'success',
+              duration: 2000
+            })
+
+            this.getList()
           })
         },
         setSort() {
@@ -255,32 +373,6 @@
             }
           })
         },
-        deleteDevice(event) {
-          console.log(event.target.tagName)
-          const target_btn = event.target
-          this.$confirm('确认删除吗？', '提示', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            console.log(target_btn.parentNode.parentNode.parentNode)
-            const target_tr = target_btn.parentNode.parentNode.parentNode
-            if (target_tr.tagName.toLowerCase() === 'tr') {
-              target_tr.style.display = 'none'
-            } else if (target_tr.parentNode.tagName.toLowerCase() === 'tr') {
-              target_tr.parentNode.style.display = 'none'
-            }
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            })
-          }).catch(() => {
-            this.$message({
-              type: 'info',
-              message: '已取消删除'
-            })
-          })
-        }
       }
     }
 </script>

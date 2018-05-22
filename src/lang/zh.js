@@ -167,7 +167,9 @@ export default {
     path: '路径',
     fileType: '文件类型',
     editDate: '修改日期',
-    versionStatus: '版本状态'
+    versionStatus: '版本状态',
+    copy: '复制',
+    deviceDesc: '描述'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

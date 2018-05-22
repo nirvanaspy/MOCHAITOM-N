@@ -7,8 +7,9 @@ const app = {
     },
     language: Cookies.get('language') || 'en',
     projectNum: Cookies.get('projectNum'),
+    /*projectName: Cookies.get('projectName')*/
     projectExist: Cookies.get('projectExist')
-  },
+   },
   mutations: {
     TOGGLE_SIDEBAR: state => {
       if (state.sidebar.opened) {
@@ -26,9 +27,9 @@ const app = {
       state.projectNum = projectNum
       Cookies.set('projectNum', projectNum)
     },
-    SET_PROJECTEXIST: (state, projectExist) => {
-      state.projectExist = projectExist
-      Cookies.set('projectExist', projectExist)
+    SET_PROJECTNAME: (state, projectName) => {
+      state.projectName = projectName
+      Cookies.set('projectName', projectName)
     }
   },
   actions: {
@@ -38,11 +39,11 @@ const app = {
     setLanguage({ commit }, language) {
       commit('SET_LANGUAGE', language)
     },
-    setProjectNum: ({ commit }, projectNum) => {
+    setProjectNum: ({ commit }, projectNum)  => {
       commit('SET_PROJECTNUM', projectNum)
     },
-    setProjectExist: ({ commit }, projectExist) => {
-      commit('SET_PROJECTEXIST', projectExist)
+    setProjectName: ({ commit }, projectName)  => {
+      commit('SET_PROJECTNAME', projectName)
     }
   }
 }
