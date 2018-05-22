@@ -37,12 +37,12 @@
 
     <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
               style="width: 100%">
-      <el-table-column min-width="120px" :label="$t('table.deviceIP')">
+      <el-table-column min-width="120px" align="center" :label="$t('table.deviceIP')">
         <template slot-scope="scope">
           <span>{{scope.row.ip}}</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="120px" :label="$t('table.componentsName')">
+      <el-table-column min-width="120px" align="center" :label="$t('table.componentsName')">
         <template slot-scope="scope">
           <span>{{scope.row.componentEntity.name}}</span>
         </template>
@@ -62,7 +62,7 @@
           <span>{{scope.row.componentEntity.displaySize}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="150px" label="部署状态" prop="state">
+      <el-table-column width="150px" align="center" label="部署状态" prop="state">
         <template slot-scope="scope">
           <span class="el-tag el-tag--danger" v-if="scope.row.state == 0">部署异常</span>
           <span class="el-tag el-tag--primary" v-else-if="scope.row.state == 1">部署进行中</span>
