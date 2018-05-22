@@ -10,3 +10,15 @@ export function logList() {
     }
   })
 }
+
+export function logSearchList(searchObj) {
+  return request({
+    url: '/deploylogs',
+    params: searchObj,
+    method: 'get',
+    auth: {
+      username: 'admin',
+      password: 'admin'
+    }
+  })
+}
