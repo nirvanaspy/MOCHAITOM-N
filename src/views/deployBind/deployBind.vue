@@ -38,7 +38,13 @@
                     width="520"
                     height="500"
                     trigger="click">
-                    <div style="height: 425px;overflow-y: auto;">
+                    <div class="filter-container">
+                      <el-input style="width: 200px;" class="filter-item" placeholder="组件名" v-model="searchQuery2">
+                      </el-input>
+
+                    </div>
+
+                    <div style="height: 425px;overflow-y: auto;margin-top: 20px;">
                       <el-table :key='tableKey' :data="listB" v-loading="listLoading" element-loading-text="给我一点时间" border fit
                                 highlight-current-row
                                 style="width: 100%;">
@@ -119,6 +125,7 @@
         tableKey: 0,
         list: [],
         searchQuery: '',
+        searchQuery2: '',
         userData:{
           username: '',
           password: ''
@@ -231,7 +238,7 @@
         let self = this;
         console.log(self.listComp);
         return self.listComp.filter(function (item) {
-          return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
+          return item.name.toLowerCase().indexOf(self.searchQuery2.toLowerCase()) !== -1;
         })
       }
     }
