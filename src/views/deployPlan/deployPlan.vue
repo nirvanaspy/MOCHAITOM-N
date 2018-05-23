@@ -28,7 +28,7 @@
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="300" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <router-link class="pan-btn green-btn" to="/deployBind/deployBind">设计</router-link>
+          <router-link class="pan-btn green-btn" :to='{name:"deployBind",params:{id:scope.row.id}}'>设计</router-link>
           <!--<el-button size="mini" type="success">设计</el-button>-->
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}</el-button>
