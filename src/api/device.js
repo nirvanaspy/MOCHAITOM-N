@@ -62,3 +62,49 @@ export function copyDevices(data, id) {
     data
   })
 }
+
+export function getDisks(id, userData) {
+  return request({
+    url: '/devices/' + id + '/disks',
+    method: 'get',
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    },
+    auth: {
+      username: userData.username,
+      password: userData.password
+     /* username: 'admin',
+      password: 'admin'*/
+    }
+  })
+}
+
+export function getProcess(id, userData) {
+  return request({
+    url: '/devices/' + id + '/tasks',
+    method: 'get',
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    },
+    auth: {
+      username: userData.username,
+      password: userData.password
+      /* username: 'admin',
+       password: 'admin'*/
+    }
+  })
+}
+
+export function reportDevices(proId, userData, data) {
+  return request({
+    url: '/projects/' + proId + '/devices',
+    method: 'post',
+    auth: {
+      username: userData.username,
+      password: userData.password
+      /*username: 'admin',
+      password: 'admin'*/
+    },
+    data
+  })
+}

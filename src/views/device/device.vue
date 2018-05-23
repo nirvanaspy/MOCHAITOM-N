@@ -27,6 +27,16 @@
           <span>{{scope.row.deployPath}}</span>
         </template>
       </el-table-column>
+      <el-table-column min-width="100px" label="CPU">
+        <template slot-scope="scope">
+          <span>{{scope.row.cpuclock}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column min-width="100px" :label="$t('table.memorySize')">
+        <template slot-scope="scope">
+          <span>{{scope.row.ramsize}}</span>
+        </template>
+      </el-table-column>
       <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
         <template slot-scope="scope">
           <!--<el-tag :type="scope.row.online | statusFilter">{{scope.row.online | statusFilter}}</el-tag>-->
@@ -34,15 +44,25 @@
           <span class="el-tag el-tag--primary" v-else>在线</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
+      <el-table-column align="center" :label="$t('table.check')" width="180" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button size="mini" type="success" @click="copyDevice(scope.row)">{{$t('table.copy')}}</el-button>
-          <el-button size="mini" type="danger" @click="deleteDevice(scope.row)">{{$t('table.delete')}}
-          </el-button>
+          <el-button type="primary" size="mini" v-if="scope.row.online && !scope.row.virtual" @click="handleProcess(scope.row)">{{$t('table.deviceProcess')}}</el-button>
+          <el-button size="mini" type="success" v-if="scope.row.online && !scope.row.virtual" @click="handleDisk(scope.row)">{{$t('table.disk')}}</el-button>
+          <el-button type="primary" disabled="disabled" v-if="!scope.row.online || scope.row.virtual" size="mini">{{$t('table.deviceProcess')}}</el-button>
+          <el-button size="mini" disabled="disabled" v-if="!scope.row.online || scope.row.virtual" type="success">{{$t('table.disk')}}</el-button>
         </template>
       </el-table-column>
-
+      <el-table-column align="center" :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
+        <template slot-scope="scope">
+          <el-button type="primary" v-if="!scope.row.virtual" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
+          <el-button size="mini" v-if="!scope.row.virtual" type="success" @click="copyDevice(scope.row)">{{$t('table.copy')}}</el-button>
+          <el-button size="mini" v-if="!scope.row.virtual" type="danger" @click="deleteDevice(scope.row)">{{$t('table.delete')}}</el-button>
+          <el-button type="primary" size="mini" v-if="scope.row.virtual" @click="handleReport(scope.row)">{{$t('table.report')}}</el-button>
+        </template>
+        <!--<template v-else slot-scope="scope">
+          <el-button type="primary" size="mini" @click="handleReport(scope.row)">{{$t('table.report')}}</el-button>
+        </template>-->
+      </el-table-column>
     </el-table>
 
     <div class="pagination-container">
@@ -71,13 +91,71 @@
         <el-button v-else type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="磁盘" :visible.sync="diskDialogVisible">
+      <el-table :key='tableKey' :data="disks" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+                style="width: 100%">
+        <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
+
+        <el-table-column align="center" :label="$t('table.deviceName')" width="100">
+          <template slot-scope="scope">
+            <span>{{scope.row.name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" :label="$t('table.size')">
+          <template slot-scope="scope">
+            <span>{{scope.row.size}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" :label="$t('table.usedSize')">
+          <template slot-scope="scope">
+            <span>{{scope.row.usedSize}}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="diskDialogVisible = false">{{$t('table.close')}}</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="进程" :visible.sync="processDialogVisible">
+      <el-table :key='tableKey' :data="taskprocess" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+                style="width: 100%">
+        <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
+
+        <el-table-column align="center" label="pid">
+          <template slot-scope="scope">
+            <span>{{scope.row.pid}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" :label="$t('table.processName')">
+          <template slot-scope="scope">
+            <span>{{scope.row.name}}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="processDialogVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">{{$t('table.confirm')}}</el-button>
+        <el-button v-else type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog title="请填写路径" :visible.sync="reportDialogVisible">
+      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+        <el-form-item label="路径" prop="name">
+          <el-input v-model="reportPath"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="reportDialogVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button type="primary" @click="reportDevice">{{$t('table.confirm')}}</el-button>
+      </div>
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
   import { fetchList, createArticle, updateArticle } from '@/api/article'
-  import { getDevices, saveDevices, updateDevice, deleteDevice, copyDevices } from '@/api/device'
+  import { getDevices, saveDevices, updateDevice, deleteDevice, copyDevices, getDisks, getProcess, reportDevices } from '@/api/device'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
   /* eslint-disable */
@@ -96,6 +174,11 @@
         userData:{
           username: '',
           password: ''
+        },
+        reportData: {
+          name: '',
+          ip: '',
+          deployPath: ''
         },
         proId: '',
         deviceId: '',
@@ -117,7 +200,13 @@
           deployPath: undefined,
           description: undefined
         },
+        disks: [],
+        taskprocess: [],
+        reportPath: '',
         dialogFormVisible: false,
+        diskDialogVisible: false,
+        processDialogVisible: false,
+        reportDialogVisible: false,
         dialogStatus: '',
         textMap: {
           update: 'Edit',
@@ -187,17 +276,14 @@
       },
       resetTemp() {
         this.temp = {
-          id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          deviceState: '在线',
-          type: ''
+          name: '',
+          ip: '',
+          deployPath: '',
+          description: ''
         }
       },
       handleCreate() {
-        /*this.resetTemp()*/
+        this.resetTemp()
         this.dialogStatus = 'create'
         this.dialogFormVisible = true
         this.$nextTick(() => {
@@ -341,11 +427,50 @@
         };
         let proData = qs.stringify(data);
         copyDevices(proData, id).then(() => {
-          /*this.list.unshift(this.temp)*/
-          this.dialogFormVisible = false
+          this.list.unshift(this.temp)
+          /* this.dialogFormVisible = false */
           this.$notify({
             title: '成功',
             message: '复制成功',
+            type: 'success',
+            duration: 2000
+          })
+          this.getList()
+        })
+      },
+      handleProcess(row) {
+        this.processDialogVisible = true
+        getProcess(row.id, this.userData).then((res) => {
+          this.taskprocess = res.data.data.taskInfoEntities
+        })
+      },
+      handleDisk(row) {
+        this.diskDialogVisible = true
+        getDisks(row.id,this.userData).then((res) => {
+          this.disks = res.data.data.diskInfoEntities
+        })
+      },
+      handleReport(row) {
+        this.reportDialogVisible = true
+        this.reportData.name = row.name
+        this.reportData.ip = row.ip
+      },
+      reportDevice() {
+        this.reportData.deployPath = this.reportPath
+        let qs = require('qs')
+        let RpData = qs.stringify({
+          "name": this.reportData.name,
+          "ip":  this.reportData.ip,
+          "deployPath": this.reportData.deployPath
+        })
+        reportDevices(this.proId, this.userData, RpData).then((res) => {
+          this.reportData.name = ''
+          this.reportData.ip = ''
+          this.reportData.deployPath = ''
+          this.reportDialogVisible = false
+          this.$notify({
+            title: '成功',
+            message: '上报成功',
             type: 'success',
             duration: 2000
           })
