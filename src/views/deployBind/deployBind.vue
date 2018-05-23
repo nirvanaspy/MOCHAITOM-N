@@ -30,14 +30,15 @@
                   <span class="el-tag el-tag--primary" v-else>在线</span>
                 </template>
               </el-table-column>
-              <el-table-column align="center" :label="$t('table.bindAction')" width="120" class-name="small-padding fixed-width">
+              <el-table-column align="center" label="选择组件" width="120" class-name="small-padding fixed-width">
                 <template slot-scope="scope">
                   <el-popover
                     ref="popover4"
                     placement="right"
                     width="520"
                     height="500"
-                    trigger="click">
+                    trigger="click"
+                    @show="beforeSubmit(scope.row)">
                     <div class="filter-container">
                       <el-input style="width: 200px;" class="filter-item" placeholder="组件名" v-model="searchQuery2">
                       </el-input>
@@ -51,7 +52,12 @@
                         <el-table-column
                           type="selection"
                           width="55"
-                          align="center">
+                          align="center"
+                          :value="scope.row.id"
+                          name="choosecomp"
+                          v-model="checkedComps"
+                          :indeterminate="isIndeterminate"
+                          @change="handleCheckedCompsChange(scope.row.id)">
                         </el-table-column>
                         <el-table-column :label="$t('table.compName')" width="140" align="center">
                           <template slot-scope="scope">
@@ -78,7 +84,7 @@
                     </div>
 
                     <div style="margin-top: 20px;">
-                      <el-button size="mini" type="success" style="float:right;">绑定</el-button>
+                      <el-button size="mini" type="success" style="float:right;" @click="submit()">绑定</el-button>
                     </div>
                   </el-popover>
                   <el-button type="primary" size="mini" icon="el-icon-arrow-right" v-popover:popover4></el-button>
@@ -107,7 +113,6 @@
   import { getDevices } from '@/api/device'
   import { compList } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
-  import Sortable from 'sortablejs'
   import splitPane from 'vue-splitpane'
   import Popper from 'vue-popper'
   import deployBindER from './deployBindER.vue'
@@ -126,7 +131,7 @@
         list: [],
         searchQuery: '',
         searchQuery2: '',
-        userData:{
+        userData: {
           username: '',
           password: ''
         },
@@ -134,72 +139,20 @@
         listComp: [],
         total: null,
         listLoading: true,
-        listQuery: {
-          page: 1,
-          limit: 10,
-          importance: undefined,
-          title: undefined,
-          type: undefined,
-          sort: '+id',
-          deviceName: undefined
-        },
-        sortable: null,
-        oldList: [],
-        newList: [],
-        temp: {
-          id: undefined,
-          deviceName: undefined,
-          deviceIP: undefined,
-          devicePath: undefined
-        },
-        dialogFormVisible: false,
-        dialogStatus: '',
-        textMap: {
-          update: 'Edit',
-          create: 'Create'
-        },
-        dialogPvVisible: false,
-        pvData: [],
-        rules: {
-          type: [{ required: true, message: 'type is required', trigger: 'change' }],
-          timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-          title: [{ required: true, message: 'title is required', trigger: 'blur' }]
-        },
-        downloadLoading: false,
-        tableData3: [{
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-08',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-06',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }, {
-          date: '2016-05-07',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        }],
-        multipleSelection: []
 
+        deployPlanId: '',       //所选部署设计的id
+        deviceCHId: '',         //左侧表格中点击的设备的id
+        compCHId: '',           //右侧表格中点击的组件的id
+        chboxValue: [],         //选中的组件的id数组
+
+        SelectFalse: false,     //判断是否有绑定信息
+
+        checkedComps: [],
+        comps: [],
+        isIndeterminate: true
       }
     },
-    created() {
+    created(){
       this.userData.username = this.getCookie('username')
       this.userData.password = this.getCookie('password')
       this.proId = this.getCookie('projectId')
@@ -207,16 +160,16 @@
       this.getListComp();
     },
     methods: {
-      getList() {
+      getList() {     //获取设备信息
         this.listLoading = true
         getDevices(this.proId, this.userData).then(response => {
           this.list = response.data.data
           this.listLoading = false
         })
       },
-      getListComp() {
+      getListComp() {    //获取组件信息
         this.listLoading = true
-        compList(this.listQuery).then(response => {
+        compList().then(response => {
           this.listComp = response.data.data
           this.total = response.data.total
           this.listLoading = false
@@ -224,7 +177,98 @@
       },
       resize() {
         console.log('resize')
-      }
+      },
+      beforeSubmit: function (row){     //绑定前的准备工作
+        // 绑定前获取设备的id，获取所选部署设计的id
+        this.deviceCHId = row.id;
+        console.log("所选设备的id--------");
+        console.log(this.deviceCHId);
+
+        this.deployPlanId = this.$route.params.id;  //所选择的部署设计的id
+        console.log(this.deployPlanId);
+
+        this.SelectFalse = false; //用于判断是否被选择条件
+
+        for(let i=0;i<this.listComp.length;i++){
+          this.comps.push(this.listComp[i].id);
+        }
+      },
+
+      handleCheckedCompsChange(value) {          //所选的组件，checkbox
+        //let checkedCount = value.length;
+        alert("改变");
+        console.log(this.checkedComps);
+        //this.isIndeterminate = checkedCount > 0 && checkedCount < this.cities.length;
+      },
+
+      submit: function () {
+        alert("hh");
+        let CheckBox = document.getElementsByName("choosecomp");//得到所有的复选框
+
+        console.log(CheckBox);
+
+        for(let i = 0; i < CheckBox.length; i++){
+          /*if(CheckBox[i].checked)//如果有1个被选中时
+          {*/
+            this.SelectFalse = true;
+            this.chboxValue.push(CheckBox[i].id)//将被选择的值追加到
+          /*}*/
+
+        }
+
+        console.log("所选的组件的id数组----------");
+        console.log(this.chboxValue);
+
+        console.log(this.SelectFalse);
+         if(this.SelectFalse){
+           console.log("所选的组件的id数组----------");
+           console.log(this.chboxValue);
+         }else{
+           this.$message({
+             type: 'warning',
+             message: '无绑定信息!'
+           })
+         }
+
+
+        /* var qs = require('qs');
+        let username = this.getCookie('username');
+        let password = this.getCookie('password');
+
+        let deployPlanId = this.$route.params.id;  //所选择的部署设计的id
+        console.log("所选择的部署设计的id-----------------");
+        console.log(deployPlanId);
+
+        if (this.diveceIdPass.length != 0) {   //是否有要绑定的数据
+          let formData = new FormData();
+          formData.append('deviceIds', this.diveceIdPass);
+          formData.append('componentIds', this.compsIdPass);
+
+          this.$axios.post(this.getIP() + 'deploymentdesigns/' + deployPlanId + "/deploymentdesigndetails", formData,
+
+            {
+
+              //设置头
+              headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+              },
+              auth: {
+                username: username,
+                password: password
+              }
+            }).then(res => {
+            layer.msg("保存成功");
+            this.$router.replace({path: '/deployplan'})
+          })
+            .catch(err => {
+              layer.msg("保存失败！");
+            })
+        } else {
+          layer.msg("无绑定信息");
+        }*/
+
+
+      },
     },
     computed: {
       listA: function () {
