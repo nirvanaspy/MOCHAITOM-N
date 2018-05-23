@@ -169,7 +169,16 @@ export default {
     editDate: '修改日期',
     versionStatus: '版本状态',
     copy: '复制',
-    deviceDesc: '描述'
+    deviceDesc: '描述',
+    memorySize: '内存大小',
+    check: '查看',
+    deviceProcess: '进程',
+    disk: '磁盘',
+    close: '关闭',
+    size: '大小',
+    usedSize: '已用大小',
+    processName: '进程名',
+    report: '上报'
   },
   errorLog: {
     tips: '请点击右上角bug小图标',

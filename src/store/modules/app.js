@@ -30,6 +30,10 @@ const app = {
     SET_PROJECTNAME: (state, projectName) => {
       state.projectName = projectName
       Cookies.set('projectName', projectName)
+    },
+    SET_PROJECTEXIST: (state, projectExist) => {
+      state.projectExist = projectExist
+      Cookies.set('projectExist', projectExist)
     }
   },
   actions: {
@@ -44,6 +48,9 @@ const app = {
     },
     setProjectName: ({ commit }, projectName)  => {
       commit('SET_PROJECTNAME', projectName)
+    },
+    setProjectExist: ({ commit }, projectExist) => {
+      commit('SET_PROJECTEXIST', projectExist)
     }
   }
 }
