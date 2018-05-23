@@ -13,3 +13,10 @@ export function setToken(token) {
 export function removeToken() {
   return Cookies.remove(TokenKey)
 }
+export function getIp() {
+  return Cookies.get('ip')
+}
+
+export function getPort() {
+  return Cookies.get('port')
+}

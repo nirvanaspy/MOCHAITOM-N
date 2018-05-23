@@ -1,14 +1,19 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
 import store from '@/store'
-import { getToken } from '@/utils/auth'
+import { getToken, getIp, getPort } from '@/utils/auth'
+
 // create an axios instance
 let ip_set = store.getters.ipconfig
 let port = store.getters.port
 let config_set = 'http://' + ip_set + ':' + port
+let ipConfig = getIp()
+let portConfig = getPort()
+let serviceConfig = 'http://' + ipConfig + ':' + portConfig
 const service = axios.create({
-  baseURL: process.env.BASE_API,
-  /*baseURL: config_set,// api的base_url*/
+  /*baseURL: process.env.BASE_API,*/
+  /*baseURL: serviceConfig*/
+  baseURL: serviceConfig, // api的base_url
   /*baseURL: "http://192.168.0.107:9090",*/// api的base_url
 
 })

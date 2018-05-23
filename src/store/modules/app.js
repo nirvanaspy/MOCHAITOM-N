@@ -8,7 +8,8 @@ const app = {
     language: Cookies.get('language') || 'en',
     projectNum: Cookies.get('projectNum'),
     /*projectName: Cookies.get('projectName')*/
-    projectExist: Cookies.get('projectExist')
+    projectExist: Cookies.get('projectExist'),
+    projectId: Cookies.get('projectId')
    },
   mutations: {
     TOGGLE_SIDEBAR: state => {
@@ -34,6 +35,10 @@ const app = {
     SET_PROJECTEXIST: (state, projectExist) => {
       state.projectExist = projectExist
       Cookies.set('projectExist', projectExist)
+    },
+    SET_PROJECTID: (state, projectId) => {
+      state.projectId = projectId
+      Cookies.set('projectId', projectId)
     }
   },
   actions: {

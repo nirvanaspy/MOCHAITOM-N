@@ -501,6 +501,15 @@
         return self.list.filter(function (item) {
           return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
         })
+      },
+      listenProjectId () {
+        return this.$store.state.app.projectId
+      }
+    },
+    watch: {
+      listenProjectId: function () {
+        this.proId = this.getCookie('projectId')
+        this.getList()
       }
     }
   }

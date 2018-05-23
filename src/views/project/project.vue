@@ -129,6 +129,12 @@
       listenProExist(){
         return this.$store.state.app.projectExist
       },
+      listA: function () {
+        let self = this;
+        return self.list.filter(function (item) {
+          return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
+        })
+      }
     },
     watch: {
       listenProjectNum: function(a, b) {
@@ -313,14 +319,6 @@
         setProjectNum:'SET_PROJECTNUM',
         setProjectExist: 'SET_PROJECTEXIST'
       })
-    },
-    computed: {
-      listA: function () {
-        let self = this;
-        return self.list.filter(function (item) {
-          return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
-        })
-      }
     }
   }
 </script>
