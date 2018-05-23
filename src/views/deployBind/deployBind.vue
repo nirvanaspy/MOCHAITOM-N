@@ -5,29 +5,29 @@
       <template slot="paneL">
         <div class="left-container">
           <div class="filter-container" style="margin-top:5px;">
-            <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" :placeholder="$t('table.deviceName')" v-model="listQuery.deviceName">
+            <el-input style="width: 200px;" class="filter-item" placeholder="设备名" v-model="searchQuery">
             </el-input>
 
-            <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
           </div>
 
-          <el-table :key='tableKey' :data="list" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+          <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
                     style="width: 100%;height:440px;">
             <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
 
             <el-table-column align="center" :label="$t('table.deviceName')" width="140">
               <template slot-scope="scope">
-                <span>{{scope.row.deviceName}}</span>
+                <span>{{scope.row.name}}</span>
               </template>
             </el-table-column>
             <el-table-column width="150px" align="center" :label="$t('table.deviceIP')">
               <template slot-scope="scope">
-                <span>{{scope.row.deviceIP}}</span>
+                <span>{{scope.row.ip}}</span>
               </template>
             </el-table-column>
-            <el-table-column min-width="100px" align="center" :label="$t('table.deviceState')">
+            <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
               <template slot-scope="scope">
-                <span>{{scope.row.deviceState}}</span>
+                <span class="el-tag el-tag--danger" v-if="scope.row.online == false">离线</span>
+                <span class="el-tag el-tag--primary" v-else>在线</span>
               </template>
             </el-table-column>
             <el-table-column align="center" :label="$t('table.bindAction')" width="120" class-name="small-padding fixed-width">
@@ -63,7 +63,7 @@
 </template>
 
 <script>
-  import { fetchList } from '@/api/article'
+  import { getDevices } from '@/api/device'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
   import splitPane from 'vue-splitpane'
@@ -81,7 +81,13 @@
     data() {
       return {
         tableKey: 0,
-        list: null,
+        list: [],
+        searchQuery: '',
+        userData:{
+          username: '',
+          password: ''
+        },
+        proId: '',
         total: null,
         listLoading: true,
         listQuery: {
@@ -136,62 +142,30 @@
       }
     },
     created() {
+      this.userData.username = this.getCookie('username')
+      this.userData.password = this.getCookie('password')
+      this.proId = this.getCookie('projectId')
       this.getList();
     },
     methods: {
       getList() {
         this.listLoading = true
-        fetchList(this.listQuery).then(response => {
-          this.list = response.data.items
-          this.total = response.data.total
+        getDevices(this.proId, this.userData).then(response => {
+          this.list = response.data.data
           this.listLoading = false
-          this.oldList = this.list.map(v => v.id);
-          this.newList = this.oldList.slice();
-          this.$nextTick(() => {
-            this.setSort()
-          })
-        })
-      },
-      handleFilter() {
-        this.listQuery.page = 1
-        this.getList()
-      },
-      handleSizeChange(val) {
-        this.listQuery.limit = val
-        this.getList()
-      },
-      handleCurrentChange(val) {
-        this.listQuery.page = val
-        this.getList()
-      },
-      handleModifyStatus(row, status) {
-        this.$message({
-          message: '操作成功',
-          type: 'success'
-        })
-        row.status = status
-      },
-      setSort() {
-        const el = document.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
-        this.sortable = Sortable.create(el, {
-          ghostClass: 'sortable-ghost', // Class name for the drop placeholder,
-          setData: function(dataTransfer) {
-            dataTransfer.setData('Text', '')
-            // to avoid Firefox bug
-            // Detail see : https://github.com/RubaXa/Sortable/issues/1012
-          },
-          onEnd: evt => {
-            const targetRow = this.list.splice(evt.oldIndex, 1)[0]
-            this.list.splice(evt.newIndex, 0, targetRow)
-
-            // for show the changes, you can delete in you code
-            const tempIndex = this.newList.splice(evt.oldIndex, 1)[0]
-            this.newList.splice(evt.newIndex, 0, tempIndex)
-          }
         })
       },
       resize() {
         console.log('resize')
+      }
+    },
+    computed: {
+      listA: function () {
+        let self = this;
+        console.log(self.list);
+        return self.list.filter(function (item) {
+          return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
+        })
       }
     }
   }

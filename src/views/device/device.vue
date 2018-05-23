@@ -154,7 +154,6 @@
 </template>
 
 <script>
-  import { fetchList, createArticle, updateArticle } from '@/api/article'
   import { getDevices, saveDevices, updateDevice, deleteDevice, copyDevices, getDisks, getProcess, reportDevices } from '@/api/device'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
