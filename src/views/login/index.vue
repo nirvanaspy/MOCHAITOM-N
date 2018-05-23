@@ -71,6 +71,7 @@
 import { isvalidUsername } from '@/utils/validate'
 import LangSelect from '@/components/LangSelect'
 import {mapMutations} from 'vuex'
+import service from '@/utils/request'
 /*import SocialSign from './socialsignin'*/
 
 export default {
@@ -127,13 +128,15 @@ export default {
         let expireDays = 30;
         if (valid) {
           this.loading = true
-          this.setloginname(username)
+         /* this.setloginname(username)
           this.setIP(ip)
+          console.log(store.getters)*/
           this.setPort(port)
           this.setCookie('username', username, expireDays)
           this.setCookie('password', password, expireDays)
           this.setCookie('ip', ip, expireDays)
           this.setCookie('port', port, expireDays)
+          service.defaults.baseURL = 'http://' + ip + ':' + port // 动态设置api接口
           this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({ path: '/' })
@@ -274,6 +277,8 @@ export default {
     })
   },
   created() {
+    this.setIP(this.loginForm.ipConfig)
+    this.setPort(this.loginForm.port)
     // window.addEventListener('hashchange', this.afterQRScan)
   },
   destroyed() {
