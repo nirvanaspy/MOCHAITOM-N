@@ -12,7 +12,7 @@
       </el-tooltip>
 
       <span style="font-weight: 400 !important;color: #97a8be;line-height: 50px;position: relative;top: -13px;">
-          {{selected}}
+          {{selectedProName}}
         </span>
 
 
@@ -111,6 +111,7 @@
         total: null,
         listLoading: true,
         proName: '',
+        selectedProName: '',
         selected: '',
         dialogFormVisible: false,
         form: {
@@ -128,6 +129,7 @@
       }
     },
     created() {
+      this.selectedProName = this.getCookie('projectName')
       this.getList()
     },
     computed: {
@@ -139,6 +141,9 @@
         console.log(this.$store.state.app.projectExist);
         return this.$store.state.app.projectExist
 
+      },
+      listenProName () {
+        return this.getCookie('projectName')
       },
       ...mapGetters([
         'sidebar',
@@ -153,6 +158,9 @@
       },
       listenProExist: function(a,b) {
         this.getList()
+      },
+      listenProName: function(a,b) {
+        this.selectedProName =  this.getCookie('projectName')
       }
     },
     methods: {
@@ -197,13 +205,18 @@
         //不存在则创建项目
         let isReal = false;
         let projectId = '';
+        let projectName = ''
         for(let i=0;i<this.list.length;i++){
           if(this.proName == this.list[i].name){
             isReal = true;
             projectId = this.list[i].id;
+            projectName = this.list[i].name
             console.log(projectId);
             let expireDays = 30;
+            this.selectedProName = this.list[i].name
             this.setCookie('projectId', projectId, expireDays);
+            this.setCookie('projectName',projectName)
+            this.setProjectId(projectId)
             break;
           }
         }
@@ -226,6 +239,7 @@
               type: 'success',
               duration: 2000
             })
+            this.selected = ''
             this.getList()
 
             this.setProjectNum(this.projectLength);
@@ -251,7 +265,8 @@
       ...mapMutations({
         setroles: 'SET_ROLES',
         setProjectNum: 'SET_PROJECTNUM',
-        setProjectExist: 'SET_PROJECTEXIST'
+        setProjectExist: 'SET_PROJECTEXIST',
+        setProjectId: 'SET_PROJECTID'
       })
     }
   }

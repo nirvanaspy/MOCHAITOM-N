@@ -16,6 +16,7 @@ const getters = {
   ipconfig: state => state.user.ipconfig,
   port: state => state.user.port,
   loginname: state => state.user.loginname,
-  projectNum: state => state.app.projectNum
+  projectNum: state => state.app.projectNum,
+  projectId: state => state.app.projectId
 }
 export default getters
