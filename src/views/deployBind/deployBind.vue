@@ -9,44 +9,79 @@
             </el-input>
 
           </div>
+          <div style="height: 440px;overflow-y: auto;">
+            <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+                      style="width: 100%;">
+              <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
 
-          <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
-                    style="width: 100%;height:440px;">
-            <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
+              <el-table-column align="center" :label="$t('table.deviceName')" min-width="140">
+                <template slot-scope="scope">
+                  <span>{{scope.row.name}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column width="150px" align="center" :label="$t('table.deviceIP')">
+                <template slot-scope="scope">
+                  <span>{{scope.row.ip}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
+                <template slot-scope="scope">
+                  <span class="el-tag el-tag--danger" v-if="scope.row.online == false">离线</span>
+                  <span class="el-tag el-tag--primary" v-else>在线</span>
+                </template>
+              </el-table-column>
+              <el-table-column align="center" :label="$t('table.bindAction')" width="120" class-name="small-padding fixed-width">
+                <template slot-scope="scope">
+                  <el-popover
+                    ref="popover4"
+                    placement="right"
+                    width="520"
+                    height="500"
+                    trigger="click">
+                    <div style="height: 425px;overflow-y: auto;">
+                      <el-table :key='tableKey' :data="listB" v-loading="listLoading" element-loading-text="给我一点时间" border fit
+                                highlight-current-row
+                                style="width: 100%;">
+                        <el-table-column
+                          type="selection"
+                          width="55"
+                          align="center">
+                        </el-table-column>
+                        <el-table-column :label="$t('table.compName')" width="140" align="center">
+                          <template slot-scope="scope">
+                            <span @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
+                          </template>
+                        </el-table-column>
+                        <el-table-column width="100px" align="center" :label="$t('table.compVersion')">
+                          <template slot-scope="scope">
+                            <span>{{scope.row.version}}</span>
+                          </template>
+                        </el-table-column>
+                        <el-table-column min-width="100px" align="center" :label="$t('table.compSize')">
+                          <template slot-scope="scope">
+                            <span>{{scope.row.displaySize}}</span>
+                          </template>
+                        </el-table-column>
+                        <el-table-column label="解绑" width="80" align="center">
+                          <template slot-scope="scope">
+                            <el-button type="danger" icon="el-icon-delete" size="mini" circle></el-button>
+                          </template>
+                        </el-table-column>
 
-            <el-table-column align="center" :label="$t('table.deviceName')" width="140">
-              <template slot-scope="scope">
-                <span>{{scope.row.name}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column width="150px" align="center" :label="$t('table.deviceIP')">
-              <template slot-scope="scope">
-                <span>{{scope.row.ip}}</span>
-              </template>
-            </el-table-column>
-            <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
-              <template slot-scope="scope">
-                <span class="el-tag el-tag--danger" v-if="scope.row.online == false">离线</span>
-                <span class="el-tag el-tag--primary" v-else>在线</span>
-              </template>
-            </el-table-column>
-            <el-table-column align="center" :label="$t('table.bindAction')" width="120" class-name="small-padding fixed-width">
-              <template slot-scope="scope">
-                <el-popover
-                  ref="popover4"
-                  placement="right"
-                  width="400"
-                  trigger="click">
-                  <el-table :data="gridData">
-                    <el-table-column width="150" property="date" label="日期"></el-table-column>
-                    <el-table-column width="100" property="name" label="姓名"></el-table-column>
-                    <el-table-column width="300" property="address" label="地址"></el-table-column>
-                  </el-table>
-                </el-popover>
-                <el-button type="primary" size="mini" icon="el-icon-arrow-right" v-popover:popover4></el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+                      </el-table>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                      <el-button size="mini" type="success" style="float:right;">绑定</el-button>
+                    </div>
+                  </el-popover>
+                  <el-button type="primary" size="mini" icon="el-icon-arrow-right" v-popover:popover4></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+
+
         </div>
       </template>
       <template slot="paneR">
@@ -64,6 +99,7 @@
 
 <script>
   import { getDevices } from '@/api/device'
+  import { compList } from '@/api/component'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
   import splitPane from 'vue-splitpane'
@@ -88,6 +124,7 @@
           password: ''
         },
         proId: '',
+        listComp: [],
         total: null,
         listLoading: true,
         listQuery: {
@@ -122,7 +159,11 @@
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
         downloadLoading: false,
-        gridData: [{
+        tableData3: [{
+          date: '2016-05-03',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
           date: '2016-05-02',
           name: '王小虎',
           address: '上海市普陀区金沙江路 1518 弄'
@@ -135,10 +176,20 @@
           name: '王小虎',
           address: '上海市普陀区金沙江路 1518 弄'
         }, {
-          date: '2016-05-03',
+          date: '2016-05-08',
           name: '王小虎',
           address: '上海市普陀区金沙江路 1518 弄'
-        }]
+        }, {
+          date: '2016-05-06',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }, {
+          date: '2016-05-07',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        }],
+        multipleSelection: []
+
       }
     },
     created() {
@@ -146,12 +197,21 @@
       this.userData.password = this.getCookie('password')
       this.proId = this.getCookie('projectId')
       this.getList();
+      this.getListComp();
     },
     methods: {
       getList() {
         this.listLoading = true
         getDevices(this.proId, this.userData).then(response => {
           this.list = response.data.data
+          this.listLoading = false
+        })
+      },
+      getListComp() {
+        this.listLoading = true
+        compList(this.listQuery).then(response => {
+          this.listComp = response.data.data
+          this.total = response.data.total
           this.listLoading = false
         })
       },
@@ -164,6 +224,13 @@
         let self = this;
         console.log(self.list);
         return self.list.filter(function (item) {
+          return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
+        })
+      },
+      listB: function () {
+        let self = this;
+        console.log(self.listComp);
+        return self.listComp.filter(function (item) {
           return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
         })
       }
