@@ -38,6 +38,7 @@
                     width="520"
                     height="500"
                     trigger="click"
+                    v-model="ifShow"
                     @show="beforeSubmit(scope.row)">
                     <div class="filter-container">
                       <el-input style="width: 200px;" class="filter-item" placeholder="组件名" v-model="searchQuery2">
@@ -82,7 +83,7 @@
                     <div style="margin-top: 20px;">
                       <el-button size="mini" type="success" style="float:right;" @click="submit()">绑定</el-button>
                     </div>
-                    <el-button type="primary" size="mini" icon="el-icon-arrow-right" slot="reference"></el-button>
+                    <el-button type="primary" size="mini" icon="el-icon-arrow-right" slot="reference" @click="showPop"></el-button>
                   </el-popover>
 
                 </template>
@@ -150,7 +151,8 @@
         deviceIds: [],          //传给后台的设备的id数组
         comps: [],
         bindedDeviceList: [],
-        isIndeterminate: true
+        isIndeterminate: true,
+        ifShow: ''
       }
     },
     created(){
@@ -160,6 +162,8 @@
       this.deployPlanId = this.$route.params.id
       this.getList();
       this.getListComp();
+
+      this.ifShow = false;
     },
     methods: {
       getList() {     //获取设备信息
@@ -176,6 +180,11 @@
           this.total = response.data.total
           this.listLoading = false
         })
+      },
+      showPop(){
+
+        this.ifShow = true;
+        console.log(this.ifShow);
       },
       resize() {
         console.log('resize')
@@ -226,6 +235,9 @@
              getDeployComLists(this.deployPlanId, this.deviceCHId, this.userData).then((res) => {
                this.bindedDeviceList = res.data.data
              })
+
+             this.ifShow = false;
+             this.getListComp();
 
            })
          }else{
