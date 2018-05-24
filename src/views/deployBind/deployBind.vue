@@ -14,6 +14,9 @@
                       style="width: 100%;">
               <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
 
+              <div>
+
+              </div>
               <el-table-column align="center" :label="$t('table.deviceName')" min-width="140">
                 <template slot-scope="scope">
                   <span @click="getDeployComList(scope.row)">{{scope.row.name}}</span>
@@ -38,7 +41,6 @@
                     width="520"
                     height="500"
                     trigger="click"
-                    v-model="ifShow"
                     @show="beforeSubmit(scope.row)">
                     <div class="filter-container">
                       <el-input style="width: 200px;" class="filter-item" placeholder="组件名" v-model="searchQuery2">
@@ -46,7 +48,7 @@
 
                     </div>
 
-                    <div style="height: 425px;overflow-y: auto;margin-top: 20px;">
+                    <div style="height: 425px;overflow-y: auto;margin-top: 20px;" id="compTab">
                       <el-table :key='tableKey' :data="listB" v-loading="listLoading" element-loading-text="给我一点时间" border fit
                                 highlight-current-row
                                 style="width: 100%;"
@@ -110,7 +112,7 @@
 <script>
   import { getDevices } from '@/api/device'
   import { compList } from '@/api/component'
-  import { doDeployBind, getDeployComLists } from '@/api/deployBind'
+  import { doDeployBind, getDeployComLists, getBindLists } from '@/api/deployBind'
   import waves from '@/directive/waves' // 水波纹指令
   import splitPane from 'vue-splitpane'
   import Popper from 'vue-popper'
@@ -136,6 +138,7 @@
         },
         proId: '',
         listComp: [],
+        listBind: [],
         total: null,
         listLoading: true,
 
@@ -148,11 +151,18 @@
 
         checkedComps: [],
         componentIds: [],       //传给后台的组件的id数组
+        componentNames: [],       //传给后台的组件的name数组
         deviceIds: [],          //传给后台的设备的id数组
         comps: [],
         bindedDeviceList: [],
         isIndeterminate: true,
-        ifShow: ''
+        ifShow: '',
+
+        bindCompsId: [],
+        bindCompsName: [],
+        repeatCompsId: [],
+        repeatCompsName: []
+
       }
     },
     created(){
@@ -161,9 +171,9 @@
       this.proId = this.getCookie('projectId')
       this.deployPlanId = this.$route.params.id
       this.getList();
-      this.getListComp();
+      //this.getListComp();
 
-      this.ifShow = false;
+      //this.ifShow = false;
     },
     methods: {
       getList() {     //获取设备信息
@@ -181,10 +191,19 @@
           this.listLoading = false
         })
       },
-      showPop(){
 
-        this.ifShow = true;
-        console.log(this.ifShow);
+      getListBind() {    //获取组件信息
+        this.listLoading = true
+        getBindLists(this.deployPlanId).then(response => {
+          this.listBind = response.data.data
+          this.total = response.data.total
+          this.listLoading = false
+        })
+      },
+
+      showPop(){
+        //this.ifShow = true;
+        //console.log(this.ifShow);
       },
       resize() {
         console.log('resize')
@@ -199,6 +218,42 @@
 
         this.deployPlanId = this.$route.params.id;  //所选择的部署设计的id
         console.log(this.deployPlanId);
+
+        this.getListComp();
+
+        //查询已绑定信息
+        getDeployComLists(this.deployPlanId, this.deviceCHId, this.userData).then(response => {
+          this.listBind = response.data.data
+          this.total = response.data.total
+          this.listLoading = false
+        })
+
+        console.log(this.listBind);
+
+        //判断是否绑定 初始化
+        for(var j=0;j<this.listComp.length;j++){
+          this.listComp[j].isBind = false;
+        }
+
+        //this.listComp.isBind = false;
+
+        this.bindCompsId.splice(0, this.bindCompsId.length);
+
+        //为是否绑定赋值
+        for(var i=0;i<this.listBind.length;i++){
+          for(var j=0;j<this.listComp.length;j++){
+            if(this.listBind[i].componentEntity.id == this.listComp[j].id){//判断id是否相等
+              this.listComp[j].isBind = true;
+              console.log(this.listComp[j].name);
+              this.bindCompsId.push(this.listComp[j].id);
+              break;
+            }
+          }
+        }
+
+        for(var j=0;j<this.listComp.length;j++){
+          console.log(this.listComp[j].isBind);
+        }
 
       },
 
@@ -220,8 +275,30 @@
       submit: function () {
         //alert("hh");
 
+        this.repeatCompsId.splice(0,this.repeatCompsId.length);
+
         console.log(this.componentIds.length);
          if(this.componentIds.length !== 0){
+
+           for(let i=0;i<this.componentIds.length;i++){
+             for(let j=0;j<this.bindCompsId.length;j++){
+               if(this.bindCompsId[j] === this.componentIds[i]){  //判断索选择的组件是否有已绑定的
+                 this.repeatCompsId.push(this.bindCompsId[j]);
+
+               }
+             }
+           }
+
+           if(this.repeatCompsId.length !== 0){
+             this.$message({
+               type: 'warning',
+               message: '有' + this.repeatCompsId.length + '个组件已绑定过！'
+             })
+
+             return;
+           }
+
+
            let formData = new FormData();
            formData.append('componentIds', this.componentIds);
 
@@ -237,7 +314,7 @@
                this.bindedDeviceList = res.data.data
              })
 
-             this.ifShow = false;
+             //this.ifShow = false;
              this.getListComp();
 
            })
@@ -326,6 +403,9 @@
     position: relative;
     max-height: 530px;
     border: 1px solid lightgrey;
+  }
+  div.isBinded {
+    background: #E6E6FA;
   }
 
 </style>
