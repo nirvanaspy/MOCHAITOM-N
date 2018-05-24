@@ -82,8 +82,9 @@
                     <div style="margin-top: 20px;">
                       <el-button size="mini" type="success" style="float:right;" @click="submit()">绑定</el-button>
                     </div>
+                    <el-button slot="reference" type="primary" size="mini" icon="el-icon-arrow-right"></el-button>
                   </el-popover>
-                  <el-button type="primary" size="mini" icon="el-icon-arrow-right" v-popover:popover4></el-button>
+                  <!--<el-button type="primary" size="mini" icon="el-icon-arrow-right" v-popover:popover4></el-button>-->
                 </template>
               </el-table-column>
             </el-table>
