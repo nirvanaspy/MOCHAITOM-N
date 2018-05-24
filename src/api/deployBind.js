@@ -1,8 +1,8 @@
 import request from '../utils/request'
 
-export function doDeployBind(deployPlanId, data) {
+export function doDeployBind(deployPlanId, deviceCHId, data) {
   return request({
-    url: 'deploymentdesigns/' + deployPlanId + '/deploymentdesigndetails',
+    url: 'deploymentdesigns/' + deployPlanId + '/deploymentdesigndetails/devices/' + deviceCHId,
     method: 'post',
     auth: {
       username: 'admin',
@@ -12,5 +12,19 @@ export function doDeployBind(deployPlanId, data) {
       'content-type': 'application/x-www-form-urlencoded'
     },
     data
+  })
+}
+
+export function getDeployComLists(deployPlanId, deviceId, userData) {
+  return request({
+    url: 'deploymentdesigns/' + deployPlanId + '/deploymentdesigndetails/devices/' + deviceId,
+    method: 'get',
+    auth: {
+      username: userData.username,
+      password: userData.password
+    },
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    }
   })
 }

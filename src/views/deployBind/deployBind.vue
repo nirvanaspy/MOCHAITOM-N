@@ -16,7 +16,7 @@
 
               <el-table-column align="center" :label="$t('table.deviceName')" min-width="140">
                 <template slot-scope="scope">
-                  <span>{{scope.row.name}}</span>
+                  <span @click="getDeployComList(scope.row)">{{scope.row.name}}</span>
                 </template>
               </el-table-column>
               <el-table-column width="150px" align="center" :label="$t('table.deviceIP')">
@@ -96,7 +96,7 @@
         <div>
           <!--<div id="deviceComp" style="width: 100%;height:440px;"></div>-->
           <div class='chart-container'>
-            <deployBindER height='450px' width='450px'></deployBindER>
+            <deployBindER height='450px' width='450px' :detaillist="bindedDeviceList"></deployBindER>
           </div>
         </div>
       </template>
@@ -108,7 +108,7 @@
 <script>
   import { getDevices } from '@/api/device'
   import { compList } from '@/api/component'
-  import { doDeployBind } from '@/api/deployBind'
+  import { doDeployBind, getDeployComLists } from '@/api/deployBind'
   import waves from '@/directive/waves' // 水波纹指令
   import splitPane from 'vue-splitpane'
   import Popper from 'vue-popper'
@@ -148,6 +148,7 @@
         componentIds: [],       //传给后台的组件的id数组
         deviceIds: [],          //传给后台的设备的id数组
         comps: [],
+        bindedDeviceList: [],
         isIndeterminate: true
       }
     },
@@ -155,6 +156,7 @@
       this.userData.username = this.getCookie('username')
       this.userData.password = this.getCookie('password')
       this.proId = this.getCookie('projectId')
+      this.deployPlanId = this.$route.params.id
       this.getList();
       this.getListComp();
     },
@@ -179,8 +181,8 @@
       },
       beforeSubmit: function (row){     //绑定前的准备工作
         // 绑定前获取设备的id，获取所选部署设计的id
+
         this.deviceCHId = row.id;
-        this.deviceIds.push(this.deviceCHId);
 
         console.log("所选设备的id--------");
         console.log(this.deviceCHId);
@@ -211,16 +213,19 @@
         console.log(this.componentIds.length);
          if(this.componentIds.length !== 0){
            let formData = new FormData();
-           formData.append('deviceIds', this.deviceIds);
            formData.append('componentIds', this.componentIds);
 
-           doDeployBind(this.deployPlanId, formData).then(() => {
+           doDeployBind(this.deployPlanId, this.deviceCHId, formData).then(() => {
              this.$notify({
                title: '成功',
                message: '绑定成功',
                type: 'success',
                duration: 2000
              })
+             getDeployComLists(this.deployPlanId, this.deviceCHId, this.userData).then((res) => {
+               this.bindedDeviceList = res.data.data
+             })
+
            })
          }else{
            this.$message({
@@ -268,6 +273,11 @@
 
 
       },
+      getDeployComList(row) {
+        getDeployComLists(this.deployPlanId, row.id, this.userData).then((res) => {
+          this.bindedDeviceList = res.data.data
+        })
+      }
     },
     computed: {
       listA: function () {
