@@ -232,6 +232,7 @@
                type: 'success',
                duration: 2000
              })
+
              getDeployComLists(this.deployPlanId, this.deviceCHId, this.userData).then((res) => {
                this.bindedDeviceList = res.data.data
              })
@@ -239,6 +240,14 @@
              this.ifShow = false;
              this.getListComp();
 
+           })
+             .catch(() =>{
+             this.$notify({
+               title: '失败',
+               message: '绑定失败',
+               type: 'error',
+               duration: 2000
+             })
            })
          }else{
            this.$message({
