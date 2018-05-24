@@ -75,7 +75,8 @@
                         </el-table-column>
                         <el-table-column label="解绑" width="80" align="center">
                           <template slot-scope="scope">
-                            <el-button type="danger" icon="el-icon-delete" size="mini" circle></el-button>
+                            <!--<span>{{scope.row.isBind}}</span>-->
+                            <el-button type="danger" icon="el-icon-delete" size="mini" circle v-if="scope.row.isBind"></el-button>
                           </template>
                         </el-table-column>
 
@@ -183,14 +184,14 @@
           this.listLoading = false
         })
       },
-      getListComp() {    //获取组件信息
+      /*getListComp() {    //获取组件信息
         this.listLoading = true
         compList().then(response => {
           this.listComp = response.data.data
           this.total = response.data.total
           this.listLoading = false
         })
-      },
+      },*/
 
       getListBind() {    //获取组件信息
         this.listLoading = true
@@ -219,7 +220,7 @@
         this.deployPlanId = this.$route.params.id;  //所选择的部署设计的id
         console.log(this.deployPlanId);
 
-        this.getListComp();
+        // this.getListComp();
 
         //查询已绑定信息
         getDeployComLists(this.deployPlanId, this.deviceCHId, this.userData).then(response => {
@@ -230,26 +231,35 @@
 
         console.log(this.listBind);
 
-        //判断是否绑定 初始化
-        for(var j=0;j<this.listComp.length;j++){
-          this.listComp[j].isBind = false;
-        }
+          compList().then(response => {
+            this.listComp = response.data.data
+            this.total = response.data.total
+            this.listLoading = false
 
-        //this.listComp.isBind = false;
-
-        this.bindCompsId.splice(0, this.bindCompsId.length);
-
-        //为是否绑定赋值
-        for(var i=0;i<this.listBind.length;i++){
-          for(var j=0;j<this.listComp.length;j++){
-            if(this.listBind[i].componentEntity.id == this.listComp[j].id){//判断id是否相等
-              this.listComp[j].isBind = true;
-              console.log(this.listComp[j].name);
-              this.bindCompsId.push(this.listComp[j].id);
-              break;
+            for(var j=0;j<this.listComp.length;j++){
+              this.listComp[j].isBind = false;
             }
-          }
-        }
+
+            //this.listComp.isBind = false;
+
+            this.bindCompsId.splice(0, this.bindCompsId.length);
+
+            //为是否绑定赋值
+            for(var i=0;i<this.listBind.length;i++){
+              for(var j=0;j<this.listComp.length;j++){
+                if(this.listBind[i].componentEntity.id == this.listComp[j].id){//判断id是否相等
+                  this.listComp[j].isBind = true;
+                  console.log(this.listComp[j].name);
+
+                  this.bindCompsId.push(this.listComp[j].id);
+                  break;
+                }
+              }
+            }
+          })
+
+        //判断是否绑定 初始化
+
 
         for(var j=0;j<this.listComp.length;j++){
           console.log(this.listComp[j].isBind);
@@ -381,14 +391,12 @@
     computed: {
       listA: function () {
         let self = this;
-        console.log(self.list);
         return self.list.filter(function (item) {
           return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
         })
       },
       listB: function () {
         let self = this;
-        console.log(self.listComp);
         return self.listComp.filter(function (item) {
           return item.name.toLowerCase().indexOf(self.searchQuery2.toLowerCase()) !== -1;
         })
