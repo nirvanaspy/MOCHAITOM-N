@@ -48,16 +48,12 @@
                     <div style="height: 425px;overflow-y: auto;margin-top: 20px;">
                       <el-table :key='tableKey' :data="listB" v-loading="listLoading" element-loading-text="给我一点时间" border fit
                                 highlight-current-row
-                                style="width: 100%;">
+                                style="width: 100%;"
+                                @selection-change="handleCheckedCompsChange" id="compTable">
                         <el-table-column
                           type="selection"
                           width="55"
-                          align="center"
-                          :value="scope.row.id"
-                          name="choosecomp"
-                          v-model="checkedComps"
-                          :indeterminate="isIndeterminate"
-                          @change="handleCheckedCompsChange(scope.row.id)">
+                          align="center">
                         </el-table-column>
                         <el-table-column :label="$t('table.compName')" width="140" align="center">
                           <template slot-scope="scope">
@@ -112,6 +108,7 @@
 <script>
   import { getDevices } from '@/api/device'
   import { compList } from '@/api/component'
+  import { doDeployBind } from '@/api/deployBind'
   import waves from '@/directive/waves' // 水波纹指令
   import splitPane from 'vue-splitpane'
   import Popper from 'vue-popper'
@@ -148,6 +145,8 @@
         SelectFalse: false,     //判断是否有绑定信息
 
         checkedComps: [],
+        componentIds: [],       //传给后台的组件的id数组
+        deviceIds: [],          //传给后台的设备的id数组
         comps: [],
         isIndeterminate: true
       }
@@ -181,48 +180,48 @@
       beforeSubmit: function (row){     //绑定前的准备工作
         // 绑定前获取设备的id，获取所选部署设计的id
         this.deviceCHId = row.id;
+        this.deviceIds.push(this.deviceCHId);
+
         console.log("所选设备的id--------");
         console.log(this.deviceCHId);
 
         this.deployPlanId = this.$route.params.id;  //所选择的部署设计的id
         console.log(this.deployPlanId);
 
-        this.SelectFalse = false; //用于判断是否被选择条件
-
-        for(let i=0;i<this.listComp.length;i++){
-          this.comps.push(this.listComp[i].id);
-        }
       },
 
-      handleCheckedCompsChange(value) {          //所选的组件，checkbox
+      handleCheckedCompsChange(val) {          //所选的组件，checkbox
         //let checkedCount = value.length;
-        alert("改变");
-        console.log(this.checkedComps);
-        //this.isIndeterminate = checkedCount > 0 && checkedCount < this.cities.length;
+        //alert("改变");
+        this.checkedComps = val;
+        console.log(this.checkedComps)
+
+        this.componentIds.splice(0,this.componentIds.length);
+
+        for(let i=0;i<this.checkedComps.length;i++){
+          this.componentIds.push(this.checkedComps[i].id);
+        }
+
+        console.log(this.componentIds);
       },
 
       submit: function () {
-        alert("hh");
-        let CheckBox = document.getElementsByName("choosecomp");//得到所有的复选框
+        //alert("hh");
 
-        console.log(CheckBox);
+        console.log(this.componentIds.length);
+         if(this.componentIds.length !== 0){
+           let formData = new FormData();
+           formData.append('deviceIds', this.deviceIds);
+           formData.append('componentIds', this.componentIds);
 
-        for(let i = 0; i < CheckBox.length; i++){
-          /*if(CheckBox[i].checked)//如果有1个被选中时
-          {*/
-            this.SelectFalse = true;
-            this.chboxValue.push(CheckBox[i].id)//将被选择的值追加到
-          /*}*/
-
-        }
-
-        console.log("所选的组件的id数组----------");
-        console.log(this.chboxValue);
-
-        console.log(this.SelectFalse);
-         if(this.SelectFalse){
-           console.log("所选的组件的id数组----------");
-           console.log(this.chboxValue);
+           doDeployBind(this.deployPlanId, formData).then(() => {
+             this.$notify({
+               title: '成功',
+               message: '绑定成功',
+               type: 'success',
+               duration: 2000
+             })
+           })
          }else{
            this.$message({
              type: 'warning',
