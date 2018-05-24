@@ -285,7 +285,7 @@ export const asyncRouterMap = [
     path: '/deployPlanDetail',
     component: Layout,
     hidden: true,
-    children: [{ path: 'deployPlanDetail', component: _import('deployPlanDetail/deployPlanDetail'), name: 'deployPlanDetail', meta: { title: 'deployPlanDetail', icon: 'example' }}]
+    children: [{ path: 'deployPlanDetail/:id', component: _import('deployPlanDetail/deployPlanDetail'), name: 'deployPlanDetail', meta: { title: 'deployPlanDetail', icon: 'example' }}]
   },
   {
     path: '/deployBind',

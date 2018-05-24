@@ -23,7 +23,7 @@
       </el-table-column>
       <el-table-column align="center" width="100px" :label="$t('table.deployBindDetail')">
         <template slot-scope="scope">
-            <router-link class="pan-btn tiffany-btn" to="/deployPlanDetail/deployPlanDetail">查看</router-link>
+            <router-link class="pan-btn tiffany-btn" :to='{name:"deployPlanDetail",params:{id:scope.row.id}}'>查看</router-link>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="300" class-name="small-padding fixed-width">
