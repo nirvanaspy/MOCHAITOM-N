@@ -29,16 +29,13 @@ export function getDeployComLists(deployPlanId, deviceId, userData) {
   })
 }
 
-export function getBindLists(deployPlanId, deviceId, userData) {
+export function deleteBind(id, userData) {
   return request({
-    url: 'deploymentdesigns/' + deployPlanId + '/deploymentdesigndetails/devices/' + deviceId,
-    method: 'get',
+    url: 'deploymentdesigns/deploymentdesigndetails/' + id,
+    method: 'delete',
     auth: {
       username: userData.username,
       password: userData.password
-    },
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded'
     }
   })
 }
