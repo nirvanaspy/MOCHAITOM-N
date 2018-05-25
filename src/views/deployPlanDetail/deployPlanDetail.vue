@@ -83,6 +83,14 @@
         return self.list.filter(function (item) {
           return item.deviceEntity.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
         })
+      },
+      listenProId() {
+        return this.$store.state.app.projectId
+      }
+    },
+    watch: {
+      listenProId: function(a,b) {
+        this.$router.push('/deployPlan/deployPlan')
       }
     }
   }
