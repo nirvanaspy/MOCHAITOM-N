@@ -28,3 +28,18 @@ export function getDeployComLists(deployPlanId, deviceId, userData) {
     }
   })
 }
+
+export function getBindLists(deployPlanId, deviceId, userData) {
+  return request({
+    url: 'deploymentdesigns/' + deployPlanId + '/deploymentdesigndetails/devices/' + deviceId,
+    method: 'get',
+    auth: {
+      username: userData.username,
+      password: userData.password
+    },
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded'
+    }
+  })
+}
+
