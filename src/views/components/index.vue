@@ -251,10 +251,17 @@
         fileClearData: [],          //文件需要清空的内容数组
 
         fileAll: [],
-        searchQuery: ''
+        searchQuery: '',
+        userData:{
+          username: '',
+          password: ''
+        }
       }
     },
     created() {
+      this.userData.username = this.getCookie('username')
+      this.userData.password = this.getCookie('password')
+
       this.getList();
 
       this.autoStart = false;      //取消自动上传
@@ -262,7 +269,7 @@
     methods: {
       getList() {
         this.listLoading = true
-        compList(this.listQuery).then(response => {
+        compList(this.userData).then(response => {
           this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
@@ -355,7 +362,7 @@
 
             }
 
-            createComp(formData).then(() => {
+            createComp(this.userData, formData).then(() => {
               createloading.close()
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
@@ -368,8 +375,8 @@
 
               this.getList()
 
-              console.log(document.getElementById('fileUp'));
-              document.getElementById('fileUp').innerHTML = "";
+              //console.log(document.getElementById('fileUp'));
+              //document.getElementById('fileUp').innerHTML = "";
               //this.$refs.uploader.uploader.files = [];
             })
           }
@@ -385,7 +392,7 @@
           this.$refs['dataForm'].clearValidate();
 
           //树
-          compSingle(this.selectedId).then(response => {
+          compSingle(this.userData, this.selectedId).then(response => {
             this.singleComp = response.data.data;
             this.listLoading = false
 
@@ -507,7 +514,7 @@
           spinner: 'el-icon-loading'
         })
 
-        copyComp(proData, id).then(() => {
+        copyComp(this.userData, proData, id).then(() => {
           this.list.unshift(this.temp)
           this.dialogFormVisible = false
           copyloading.close()
@@ -554,7 +561,7 @@
 
             }
 
-            updateComp(formData,id).then(() => {
+            updateComp(this.userData, formData,id).then(() => {
               for (const v of this.list) {
                 if (v.id === this.temp.id) {
                   const index = this.list.indexOf(v)
@@ -600,7 +607,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteComp(id).then(() => {
+          deleteComp(this.userData, id).then(() => {
             this.$notify({
               title: '成功',
               message: '删除成功',
@@ -639,7 +646,7 @@
           spinner: 'el-icon-loading'
         })
 
-        importComp(formData).then(() => {
+        importComp(this.userData, formData).then(() => {
           uploading.close()
           this.$notify({
             title: '成功',

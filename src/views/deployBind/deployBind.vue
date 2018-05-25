@@ -218,7 +218,7 @@
           console.log(this.listBind.length);
           console.log(this.listBind);
 
-          compList().then(response => {
+          compList(this.userData).then(response => {
             this.listComp = response.data.data
             this.total = response.data.total
             this.listLoading = false
