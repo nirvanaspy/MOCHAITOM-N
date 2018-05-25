@@ -221,15 +221,16 @@
         console.log(this.deployPlanId);
 
         // this.getListComp();
+        this.listComp = [];
 
         //查询已绑定信息
         getDeployComLists(this.deployPlanId, this.deviceCHId, this.userData).then(response => {
           this.listBind = response.data.data
           this.total = response.data.total
           this.listLoading = false
-        })
 
-        console.log(this.listBind);
+          console.log(this.listBind.length);
+          console.log(this.listBind);
 
           compList().then(response => {
             this.listComp = response.data.data
@@ -257,13 +258,15 @@
               }
             }
           })
+        })
+
+
 
         //判断是否绑定 初始化
 
-
-        for(var j=0;j<this.listComp.length;j++){
+        /*for(var j=0;j<this.listComp.length;j++){
           console.log(this.listComp[j].isBind);
-        }
+        }*/
 
       },
 
