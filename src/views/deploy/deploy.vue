@@ -27,7 +27,7 @@
       </el-table-column>
       <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
         <template slot-scope="scope">
-          <span class="el-tag el-tag--danger" v-if="scope.row.online == false">离线</span>
+          <span class="el-tag el-tag--danger" v-if="scope.row.online === false">离线</span>
           <span class="el-tag el-tag--primary" v-else>在线</span>
         </template>
       </el-table-column>
@@ -39,14 +39,8 @@
       <el-table-column width="145px" align="center" :label="$t('table.deployDetail')">
         <template slot-scope="scope">
           <!--<el-button size="mini" type="primary">查看</el-button>-->
-          <el-button type="text" @click="dialogTableVisible = true">查看</el-button>
-          <el-dialog title="部署详情" :visible.sync="dialogTableVisible">
-            <el-table :data="gridData"  align="left">
-              <el-table-column property="compName" :label="$t('table.compName')" width="150"></el-table-column>
-              <el-table-column property="deployFileName" :label="$t('table.deployFileName')" width="200"></el-table-column>
-              <el-table-column :type="scope.row.deployState" property="deployState" :label="$t('table.deployState')"></el-table-column>
-            </el-table>
-          </el-dialog>
+          <el-button type="text"  @click="deployDetails(scope.row)">查看</el-button>
+
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="145" class-name="small-padding fixed-width">
@@ -57,6 +51,29 @@
       </el-table-column>
 
     </el-table>
+
+    <el-dialog title="部署详情" :visible.sync="dialogTableVisible">
+
+      <el-table :key='tableKey' :data="deviceDeployDetail" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+                style="width: 100%">
+        <el-table-column align="center" :label="$t('table.compName')">
+          <template slot-scope="scope">
+            <span>{{scope.row.componentEntity.name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" :label="$t('table.deployFileName')">
+          <template slot-scope="scope">
+            <span>{{scope.row.componentDetailEntity.name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
+          <template slot-scope="scope">
+            <span class="el-tag el-tag--danger" v-if="scope.row.state === false">部署失败</span>
+            <span class="el-tag el-tag--primary" v-else>部署成功</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
 
   </div>
 </template>
@@ -86,23 +103,12 @@
         deployPlanId: '',       //所选部署设计的id
         listLoading: true,
         dialogTableVisible: false,
-        gridData: [{
-          compName: '组件1',
-          deployFileName: '文件1',
-          deployState: '部署成功'
-        }, {
-          compName: '组件1',
-          deployFileName: '文件2',
-          deployState: '部署成功'
-        },{
-          compName: '组件1',
-          deployFileName: '文件3',
-          deployState: '部署失败'
-        },{
-          compName: '组件1',
-          deployFileName: '文件4',
-          deployState: '部署成功'
-        }]
+        errorDetails: [],      //部署失败的文件
+        completedDeatils: [],  //部署成功的文件
+        deployDetailInfo: {},   //部署详情
+        deployDetailInfo2: [],   //部署详情
+        deviceDeployDetail: []  //某设备的部署详情
+
       }
     },
     created() {
@@ -112,9 +118,7 @@
 
       this.deployPlanId = this.$route.params.id
       this.getList()
-      /*setInterval(() => {
-        this.getList()
-      }, 10 * 1000);*/
+
     },
     methods: {
       getList() {
@@ -177,7 +181,6 @@
             return false;
           }
         } else {
-          //layer.msg("设备离线！");
           this.$message({
             message: '设备离线!',
             type: 'warning'
@@ -185,6 +188,125 @@
         }
 
 
+
+      },
+
+      deployDetails: function (row) {
+
+        this.deviceDeployDetail.splice(0, this.deviceDeployDetail.length);    //清空某设备的部署详情数组
+        this.errorDetails.splice(0, this.errorDetails.length);    //清空某设备的失败文件数组
+        this.completedDeatils.splice(0, this.completedDeatils.length);    //清空某设备的成功文件数组
+
+        let ifexist = false;      //设备是否部署，false为未部署
+
+        let id = row.id;
+        let i = 0;
+
+        console.log("详情部署信息------------");
+        console.log(id);
+        console.log(this.list);
+        console.log(this.list.length);
+
+        if(this.list.length > 0){
+          for (i = 0; i < this.list.length; i++) {      //循环结果数组，找到点击的设备对应的数据
+            if (id === this.list[i].id) {
+              console.log(this.list[i].id);
+              console.log(this.list[i].progress);
+              if(this.list[i].progress !== 0){      //判断此设备是否已部署，进度不为0则已部署
+
+                if(this.list[i].errorFileList.length !== 0){                         //未成功文件存入失败详情数组
+                  for(let x=0;x<this.list[i].errorFileList.length;x++){
+                    this.errorDetails.push(this.list[i].errorFileList[x]);
+                  }
+
+                }
+
+                if(this.list[i].completedFileList !== 0){                           //成功文件存入完成详情数组
+                  for(let y=0;y<this.list[i].completedFileList.length;y++){
+                    this.completedDeatils.push(this.list[i].completedFileList[y]);
+                  }
+                }
+
+                ifexist = true;           //设备已部署
+                break;
+              }
+            }
+          }
+        }
+
+        console.log("失败成功文件------");
+        console.log(this.errorDetails);
+        console.log(this.completedDeatils);
+
+        if(this.errorDetails.length !== 0){
+          for (let i = 0; i < this.errorDetails.length; i++) {
+            this.errorDetails[i].state = false;
+          }
+        }
+
+        if(this.completedDeatils.length !== 0){
+          for (let i = 0; i < this.completedDeatils.length; i++) {
+            this.completedDeatils[i].state = true;
+          }
+        }
+
+        console.log(this.completedDeatils);
+
+        this.deployDetailInfo.info = [];
+
+        console.log("失败文件------------");
+        console.log(this.errorDetails.length);
+        if(this.errorDetails.length !== 0){
+          for(let j=0;j<this.errorDetails.length;j++){
+            this.deployDetailInfo.info.push(this.errorDetails[j]);
+          }
+        }
+
+        if(this.completedDeatils.length !== 0){
+          for(let k=0;k<this.completedDeatils.length;k++){
+            this.deployDetailInfo.info.push(this.completedDeatils[k]);
+          }
+
+        }
+
+        this.deployDetailInfo2.push(this.deployDetailInfo);
+
+        console.log("部署详情-------------");
+        console.log(this.deployDetailInfo);
+        console.log(this.deployDetailInfo2);
+
+
+
+        /*for (i = 0; i < this.deployDetailInfo2.length; i++) {
+          console.log(this.deployDetailInfo2[i]);
+          console.log(this.deployDetailInfo2[i].deviceId);
+          if (id == this.deployDetailInfo2[i].deviceId) {
+
+            ifexist = true;           //设备已部署
+            break;
+          }
+        }*/
+        console.log(ifexist);
+
+        if (ifexist === true) {
+
+          console.log(this.deployDetailInfo2);
+          this.deviceDeployDetail = this.deployDetailInfo2[0].info;
+
+          console.log("已部署的设备的信息-----------------");
+          console.log(this.deviceDeployDetail);
+
+          this.dialogTableVisible = true;
+          //$("#modal-select").modal('show');
+
+        } else {
+          this.$message({
+            message: '请先部署!',
+            type: 'warning'
+          })
+        }
+
+        console.log(this.deviceDeployDetail);
 
       }
     },
