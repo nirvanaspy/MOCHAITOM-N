@@ -1,10 +1,9 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input @keyup.enter.native="handleFilter" style="width: 200px;" class="filter-item" placeholder="项目名" v-model="searchQuery">
+      <el-input style="width: 200px;" class="filter-item" placeholder="项目名" v-model="searchQuery">
       </el-input>
 
-      <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" style="float:right;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
     </div>
 
@@ -29,10 +28,6 @@
       </el-table-column>
     </el-table>
 
-    <div class="pagination-container">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
-      </el-pagination>
-    </div>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
@@ -81,13 +76,13 @@
         list: [],
         total: null,
         listLoading: true,
-        listQuery: {
+        /*listQuery: {
           page: 1,
           limit: 20,
           sort: '',
           name: '',
           description: ''
-        },
+        },*/
         importanceOptions: [1, 2, 3],
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
@@ -113,10 +108,17 @@
         downloadLoading: false,
         listLength: 0,
         projectExist: true,
-        searchQuery: ''
+        searchQuery: '',
+        userData:{
+          username: '',
+          password: ''
+        }
       }
     },
     created() {
+      this.userData.username = this.getCookie('username')
+      this.userData.password = this.getCookie('password')
+
       this.getList()
     },
     computed: {
@@ -147,32 +149,12 @@
     methods: {
       getList() {
         this.listLoading = true
-        projectList(this.listQuery).then(response => {
+        projectList(this.userData).then(response => {
           this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
           this.listLength = response.data.data.length
         })
-      },
-      handleFilter() {
-        console.log('搜索......')
-        this.listQuery.page = 1
-        this.getList()
-      },
-      handleSizeChange(val) {
-        this.listQuery.limit = val
-        this.getList()
-      },
-      handleCurrentChange(val) {
-        this.listQuery.page = val
-        this.getList()
-      },
-      handleModifyStatus(row, status) {
-        this.$message({
-          message: '操作成功',
-          type: 'success'
-        })
-        row.status = status
       },
       resetTemp() {
         this.temp = {
@@ -198,7 +180,7 @@
               'description': this.temp.description
             };
             let proData = qs.stringify(data);
-            createProject(proData).then(() => {
+            createProject(this.userData, proData).then(() => {
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.$notify({
@@ -249,7 +231,7 @@
 
             console.log(id);
             let proData = qs.stringify(data);
-            updateProject(proData, id).then(() => {
+            updateProject(this.userData, proData, id).then(() => {
               for (const v of this.list) {
                 if (v.id === this.temp.id) {
                   const index = this.list.indexOf(v)
@@ -298,7 +280,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteProject(id).then(() => {
+          deleteProject(this.userData, id).then(() => {
             this.$notify({
               title: '成功',
               message: '删除成功',

@@ -19,7 +19,7 @@
               </div>
               <el-table-column align="center" :label="$t('table.deviceName')" min-width="140">
                 <template slot-scope="scope">
-                  <span @click="getDeployComList(scope.row)">{{scope.row.name}}</span>
+                  <span @click="getDeployComList(scope.row)" style="cursor: pointer">{{scope.row.name}}</span>
                 </template>
               </el-table-column>
               <el-table-column width="150px" align="center" :label="$t('table.deviceIP')">
@@ -76,7 +76,7 @@
                         <el-table-column label="解绑" width="80" align="center">
                           <template slot-scope="scope">
                             <!--<span>{{scope.row.isBind}}</span>-->
-                            <el-button type="danger" icon="el-icon-delete" size="mini" circle v-if="scope.row.isBind"></el-button>
+                            <el-button type="danger" icon="el-icon-delete" size="mini" circle v-if="scope.row.isBind" @click="deleteBindRelation(scope.row)"></el-button>
                           </template>
                         </el-table-column>
 
@@ -113,7 +113,7 @@
 <script>
   import { getDevices } from '@/api/device'
   import { compList } from '@/api/component'
-  import { doDeployBind, getDeployComLists, getBindLists } from '@/api/deployBind'
+  import { doDeployBind, getDeployComLists, deleteBind } from '@/api/deployBind'
   import waves from '@/directive/waves' // 水波纹指令
   import splitPane from 'vue-splitpane'
   import Popper from 'vue-popper'
@@ -162,7 +162,9 @@
         bindCompsId: [],
         bindCompsName: [],
         repeatCompsId: [],
-        repeatCompsName: []
+        repeatCompsName: [],
+
+        delBindId: ''
 
       }
     },
@@ -184,23 +186,7 @@
           this.listLoading = false
         })
       },
-      /*getListComp() {    //获取组件信息
-        this.listLoading = true
-        compList().then(response => {
-          this.listComp = response.data.data
-          this.total = response.data.total
-          this.listLoading = false
-        })
-      },*/
 
-      getListBind() {    //获取组件信息
-        this.listLoading = true
-        getBindLists(this.deployPlanId).then(response => {
-          this.listBind = response.data.data
-          this.total = response.data.total
-          this.listLoading = false
-        })
-      },
 
       showPop(){
         //this.ifShow = true;
@@ -221,17 +207,18 @@
         console.log(this.deployPlanId);
 
         // this.getListComp();
+        this.listComp = [];
 
         //查询已绑定信息
         getDeployComLists(this.deployPlanId, this.deviceCHId, this.userData).then(response => {
           this.listBind = response.data.data
           this.total = response.data.total
           this.listLoading = false
-        })
 
-        console.log(this.listBind);
+          console.log(this.listBind.length);
+          console.log(this.listBind);
 
-          compList().then(response => {
+          compList(this.userData).then(response => {
             this.listComp = response.data.data
             this.total = response.data.total
             this.listLoading = false
@@ -257,19 +244,12 @@
               }
             }
           })
-
-        //判断是否绑定 初始化
-
-
-        for(var j=0;j<this.listComp.length;j++){
-          console.log(this.listComp[j].isBind);
-        }
+        })
 
       },
 
       handleCheckedCompsChange(val) {          //所选的组件，checkbox
-        //let checkedCount = value.length;
-        //alert("改变");
+
         this.checkedComps = val;
         console.log(this.checkedComps)
 
@@ -382,6 +362,49 @@
 
 
       },
+
+      deleteBind: function(){
+
+      },
+
+      deleteBindRelation(row) {
+        this.$confirm('确认解绑吗?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+
+          let delCompId = row.id;
+
+          for(let i=0;i<this.listBind.length;i++){
+              if(this.listBind[i].componentEntity.id == delCompId){  //获取此组件的绑定关系的id
+                this.delBindId = this.listBind[i].id;
+                console.log("要删除的绑定关系的id-------");
+                console.log(this.delBindId);
+                break;
+              }
+          }
+
+          deleteBind(this.delBindId, this.userData).then(() => {
+            this.$message({
+              type: 'success',
+              message: '解绑成功!'
+            });
+          }).catch(() => {
+            this.$message({
+              type: 'error',
+              message: '解绑失败'
+            });
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消解绑'
+          });
+        });
+      },
+
+
       getDeployComList(row) {
         getDeployComLists(this.deployPlanId, row.id, this.userData).then((res) => {
           this.bindedDeviceList = res.data.data

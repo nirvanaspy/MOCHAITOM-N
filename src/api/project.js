@@ -1,47 +1,47 @@
 import request from '../utils/request'
 
-export function projectList() {
+export function projectList(userData) {
   return request({
     url: '/projects',
     method: 'get',
     auth: {
-      username: 'admin',
-      password: 'admin'
+      username: userData.username,
+      password: userData.password
     }
   })
 }
 
-export function createProject(data) {
+export function createProject(userData, data) {
   return request({
     url: '/projects',
     method: 'post',
     auth: {
-      username: 'admin',
-      password: 'admin'
+      username: userData.username,
+      password: userData.password
     },
     data
   })
 }
 
-export function updateProject(data, id) {
+export function updateProject(userData, data, id) {
   return request({
     url: '/projects/' + id,
     method: 'patch',
     auth: {
-      username: 'admin',
-      password: 'admin'
+      username: userData.username,
+      password: userData.password
     },
     data
   })
 }
 
-export function deleteProject(id) {
+export function deleteProject(userData, id) {
   return request({
     url: '/projects/' + id,
     method: 'delete',
     auth: {
-      username: 'admin',
-      password: 'admin'
+      username: userData.username,
+      password: userData.password
     }
   })
 }

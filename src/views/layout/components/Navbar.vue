@@ -125,10 +125,17 @@
           description: ''
         },
         projectLength: 0,
-        projectExist: true
+        projectExist: true,
+        userData:{
+          username: '',
+          password: ''
+        }
       }
     },
     created() {
+      this.userData.username = this.getCookie('username')
+      this.userData.password = this.getCookie('password')
+
       this.selectedProName = this.getCookie('projectName')
       this.getList()
     },
@@ -169,7 +176,7 @@
       },
       getList() {
         this.listLoading = true
-        projectList(this.listQuery).then(response => {
+        projectList(this.userData).then(response => {
           this.list = response.data.data
           this.list.value = '';
           this.total = response.data.total
@@ -230,7 +237,7 @@
             'description': ''
           };
           let proData = qs.stringify(data);
-          createProject(proData).then(() => {
+          createProject(this.userData, proData).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
