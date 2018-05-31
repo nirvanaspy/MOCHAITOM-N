@@ -4,12 +4,11 @@
     <split-pane v-on:resize="resize" split="vertical" class="splicClass">
       <template slot="paneL">
         <div class="left-container">
-          <div class="filter-container" style="margin-top:5px;">
+          <div class="filter-container" style="margin-top:8px;padding-left: 6px;">
             <el-input style="width: 200px;" class="filter-item" placeholder="设备名" v-model="searchQuery">
             </el-input>
-
           </div>
-          <div style="height: 440px;overflow-y: auto;">
+          <div style="height: 440px;overflow-y: auto;padding-left: 6px;">
             <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
                       style="width: 100%;">
               <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
@@ -101,7 +100,7 @@
         <div>
           <!--<div id="deviceComp" style="width: 100%;height:440px;"></div>-->
           <div class='chart-container'>
-            <deployBindER height='450px' width='450px' :detaillist="bindedDeviceList"></deployBindER>
+            <deployBindER height='500px' width='600px' :detaillist="bindedDeviceList"></deployBindER>
           </div>
         </div>
       </template>
@@ -305,7 +304,7 @@
              })
 
              //this.ifShow = false;
-             this.getListComp();
+             /*this.getListComp();*/
 
            })
              .catch(() =>{
@@ -390,6 +389,9 @@
               type: 'success',
               message: '解绑成功!'
             });
+            getDeployComLists(this.deployPlanId, this.deviceCHId, this.userData).then((res) => {
+              this.bindedDeviceList = res.data.data
+            })
           }).catch(() => {
             this.$message({
               type: 'error',
