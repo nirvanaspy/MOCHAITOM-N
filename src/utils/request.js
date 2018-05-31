@@ -3,6 +3,7 @@ import { Message } from 'element-ui'
 import store from '@/store'
 import { getToken, getIp, getPort } from '@/utils/auth'
 
+/*eslint-disable*/
 // create an axios instance
 let ip_set = store.getters.ipconfig
 let port = store.getters.port

@@ -316,5 +316,16 @@ export const asyncRouterMap = [
     path: '/baseline',
     component: Layout,
     children: [{ path: 'baseline', component: _import('baseline/baseline'), name: 'baseline', meta: { title: 'baseline', icon: 'example' }}]
+  },
+  {
+    path: '/cabins',
+    component: Layout,
+    children: [{ path: 'cabins', component: _import('cabins/cabins'), name: 'cabins', meta: { title: 'cabins', icon: 'ship' }}]
+  },
+  {
+    path: '/cabinDetails',
+    component: Layout,
+    hidden: true,
+    children: [{ path: 'cabinDetails/:id', component: _import('cabindetails/cabindetails'), name: 'cabinDetails', meta: { title: 'cabinDetails', icon: 'ship' }}]
   }
 ]
