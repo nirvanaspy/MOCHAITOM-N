@@ -193,37 +193,40 @@
         <div class="showDetail">
           <el-table :key='tableKey'
                     v-loading="listLoading"
-                    element-loading-text="给我一点时间"
+                    element-loading-text="请先选择部署设计并选择设备及组件"
                     border fit highlight-current-row
-                    style="width:100%;height:100%">
+                    :data="componentEntityA"
+                    height="650"
+                    style="width:101%;height:100%;">
             <el-table-column min-width="140px" align="center" :label="$t('table.fileName')">
               <template slot-scope="scope">
-                <span></span>
+                <span>{{scope.row.name}}</span>
               </template>
             </el-table-column>
             <el-table-column min-width="140px" align="center" :label="$t('table.path')">
               <template slot-scope="scope">
-                <span></span>
+                <span>{{scope.row.path}}</span>
               </template>
             </el-table-column>
             <el-table-column width="100px" align="center" :label="$t('table.fileType')">
               <template slot-scope="scope">
-                <span></span>
+                <span>{{scope.row.type}}</span>
               </template>
             </el-table-column>
             <el-table-column width="180px" align="center" :label="$t('table.editDate')">
               <template slot-scope="scope">
-                <span></span>
+                <span>{{scope.row.createTime}}</span>
               </template>
             </el-table-column>
             <el-table-column width="120px" align="center" :label="$t('table.fileSize')">
               <template slot-scope="scope">
-                <span></span>
+                <span>{{scope.row.displaySize}}</span>
               </template>
             </el-table-column>
             <el-table-column class-name="status-col" :label="$t('table.versionStatus')" width="120px">
               <template slot-scope="scope">
                 <!--<el-tag :type="scope.row.deployStatus | statusFilter"></el-tag>-->
+                {{scope.row.state}}
               </template>
             </el-table-column>
           </el-table>
@@ -247,12 +250,12 @@
       </div>
       <div class="btns">
         <div class="btn-group" style="margin-top: 20px;padding-bottom: 20px;height: 80px;">
-          <el-col class="pan-btn light-blue-btn" style="width:150px" @click="scanAll()"><svg-icon icon-class="circle"></svg-icon>完整扫描
-          </el-col>
-          <el-col class="pan-btn light-blue-btn" style="width:150px" @click="scanQuick1()"><svg-icon icon-class="lightning"></svg-icon>快速扫描
-          </el-col>
-          <el-col class="pan-btn green-btn" style="width:130px; float: right;margin-right: 0"><svg-icon icon-class="upload"></svg-icon>上传
-          </el-col>
+          <el-button class="pan-btn light-blue-btn" style="width:150px" @click="scanAll"><svg-icon icon-class="circle"></svg-icon>完整扫描
+          </el-button>
+          <el-button class="pan-btn light-blue-btn" style="width:150px" @click="scanQuick1"><svg-icon icon-class="lightning"></svg-icon>快速扫描
+          </el-button>
+          <el-button class="pan-btn green-btn" type="primary" style="width:130px; float: right;margin-right: 0"><svg-icon icon-class="upload"></svg-icon>上传
+          </el-button>
         </div>
         <!-- <div class="btn-group pull-right" style="margin-top: 20px;">
            <button class="btn-glow success" style="width:130px"><i class="icon-cloud-upload"></i>上传
@@ -260,6 +263,22 @@
          </div>-->
       </div>
     </div>
+    <!--快速扫描选项-->
+    <el-dialog title="请填写后缀名" :visible.sync="dialogFormVisible">
+      <span>后缀名：</span>
+      <el-autocomplete
+        class="inline-input"
+        v-model="type1"
+        :fetch-suggestions="querySearch"
+        placeholder="请输入内容"
+      ></el-autocomplete>
+      <span>(例如:exe,txt)</span>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="formReset">取 消</el-button>
+        <el-button type="primary" @click="scanQuick">确 定</el-button>
+      </div>
+    </el-dialog>
     <!--上传组件-->
     <!--<div class="modal fade" id="modal-select">
       <div class="modal-dialog">
@@ -305,6 +324,9 @@
 </template>
 
 <script>
+  import { deployplanList } from '@/api/deployplan'
+  import { Loading } from 'element-ui'
+  /* import { compSingle } from '@/api/component'*/
   /* eslint-disable */
   var relativePath = "";
   function getCurrentRoot(treeNode) {
@@ -330,7 +352,7 @@
   let deployPlanDetailEntities;
   let deployplanZtreeId;
 
-  let zNodes = [
+  /*let zNodes = [
     { id:1,pid:0,name:"大良造菜单",open:true,nocheck:false,
       children: [
         { id:11,pid:1,name:"当前项目"},
@@ -396,7 +418,8 @@
         },
         ]
     }
-    ]
+    ]*/
+  let zNodes = [];
   let setting = {
     view: {
       dblClickExpand: false,
@@ -412,7 +435,6 @@
       }
     },
     callback: {
-
       onClick: this.zTreeOnClick,
       onDblClick: this.zTreeOnDblClick
     },
@@ -441,16 +463,37 @@
         componentEntity: [],
         selected: "",
         deployplanInfos: [],
+        projectId: '',
+        listLoading: true,
+        tableKey: 0,
+        userData:{
+          username: '',
+          password: ''
+        },
+        dialogFormVisible: false,
+        type1: '',
+        typeSuggest: [{value:'pdf'}, {value:'txt'}, {value:'sig'}]
       };
     },
     created() {
+      this.projectId = this.getCookie('projectId')
+      this.userData.username = this.getCookie('username')
+      this.userData.password = this.getCookie('password')
       //日历
       this.$nextTick(function () {
         $.fn.zTree.init($("#treeDemo"), setting, zNodes);
       });
-
-      //下拉框数据
-     /* this.$axios.get(this.getIP() + "projects/" + projectId + "/deploymentdesigns", {
+      deployplanList(this.projectId).then((res) => {
+        for (let i = 0; i < res.data.data.length; i++) {
+          this.deployplanInfos.push({
+            id: res.data.data[i].id,
+            name: res.data.data[i].name
+          })
+        }
+      }).catch(err => {
+        console.log(err);
+      })
+    /* this.$axios.get(this.getIP() + "projects/" + this.projectId + "/deploymentdesigns", {
         //设置头
         headers: {
           "content-type": "application/x-www-form-urlencoded"
@@ -471,14 +514,17 @@
 
       }).catch(err => {
         console.log(err);
-      });
-*/
+      });*/
     },
     methods: {
+      // 获取建议类型
+      querySearch(queryString, cb) {
+        cb(this.typeSuggest);
+      },
 
       formReset: function () {
-        $("input").val('');
-        $("#modal-select").modal('hide');
+        this.type1 = ''
+        this.dialogFormVisible = false
       },
 
       //截取路径生成树，例如：从路径中的某个节点与他父节点之下的节点比较
@@ -556,8 +602,6 @@
             enable: true
           }
         };
-
-
         this.$axios.get(this.getIP() + 'deploymentdesigns/' + deployplanZtreeId + '/deploymentdesigndetails', {
           //设置头
           headers: {
@@ -813,7 +857,8 @@
 
           if (zTree.getSelectedNodes()[0].deviceId) {//有deviceId字段，说明是组件
             componentNodeId = zTree.getSelectedNodes()[0].id;
-
+            /*console.log(zTree.getSelectedNodes()[0],100000)
+            console.log(componentNodeId)*/
             this.$axios.get(this.getIP() + "components/" + componentNodeId, {
               headers: {
                 "content-type": "application/x-www-form-urlencoded"
@@ -822,8 +867,9 @@
                 username: username,
                 password: password
               }
-            }).then(res => {
-
+            }).then(
+            /*compSingle(componentNodeId, this.userData).then(*/ res => {
+              this.listLoading = false
               for (let i = 0; i < res.data.data.componentDetailEntities.length; i++) {
                 res.data.data.componentDetailEntities[i].state = "--";
                 this.componentEntity.push(res.data.data.componentDetailEntities[i]);
@@ -850,6 +896,7 @@
                   password: password
                 }
               }).then(res => {
+              this.listLoading = false
 
               for (let i = 0; i < res.data.data.length; i++) {
                 for (let j = 0; j < res.data.data[i].componentEntity.componentDetailEntities.length; j++) {
@@ -915,6 +962,7 @@
         if (zTree.getSelectedNodes()[0].deployPlanId) {
           deviceAllId = zTree.getSelectedNodes()[0].id;
           deployAllId = zTree.getSelectedNodes()[0].deployPlanId;
+          console.log(deployAllId,'allid')
 
           deviceName = zTree.getSelectedNodes()[0].name;
 
@@ -941,16 +989,30 @@
 
 
         if (zTree.getSelectedNodes()[0].state == false) {//设备不在线，无法扫描
-          layer.msg("设备离线！");
+          /*layer.msg("设备离线！");*/
+          this.$message({
+            message: '设备离线！',
+            type: 'warning'
+          })
         }
         else if (deviceName == "") {
-          layer.msg("请选择设备！");
+          /*layer.msg("请选择设备！");*/
+          this.$message({
+            message: '请选择设备！',
+            type: 'warning'
+          })
         }
         else {
           console.log(deviceAllId);
           console.log(deployAllId);
 
-          layer.load();
+          /* layer.load();*/
+          const scanAllloading = Loading.service({
+            lock: true,
+            text: 'Loading',
+            spinner: 'el-icon-loading',
+            fullscreen: true
+          })
 
           this.$axios.get(
             this.getIP() + "deploymentdesigns/" +
@@ -967,7 +1029,8 @@
                 password: password
               }
             }).then(res => {
-            layer.closeAll('loading');
+            /* layer.closeAll('loading');*/
+            scanAllloading.close()
 
             //连续扫描，组件后面的软件状态会保留每次的结果，所以下次扫描后，先把上次的结果去掉
             for (let i = 0; i < zNodes.length; i++) {
@@ -1128,7 +1191,10 @@
 
             zTreeDblFlag = true;//代表扫描结束，树的双击事件信息显示由此判断
 
-            layer.msg("扫描结束");
+            this.$message({
+              message: '扫描结束！',
+              type: 'success'
+            })
 
             //扫描之后更新存放文件信息的数组childrenInfo
             for (let i = 0; i < tempZtree.length; i++) {
@@ -1141,10 +1207,13 @@
 
           }).catch(err => {
             console.log(err);
-            layer.msg("完整扫描异常");
-            layer.closeAll('loading');
-
-
+            /* layer.msg("完整扫描异常");
+            layer.closeAll('loading');*/
+            this.$message({
+              message: '完整扫描异常！',
+              type: 'warning'
+            })
+            scanAllloading.close()
           });
 
 
@@ -1153,18 +1222,22 @@
       //扫描弹框的实现
       scanQuick1: function () {
         if (zTree.getSelectedNodes()[0].state == false) {
-          layer.msg("设备离线！");
+          /*layer.msg("设备离线！");*/
+          this.$message({
+            message: '设备离线！',
+            type: 'warning'
+          })
         } else {
-          $("#modal-select").modal('show');
+          this.dialogFormVisible = true
 
           if (this.getCookie('extensions')) {//防止乱码
-            document.getElementById("input-extensions").value = decodeURIComponent(this.getCookie('extensions'));
+            this.type1 = decodeURIComponent(this.getCookie('extensions'));
           }
 
           let temp = [];
           //快速扫描,扫描某种后缀的文件
           for (let i = 0; i < childrenInfo.length; i++) {
-            if (childrenInfo[i].type == document.getElementById("input-extensions").value) {
+            if (childrenInfo[i].type == this.type1) {
               temp.push(childrenInfo[i]);
             }
           }
@@ -1182,10 +1255,17 @@
         let username = this.getCookie('username');
         let password = this.getCookie('password');
 
-        $("#modal-select").modal('hide');
-        layer.load();
+        this.dialogFormVisible = false
+        /*layer.load();*/
+        const scanQuickloading = Loading.service({
+          lock: true,
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          fullscreen: true
+        })
 
-        let extensions = document.getElementById("input-extensions").value;
+        /*let extensions = document.getElementById("input-extensions").value;*/
+        let extensions = this.type1;
         let expireDays = 1000 * 60 * 60 * 24 * 15;
         this.setCookie('extensions', extensions, expireDays);
 
@@ -1212,7 +1292,7 @@
           }
         }
 
-
+        console.log(deployAllId,'alllllll')
         this.$axios
           .get(this.getIP() +
             "deploymentdesigns/" +
@@ -1229,7 +1309,7 @@
                 password: password
               }
             }).then(res => {
-
+          scanQuickloading.close()
           let correct = [];
           let unknown = [];
           let modifyed = [];
@@ -1350,9 +1430,11 @@
           }
 
           $.fn.zTree.init($("#treeDemo"), setting, zNodes);
-          layer.closeAll('loading');
           zTreeDblFlag = true;
-          layer.msg("扫描结束");
+          this.$message({
+            message: '扫描结束！',
+            type: 'success'
+          })
           for (let i = 0; i < tempZtree.length; i++) {
             for (let j = 0; j < childrenInfo.length; j++) {
               if (childrenInfo[j].id == tempZtree[i].id) {
@@ -1362,8 +1444,11 @@
           }
         }).catch(err => {
           console.log(err);
-          layer.closeAll('loading');
-          layer.msg("快速扫描异常");
+          scanQuickloading.close()
+          this.$message({
+            message: '快速扫描异常！',
+            type: 'warning'
+          })
         });
       },
       directQuick: function () {
@@ -1586,11 +1671,10 @@
   div.showDetail{
     float:right;
     width:70%;
-    height:800px;
   }
   #areaTree {
     margin-left: -1px;
-    height: 800px;
+    height: 650px;
     overflow-y: auto;
     white-space: pre;
     width: 28%;
