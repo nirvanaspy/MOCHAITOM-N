@@ -29,7 +29,8 @@
       </el-table-column>
       <el-table-column min-width="100px" label="CPU">
         <template slot-scope="scope">
-          <span>{{scope.row.cpuclock}}</span>
+          <span v-if="!scope.row.online">--</span>
+          <span v-else>{{scope.row.cpuclock}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.memorySize')">

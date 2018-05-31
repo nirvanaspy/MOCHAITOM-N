@@ -26,8 +26,9 @@
             <router-link class="pan-btn tiffany-btn" :to='{name:"deployPlanDetail",params:{id:scope.row.id}}'>查看</router-link>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.actions')" width="300" class-name="small-padding fixed-width">
+      <el-table-column align="center" :label="$t('table.actions')" width="380" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <router-link class="pan-btn light-blue-btn" :to='{name:"deploy",params:{id:scope.row.id}}'>部署</router-link>
           <router-link class="pan-btn green-btn" :to='{name:"deployBind",params:{id:scope.row.id}}'>设计</router-link>
           <!--<el-button size="mini" type="success">设计</el-button>-->
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>

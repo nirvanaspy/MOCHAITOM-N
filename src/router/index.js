@@ -310,7 +310,7 @@ export const asyncRouterMap = [
   {
     path: '/deploy',
     component: Layout,
-    children: [{ path: 'deploy', component: _import('deploy/deploy'), name: 'deploy', meta: { title: 'deploy', icon: 'excel' }}]
+    children: [{ path: 'deploy/:id', component: _import('deploy/deploy'), name: 'deploy', meta: { title: 'deploy', icon: 'excel' }}]
   },
   {
     path: '/baseline',
