@@ -660,6 +660,7 @@
         })
           .catch(err => {
             console.log(err);
+            uploading.close()
           })
       },
 
