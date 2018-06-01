@@ -440,14 +440,30 @@
       },
       handleProcess(row) {
         this.processDialogVisible = true
+        this.listLoading = true
         getProcess(row.id, this.userData).then((res) => {
+          this.listLoading = false
           this.taskprocess = res.data.data.taskInfoEntities
+        }).catch((err) => {
+          this.listLoading = false
+          this.$message({
+            message: '获取失败！',
+            type: 'warning'
+          })
         })
       },
       handleDisk(row) {
         this.diskDialogVisible = true
+        this.listLoading = true
         getDisks(row.id,this.userData).then((res) => {
+          this.listLoading = false
           this.disks = res.data.data.diskInfoEntities
+        }).catch((err) => {
+          this.listLoading = false
+          this.$message({
+            message: '获取失败！',
+            type: 'warning'
+          })
         })
       },
       handleReport(row) {

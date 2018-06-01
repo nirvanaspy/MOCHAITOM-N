@@ -98,7 +98,22 @@
               roam: true,
               label: {
                 normal: {
-                  show: true
+                  show: true,
+                  /*formatter: function (name) {
+                    return '{name|' + name + '}';
+                  },
+                  rich: {
+                    name: {
+                      backgroundColor: './computer.png'
+                    }
+                  },*/
+                  textStyle: {
+                    fontSize: 16,
+                    fontFamily:'Arial',
+                    fontWeight: 700,
+                    textShadow: 'none',
+                    color: '#777'
+                  }
                 }
               },
               /*itemStyle: {
@@ -111,7 +126,7 @@
               edgeLabel: {
                 normal: {
                   textStyle: {
-                    fontSize: 14
+                    fontSize: 16
                   }
                 }
               },
@@ -163,9 +178,10 @@
             name: this.list[0].deviceEntity.name,
             /*x: this.centerX,
             y: this.centerY,*/
+            symbolSize: 40,
             itemStyle: {
               normal: {
-                color: '#42b983'
+                color: '#42b983',
               }
             },
             deviceInfo: this.list[0].deviceEntity
