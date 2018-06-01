@@ -4,6 +4,21 @@
       <div class="title-container">
         <h3 class="title">{{$t('login.register')}}</h3>
       </div>
+      <div class="ipContainer">
+        <el-form-item prop="ipConfig" class="ipform">
+          <span class="svg-container svg-container_ip">
+            <svg-icon icon-class="IP" />
+          </span>
+          <el-input name="ipConfig" type="text" v-model="loginForm.ipConfig" autoComplete="on" placeholder="IP地址" />
+        </el-form-item>
+        <span class="colon">:</span>
+        <el-form-item prop="port" class="portform">
+          <span class="svg-container">
+            <svg-icon icon-class="port" />
+          </span>
+          <el-input name="port" type="text" v-model="loginForm.port" autoComplete="on" placeholder="端口号" />
+        </el-form-item>
+      </div>
       <el-form-item prop="username">
         <span class="svg-container svg-container_login">
           <svg-icon icon-class="user" />
@@ -62,10 +77,13 @@
 
 <script>
   import { isvalidUsername } from '@/utils/validate'
-  import {addUser} from "../../api/getUsers"
+  import { addUser } from '../../api/getUsers'
+  import service from '@/utils/request'
+
   /* import LangSelect from '@/components/LangSelect'*/
   /* import SocialSign from './socialsignin'*/
 
+  /*eslint-disable*/
   export default {
     /* components: { LangSelec },*/
     name: 'login',
@@ -86,6 +104,8 @@
       }
       return {
         loginForm: {
+          ipConfig: '',
+          port: '',
           username: '',
           password: '',
           againPassword: ''
@@ -134,8 +154,11 @@
           'password': this.loginForm.password
         }
         let datapost = qs.stringify(data)
+        let ip = this.loginForm.ipConfig
+        let port = this.loginForm.port
         /*  this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
           this.temp.author = 'vue-element-admin'*/
+        service.defaults.baseURL = 'http://' + ip + ':' + port
         addUser(datapost).then((res) => {
          this.$notify({
             title: '成功',
