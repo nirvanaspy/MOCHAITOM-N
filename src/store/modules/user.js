@@ -1,5 +1,5 @@
 import { loginByUsername, logout, getUserInfo } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, removeProID, removeProName, removeProExist, removeUser, removePass } from '@/utils/auth'
 
 const user = {
   state: {
@@ -160,6 +160,11 @@ const user = {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
         removeToken()
+        removeUser()
+        removePass()
+        removeProID()
+        removeProExist()
+        removeProName()
         resolve()
       })
     },
