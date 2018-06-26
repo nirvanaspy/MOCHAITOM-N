@@ -265,14 +265,16 @@
     </div>
     <!--快速扫描选项-->
     <el-dialog title="请填写后缀名" :visible.sync="dialogFormVisible">
-      <span>后缀名：</span>
-      <el-autocomplete
-        class="inline-input"
-        v-model="type1"
-        :fetch-suggestions="querySearch"
-        placeholder="请输入内容"
-      ></el-autocomplete>
-      <span>(例如:exe,txt)</span>
+      <div class="dialog-body" style="margin-left: 50px">
+        <span>后缀名：</span>
+        <el-autocomplete
+          class="inline-input"
+          v-model="type1"
+          :fetch-suggestions="querySearch"
+          placeholder="请输入内容"
+        ></el-autocomplete>
+        <span>(例如:exe,txt)</span>
+      </div>
 
       <div slot="footer" class="dialog-footer">
         <el-button @click="formReset">取 消</el-button>
@@ -472,7 +474,8 @@
         },
         dialogFormVisible: false,
         type1: '',
-        typeSuggest: [{value:'pdf'}, {value:'txt'}, {value:'sig'}]
+        typeSuggest: [{value:'pdf'}, {value:'txt'}, {value:'sig'}],
+        loadingText: '给我一点时间'
       };
     },
     created() {
@@ -483,16 +486,22 @@
       this.$nextTick(function () {
         $.fn.zTree.init($("#treeDemo"), setting, zNodes);
       });
-      deployplanList(this.projectId).then((res) => {
-        for (let i = 0; i < res.data.data.length; i++) {
-          this.deployplanInfos.push({
-            id: res.data.data[i].id,
-            name: res.data.data[i].name
-          })
-        }
-      }).catch(err => {
-        console.log(err);
-      })
+      if(this.projectId){
+        this.loadingText = '给我一点时间'
+        deployplanList(this.projectId).then((res) => {
+          for (let i = 0; i < res.data.data.length; i++) {
+            this.deployplanInfos.push({
+              id: res.data.data[i].id,
+              name: res.data.data[i].name
+            })
+          }
+        }).catch(err => {
+          console.log(err);
+        })
+      } else {
+        this.loadingText = '请先选择项目'
+      }
+
     /* this.$axios.get(this.getIP() + "projects/" + this.projectId + "/deploymentdesigns", {
         //设置头
         headers: {
@@ -1626,6 +1635,28 @@
         return self.componentEntity.filter(function (item) {
           return item.name.toLowerCase().indexOf(self.searchQuery.toLowerCase()) !== -1;
         })
+      },
+      listenProId () {
+        return this.$store.state.app.projectId
+      }
+    },
+    watch: {
+      listenProId: function (a, b) {
+        window.location.reload()
+       /* this.projectId = this.getCookie('projectId')
+        this.selected = {}
+        this.deployplanInfos = []
+        deployplanList(this.projectId).then((res) => {
+          for (let i = 0; i < res.data.data.length; i++) {
+            this.deployplanInfos.push({
+              id: res.data.data[i].id,
+              name: res.data.data[i].name
+            })
+          }
+        }).catch(err => {
+          console.log(err);
+        })
+        this.changeDeployPlan()*/
       }
     }
   }
