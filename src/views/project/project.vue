@@ -4,7 +4,7 @@
       <el-input style="width: 200px;" class="filter-item" placeholder="项目名" v-model="searchQuery">
       </el-input>
 
-      <el-button class="filter-item" style="float:right;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
+      <el-button class="filter-item" style="float:right;" @click="handleCreate" type="primary" icon="el-icon-plus">{{$t('table.add')}}</el-button>
     </div>
 
     <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
@@ -95,8 +95,8 @@
         dialogFormVisible: false,
         dialogStatus: '',
         textMap: {
-          update: 'Edit',
-          create: 'Create'
+          update: '编辑',
+          create: '新建'
         },
         dialogPvVisible: false,
         pvData: [],

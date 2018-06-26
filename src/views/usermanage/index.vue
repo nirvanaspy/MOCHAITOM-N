@@ -4,14 +4,14 @@
       <el-input @keyup.enter.native="handleFilter" style="width:200px;" class="filter-item" :placeholder="$t('table.username')" v-model="searchQuery">
       </el-input>
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
-      <el-button class="filter-item" style="float:right;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
+      <el-button class="filter-item" style="float:right;" @click="handleCreate" type="primary" icon="el-icon-plus">{{$t('table.add')}}</el-button>
     </div>
 
     <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
               style="width: 100%">
       <el-table-column min-width="150px" :label="$t('table.username')">
         <template slot-scope="scope">
-          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.username}}</span>
+          <span :class="{'link-type': scope.row.username != 'admin'}" @click="handleUpdate(scope.row)">{{scope.row.username}}</span>
           <!--<el-tag>{{scope.row.type | typeFilter}}</el-tag>-->
         </template>
       </el-table-column>
@@ -143,8 +143,8 @@
         dialogFormVisible: false,
         dialogStatus: '',
         textMap: {
-          update: 'Edit',
-          create: 'Create'
+          update: '编辑',
+          create: '新建'
         },
         dialogPvVisible: false,
         pvData: [],
