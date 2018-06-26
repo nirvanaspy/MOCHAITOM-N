@@ -13,7 +13,7 @@
 
       <span style="font-weight: 400 !important;color: #97a8be;line-height: 50px;position: relative;top: -13px;">
           {{selectedProName}}
-        </span>
+      </span>
 
 
       <!--<lang-select class="international right-menu-item"></lang-select>
@@ -21,35 +21,40 @@
         <theme-picker class="theme-switch right-menu-item"></theme-picker>
       </el-tooltip>-->
 
-      <el-dropdown class="avatar-container right-menu-item" trigger="click">
-        <div class="component-item proImg">
-          <pan-thumb class="proImg" width="40px" height="40px" image="https://wpimg.wallstcn.com/577965b9-bb9e-4e02-9f0c-095b41417191">
-            项目
-          </pan-thumb>
+      <!--<el-dropdown class="avatar-container right-menu-item" trigger="click">
+        &lt;!&ndash;<div class="component-item proImg">
           <i class="el-icon-caret-bottom proIcon"></i>
-        </div>
-        <el-dropdown-menu slot="dropdown">
-          <el-select
-            @focus="onFocus"
-            v-model="selected"
-            filterable
-            remote
-            allow-create
-            default-first-option
-            placeholder="选择或创建项目"
-            @change="changePro">
-            <el-option
-              v-for="item in list"
-              :key="item.name"
-              :value="item.name">
-            </el-option>
-          </el-select>
-        </el-dropdown-menu>
-      </el-dropdown>
+        </div>&ndash;&gt;
+
+        &lt;!&ndash;<el-dropdown-menu slot="dropdown">
+
+        </el-dropdown-menu>&ndash;&gt;
+      </el-dropdown>-->
+      <div class="component-item avatar-container right-menu-item">
+        <el-select
+          @focus="onFocus"
+          v-model="selected"
+          filterable
+          remote
+          allow-create
+          default-first-option
+          placeholder="选择或创建项目"
+          @change="changePro"
+          style="top:-13px"
+        >
+          <el-option
+            v-for="item in list"
+            :key="item.name"
+            :value="item.name">
+          </el-option>
+        </el-select>
+      </div>
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
-          <img class="user-avatar" src="./2.jpg">
+          <pan-thumb class="proImg" width="40px" height="40px" image="./2/jpg">
+          </pan-thumb>
+          <!--<img class="user-avatar" src="./2.jpg">-->
           <i class="el-icon-caret-bottom"></i>
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -144,7 +149,6 @@
         return this.$store.state.app.projectNum
       },
       listenProExist(){
-        console.log("哈哈哈哈哈哈哈哈-------------")
         console.log(this.$store.state.app.projectExist);
         return this.$store.state.app.projectExist
 
@@ -230,7 +234,6 @@
         console.log("是否存在");
         console.log(isReal);
         if(!isReal){
-          alert("hhhhh");
           let qs = require('qs');
           let data = {
             'name': this.proName,
