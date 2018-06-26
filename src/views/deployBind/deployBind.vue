@@ -44,10 +44,12 @@
                     <div class="filter-container">
                       <el-input style="width: 200px;" class="filter-item" placeholder="组件名" v-model="searchQuery2">
                       </el-input>
-
+                      <div style="float:right;padding-top: 10px;">
+                        <el-button size="mini" type="success" @click="submit()">绑定</el-button>
+                      </div>
                     </div>
 
-                    <div style="height: 425px;overflow-y: auto;margin-top: 20px;" id="compTab">
+                    <div style="height: 425px;overflow-y: auto;" id="compTab">
                       <el-table :key='tableKey' :data="listB" v-loading="listLoading" element-loading-text="给我一点时间" border fit
                                 highlight-current-row
                                 style="width: 100%;"
@@ -80,10 +82,6 @@
                         </el-table-column>
 
                       </el-table>
-                    </div>
-
-                    <div style="margin-top: 20px;">
-                      <el-button size="mini" type="success" style="float:right;" @click="submit()">绑定</el-button>
                     </div>
                     <el-button type="primary" size="mini" icon="el-icon-arrow-right" slot="reference" @click="showPop"></el-button>
                   </el-popover>
@@ -425,6 +423,15 @@
         return self.listComp.filter(function (item) {
           return item.name.toLowerCase().indexOf(self.searchQuery2.toLowerCase()) !== -1;
         })
+      },
+      listenProjectId () {
+        return this.$store.state.app.projectId
+      }
+    },
+    watch: {
+      listenProjectId: function () {
+        this.proId = this.getCookie('projectId')
+        this.$router.push('/deployPlan/deployPlan')
       }
     }
   }
