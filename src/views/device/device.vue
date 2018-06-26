@@ -5,16 +5,16 @@
       </el-input>
 
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">{{$t('table.search')}}</el-button>
-      <el-button class="filter-item pull-right" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
+      <el-button class="filter-item pull-right" style="margin-left: 10px;float:right;" @click="handleCreate" type="primary" icon="el-icon-plus">{{$t('table.add')}}</el-button>
     </div>
 
-    <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+    <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="loadingText" border fit highlight-current-row
               style="width: 100%">
       <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
 
       <el-table-column align="center" :label="$t('table.deviceName')" width="100">
         <template slot-scope="scope">
-          <span>{{scope.row.name}}</span>
+          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" align="center" :label="$t('table.deviceIP')">
@@ -30,12 +30,12 @@
       <el-table-column min-width="100px" label="CPU">
         <template slot-scope="scope">
           <span v-if="!scope.row.online">--</span>
-          <span v-else>{{scope.row.cpuclock}}</span>
+          <span v-else>{{Math.floor((scope.row.cpuclock/1000)*100)/100}}GHz</span>
         </template>
       </el-table-column>
       <el-table-column min-width="100px" :label="$t('table.memorySize')">
         <template slot-scope="scope">
-          <span>{{scope.row.ramsize}}</span>
+          <span>{{Math.floor((scope.row.ramsize/1024)*100)/100}}G</span>
         </template>
       </el-table-column>
       <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
@@ -66,10 +66,10 @@
       </el-table-column>
     </el-table>
 
-    <div class="pagination-container">
+    <!--<div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
-    </div>
+    </div>-->
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
@@ -104,12 +104,12 @@
         </el-table-column>
         <el-table-column align="center" :label="$t('table.size')">
           <template slot-scope="scope">
-            <span>{{scope.row.size}}</span>
+            <span>{{scope.row.size}}G</span>
           </template>
         </el-table-column>
         <el-table-column align="center" :label="$t('table.usedSize')">
           <template slot-scope="scope">
-            <span>{{scope.row.usedSize}}</span>
+            <span>{{scope.row.usedSize}}G</span>
           </template>
         </el-table-column>
       </el-table>
@@ -209,8 +209,8 @@
         reportDialogVisible: false,
         dialogStatus: '',
         textMap: {
-          update: 'Edit',
-          create: 'Create'
+          update: '编辑',
+          create: '新建'
         },
         dialogPvVisible: false,
         pvData: [],
@@ -219,7 +219,8 @@
           timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
-        downloadLoading: false
+        downloadLoading: false,
+        loadingText: '给我一点时间'
       }
     },
     filters: {
@@ -237,7 +238,12 @@
       this.userData.username = this.getCookie('username')
       this.userData.password = this.getCookie('password')
       this.proId = this.getCookie('projectId')
-      this.getList()
+      if(this.proId) {
+        this.getList()
+      }
+      else {
+        this.loadingText = '请先选择项目'
+      }
     },
     methods: {
       getList() {
