@@ -5,15 +5,15 @@
       </el-input>
 
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">搜索</el-button>
-      <el-button class="filter-item pull-right" style="margin-left: 10px;" @click="handleCreate" type="primary" icon="el-icon-edit">{{$t('table.add')}}</el-button>
+      <el-button class="filter-item pull-right" style="margin-left: 10px;float:right;" @click="handleCreate" type="primary" icon="el-icon-plus">{{$t('table.add')}}</el-button>
     </div>
 
-    <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
+    <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="loadingText" border fit highlight-current-row
               style="width: 100%">
 
       <el-table-column align="center" :label="$t('table.deployPlanName')" width="200">
         <template slot-scope="scope">
-          <span>{{scope.row.name}}</span>
+          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column min-width="80px" align="center" :label="$t('table.deployPlanDesc')">
@@ -101,8 +101,8 @@
         dialogFormVisible: false,
         dialogStatus: '',
         textMap: {
-          update: 'Edit',
-          create: 'Create'
+          update: '编辑',
+          create: '新建'
         },
         dialogPvVisible: false,
         pvData: [],
@@ -112,11 +112,16 @@
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
         downloadLoading: false,
-        searchQuery: ''
+        searchQuery: '',
+        loadingText: '给我一点时间'
       }
     },
     created() {
-      this.getList()
+      if(this.getCookie('projectId')) {
+        this.getList()
+      } else {
+        this.loadingText = '请先选择项目'
+      }
     },
     methods: {
       getList() {
