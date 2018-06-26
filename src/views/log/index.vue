@@ -1,13 +1,13 @@
 <template>
   <div class="app-container calendar-list-container">
     <div class="filter-container">
-      <el-input style="width: 33%" @keyup.enter.native="handleFilter" id="search-deviceIP" class="filter-item" :placeholder="$t('table.deviceIP')" v-model="listQuery.deviceIP">
+      <el-input style="width: 33%; padding-right: 10px;" @keyup.enter.native="handleFilter" id="search-deviceIP" class="filter-item" :placeholder="$t('table.deviceIP')" v-model="listQuery.deviceIP">
       </el-input>
-      <el-input style="width: 33%" @keyup.enter.native="handleFilter" id="search-compName" class="filter-item" :placeholder="$t('table.componentsName')" v-model="listQuery.componentsName">
+      <el-input style="width: 33%; padding-right: 10px;" @keyup.enter.native="handleFilter" id="search-compName" class="filter-item" :placeholder="$t('table.componentsName')" v-model="listQuery.componentsName">
       </el-input>
-      <el-input style="width: 33%" disabled="disabled" @keyup.enter.native="handleFilter" id="search-compSize" class="filter-item" :placeholder="$t('table.fileSize')" v-model="listQuery.fileSize">
+      <el-input style="width: 33%;" disabled="disabled" @keyup.enter.native="handleFilter" id="search-compSize" class="filter-item" :placeholder="$t('table.fileSize')" v-model="listQuery.fileSize">
       </el-input>
-      <el-select clearable style="width:20%;margin-top:8px;" class="filter-item"  v-model="selected" :placeholder="$t('table.deployStatus')">
+      <el-select clearable style="width:20%;margin-top:8px;padding-right: 10px;" class="filter-item"  v-model="selected" :placeholder="$t('table.deployStatus')">
         <el-option v-for="item in depolyStatusOptions" :key="item" :label="item" :value="item">
         </el-option>
       </el-select>
