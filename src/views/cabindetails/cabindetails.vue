@@ -30,7 +30,7 @@
           </div>
           <draggable class="list-group list-group-out" element="ul" v-model="list" :options="dragOptions" :move="onMove" @start="isDragging=true" @end="isDragging=false">
             <transition-group type="transition" :name="'flip-list'" tag="ul" class="list-group">
-              <li class="list-group-item" v-if="!element.isBind" v-for="(element,index) in list" :key="index">
+              <li class="list-group-item" v-if="!element.isBind && !element.virtual" v-for="(element,index) in list" :key="index">
                 <!--<i :class="element.fixed? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'" @click=" element.fixed=! element.fixed" aria-hidden="true"></i>-->
                 <!--<i :class="element.fixed? 'fa fa-anchor' : 'glyphicon glyphicon-modal-window'" @click=" element.fixed=! element.fixed" aria-hidden="true"></i>-->
                 <span>
@@ -201,6 +201,7 @@
       },
       getList() {
         this.listLoading = true
+        this.proId = this.getCookie('projectId')
         getDevices(this.proId, this.userData).then(response => {
           this.list = response.data.data
           this.getAbleDeviceList()
@@ -427,12 +428,15 @@
           disabled: !this.editable,
           ghostClass: 'ghost'
         };
-      },
+      }, /*
       listString(){
         return JSON.stringify(this.list, null, 2);
       },
       list2String(){
         return JSON.stringify(this.list2, null, 2);
+      }*/
+      listenProId () {
+        return this.$store.state.app.projectId
       }
     },
     watch: {
@@ -444,6 +448,10 @@
         this.$nextTick( () =>{
           this.delayedDragging =false
         })
+      },
+      listenProId: function (a, b) {
+        this.$router.push('/cabins/cabins')
+        this.getList()
       }
     }
   }

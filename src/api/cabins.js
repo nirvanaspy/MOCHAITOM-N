@@ -1,8 +1,8 @@
 import request from '../utils/request'
 
-export function getCabins(userData) {
+export function getCabins(proId, userData) {
   return request({
-    url: '/cabins',
+    url: '/projects/' + proId + '/cabin',
     method: 'get',
     auth: {
       username: userData.username,

@@ -30,6 +30,7 @@ import Layout from '../views/layout/Layout'
 export const constantRouterMap = [
   { path: '/login', component: _import('login/index'), hidden: true },
   { path: '/register', component: _import('register/index'), hidden: true },
+  // { path: '/projectManage', component: _import('projectManage/index'), hidden: true },
   { path: '/authredirect', component: _import('login/authredirect'), hidden: true },
   { path: '/404', component: _import('errorPage/404'), hidden: true },
   { path: '/401', component: _import('errorPage/401'), hidden: true },
@@ -252,6 +253,11 @@ export const asyncRouterMap = [
 //  以上都不用
   { path: '*', redirect: '/404', hidden: true },
   {
+    path: '/project',
+    component: Layout,
+    children: [{ path: 'project', component: _import('project/project'), name: 'project', meta: { title: 'project', icon: 'excel' }}]
+  },
+  {
     path: '/components',
     component: Layout,
     children: [{ path: 'index', component: _import('components/index'), name: 'components', meta: { title: 'components', icon: 'components1' }}]
@@ -260,21 +266,6 @@ export const asyncRouterMap = [
     path: '/device',
     component: Layout,
     children: [{ path: 'device', component: _import('device/device'), name: 'device', meta: { title: 'device', icon: 'computer' }}]
-  },
-  {
-    path: '/scan',
-    component: Layout,
-    children: [{ path: 'index', component: _import('scan/index'), name: 'scan', meta: { title: 'scan', icon: 'scan2' }}]
-  },
-  {
-    path: '/log',
-    component: Layout,
-    children: [{ path: 'index', component: _import('log/index'), name: 'log', meta: { title: 'log', icon: 'log' }}]
-  },
-  {
-    path: '/softPackage',
-    component: Layout,
-    children: [{ path: 'index', component: _import('softPackage/index'), name: 'softPackage', meta: { title: 'softPackage', icon: 'package' }}]
   },
   {
     path: '/deployPlan',
@@ -294,29 +285,20 @@ export const asyncRouterMap = [
     children: [{ path: 'deployBind/:id', component: _import('deployBind/deployBind'), name: 'deployBind', meta: { title: 'deployBind', icon: 'example' }}]
   },
   {
-    path: '/usermanage',
-    component: Layout,
-    meta: {
-      title: 'usermanage',
-      roles: ['admin'] // or you can only set roles in sub nav
-    },
-    children: [{ path: 'index', component: _import('usermanage/index'), name: 'usermanage', meta: { title: 'usermanage', icon: 'peoples' }}]
-  },
-  {
-    path: '/project',
-    component: Layout,
-    children: [{ path: 'project', component: _import('project/project'), name: 'project', meta: { title: 'project', icon: 'excel' }}]
-  },
-  {
     path: '/deploy',
     component: Layout,
     hidden: true,
     children: [{ path: 'deploy/:id', component: _import('deploy/deploy'), name: 'deploy', meta: { title: 'deploy', icon: 'excel' }}]
   },
   {
-    path: '/baseline',
+    path: '/scan',
     component: Layout,
-    children: [{ path: 'baseline', component: _import('baseline/baseline'), name: 'baseline', meta: { title: 'baseline', icon: 'example' }}]
+    children: [{ path: 'index', component: _import('scan/index'), name: 'scan', meta: { title: 'scan', icon: 'scan2' }}]
+  },
+  {
+    path: '/log',
+    component: Layout,
+    children: [{ path: 'index', component: _import('log/index'), name: 'log', meta: { title: 'log', icon: 'log' }}]
   },
   {
     path: '/cabins',
@@ -328,5 +310,24 @@ export const asyncRouterMap = [
     component: Layout,
     hidden: true,
     children: [{ path: 'cabinDetails/:id', component: _import('cabindetails/cabindetails'), name: 'cabinDetails', meta: { title: 'cabinDetails', icon: 'ship' }}]
+  },
+  {
+    path: '/usermanage',
+    component: Layout,
+    meta: {
+      title: 'usermanage',
+      roles: ['admin'] // or you can only set roles in sub nav
+    },
+    children: [{ path: 'index', component: _import('usermanage/index'), name: 'usermanage', meta: { title: 'usermanage', icon: 'peoples' }}]
+  },
+  {
+    path: '/softPackage',
+    component: Layout,
+    children: [{ path: 'index', component: _import('softPackage/index'), name: 'softPackage', meta: { title: 'softPackage', icon: 'package' }}]
+  },
+  {
+    path: '/baseline',
+    component: Layout,
+    children: [{ path: 'baseline', component: _import('baseline/baseline'), name: 'baseline', meta: { title: 'baseline', icon: 'example' }}]
   }
 ]
