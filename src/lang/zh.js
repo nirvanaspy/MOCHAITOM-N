@@ -63,7 +63,7 @@ export default {
     project: '项目管理',
     baseline: '基线',
     deployPlan: '部署设计',
-    deployPlanDetail: '绑定详情,',
+    deployPlanDetail: '绑定详情',
     deployBind: '绑定',
     cabins: '舱室',
     cabinDetails: '舱室详情'
@@ -178,7 +178,7 @@ export default {
     disk: '磁盘',
     close: '关闭',
     size: '大小',
-    usedSize: '已用大小',
+    usedSize: '可用大小',
     processName: '进程名',
     report: '上报'
   },
