@@ -94,10 +94,10 @@ export default {
     }
     return {
       loginForm: {
-        username: '',
-        password: '',
-        ipConfig: '',
-        port: ''
+        username: 'admin',
+        password: 'admin',
+        ipConfig: '192.168.0.117',
+        port: '8080'
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -119,6 +119,9 @@ export default {
         this.passwordType = 'password'
       }
     },
+    testLogin() {
+
+    },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         let username = this.loginForm.username;
@@ -137,7 +140,23 @@ export default {
           this.setCookie('ip', ip, expireDays)
           this.setCookie('port', port, expireDays)
           service.defaults.baseURL = 'http://' + ip + ':' + port // 动态设置api接口
-          this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
+          let qs = require('qs');
+          let formData = new FormData();
+          formData.append('username', this.loginForm.username);
+          formData.append('password', this.loginForm.password);
+          formData.append('grant_type', 'password');
+          formData.append('scope', 'SCOPES');
+          formData.append('client_id', 'OAUTH_CLIENT_ID');
+          formData.append('enctype', "multipart/form-data");
+          // console.log(formData.get('password'))
+          let loginData = qs.stringify({
+            "username": this.loginForm.username,
+            "password": this.loginForm.password,
+            "grant_type": 'password',
+            "scope": 'SCOPES',
+            "client_id": 'OAUTH_CLIENT_ID'
+          })
+          this.$store.dispatch('LoginByUsername', this.loginForm, loginData).then(() => {
             this.loading = false
             this.$router.push({ path: '/' })
           }).catch(() => {
