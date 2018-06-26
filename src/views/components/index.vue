@@ -7,7 +7,7 @@
       <el-button class="filter-item" type="primary" v-waves icon="el-icon-search" @click="handleFilter">搜索</el-button>
 
       <el-button class="filter-item pull-right" style="float: right;margin-left: 10px;" @click="handleCreate" type="primary"
-                 icon="el-icon-edit">{{$t('table.add')}}
+                 icon="el-icon-plus">{{$t('table.add')}}
       </el-button>
 
 
@@ -19,9 +19,14 @@
                  :show-file-list="false"
                  multiple>
 
-        <el-button class="filter-item" type="primary" style="margin-left: 10px;" v-waves icon="el-icon-download">导入</el-button>
-
+        <el-button class="filter-item" type="success" style="margin-left: 10px;" v-waves icon="el-icon-download">导入</el-button>
       </el-upload>
+      <!--<el-button class="filter-item"
+                 type="success"
+                 style="margin-left: 10px;"
+                 v-waves
+                 @click="handleQuickSet"
+      >√ 快速生成</el-button>-->
 
     </div>
 
@@ -31,7 +36,7 @@
 
       <el-table-column :label="$t('table.compName')" width="100">
         <template slot-scope="scope">
-          <span @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
+          <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
         </template>
       </el-table-column>
       <el-table-column width="150px" :label="$t('table.compVersion')">
@@ -68,12 +73,12 @@
 
     </el-table>
 
-    <div class="pagination-container">
+    <!--<div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange"
                      :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit"
                      layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
-    </div>
+    </div>-->
 
     <!-- 创建 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="10vh" width="60%"
@@ -167,6 +172,59 @@
       </div>
     </el-dialog>
 
+    <!-- 快速生成 -->
+    <el-dialog title="快速生成" :visible.sync="quickSetFormVisible" top="7vh" width="80%">
+
+      <el-table :key='tableKey' :data="quicksetList" v-loading="listLoading" element-loading-text="给我一点时间" border fit
+                highlight-current-row
+                style="width: 100%;"
+                @selection-change="handleCheckedCompsChange" id="compTable">
+        <el-table-column
+          type="selection"
+          width="55"
+          align="center">
+        </el-table-column>
+        <el-table-column :label="$t('table.compName')" width="140" align="center">
+          <template slot-scope="scope">
+            <span @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column width="100px" align="center" :label="$t('table.compVersion')">
+          <template slot-scope="scope">
+            <span>{{scope.row.version}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" :label="$t('table.compSize')">
+          <template slot-scope="scope">
+            <span>{{scope.row.deployPath}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" :label="$t('table.compSize')">
+          <template slot-scope="scope">
+            <span>{{scope.row.displaySize}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" :label="$t('table.compSize')">
+          <template slot-scope="scope">
+            <span>{{scope.row.description}}</span>
+          </template>
+        </el-table-column>
+        <!--<el-table-column label="解绑" width="80" align="center">
+          <template slot-scope="scope">
+            &lt;!&ndash;<span>{{scope.row.isBind}}</span>&ndash;&gt;
+            <el-button type="danger" icon="el-icon-delete" size="mini" circle v-if="scope.row.isBind" @click="deleteBindRelation(scope.row)"></el-button>
+          </template>
+        </el-table-column>-->
+
+      </el-table>
+
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="quickSetFormVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button type="primary" @click="quickSet">{{$t('table.confirm')}}</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -212,10 +270,11 @@
           fileAll: ''
         },
         dialogFormVisible: false,
+        quickSetFormVisible: false,
         dialogStatus: '',
         textMap: {
-          update: '修改',
-          create: '创建'
+          update: '编辑',
+          create: '新建'
         },
         dialogPvVisible: false,
         pvData: [],
@@ -255,7 +314,52 @@
         userData:{
           username: '',
           password: ''
-        }
+        },
+        quicksetList: [
+          {
+            name: '组件1',
+            version: '1.0',
+            deployPath: 'D:/COMPS/',
+            description: '组件1',
+            displaySize: '35MB'
+          },
+          {
+            name: '组件2',
+            version: '1.0',
+            deployPath: 'D:/COMPS/',
+            description: '组件2',
+            displaySize: '9MB'
+          },
+          {
+            name: '组件3',
+            version: '1.0',
+            deployPath: 'D:/COMPS/',
+            description: '组件3',
+            displaySize: '180KB'
+          },
+          {
+            name: '组件4',
+            version: '1.0',
+            deployPath: 'D:/COMPS/',
+            description: '组件4',
+            displaySize: '26KB'
+          },
+          {
+            name: '组件5',
+            version: '1.0',
+            deployPath: 'D:/COMPS/',
+            description: '组件5',
+            displaySize: '5MB'
+          },
+          {
+            name: '组件6',
+            version: '1.0',
+            deployPath: 'D:/COMPS/',
+            description: '组件6',
+            displaySize: '3MB'
+          }
+        ],
+        CheckedComps: []
       }
     },
     created() {
@@ -301,6 +405,28 @@
         })
         row.status = status
       },
+
+      // 模拟快速生成组件
+      handleCheckedCompsChange(val) {
+        this.CheckedComps = val
+      },
+      handleQuickSet () {
+        this.quickSetFormVisible = true
+        this.CheckedComps = []
+
+      },
+      quickSet () {
+        // 快速生成组件列表
+        this.checkedComps = this.quicksetList
+        console.log(this.checkedComps)
+        console.log(this.list)
+        for(let i=0; i < this.quicksetList.length; i++) {
+          this.list.push(this.quicksetList[i])
+        }
+        this.quickSetFormVisible = false
+        console.log(this.list, 'hahahahahhahahaha')
+      },
+
       resetTemp() {
         this.temp = {
           id: '',
@@ -378,6 +504,14 @@
               //console.log(document.getElementById('fileUp'));
               //document.getElementById('fileUp').innerHTML = "";
               //this.$refs.uploader.uploader.files = [];
+            }).catch((err)=> {
+              createloading.close()
+              this.$notify({
+                title: '失败',
+                message: '创建失败',
+                type: 'error',
+                duration: 2000
+              })
             })
           }
         })
@@ -571,6 +705,7 @@
               }
               updateloading.close()
               this.dialogFormVisible = false
+
               this.$notify({
                 title: '成功',
                 message: '更新成功',
@@ -639,12 +774,17 @@
         console.log("导入组件文件----------");
         console.log(file);
 
+        //模拟快速导入
+        // this.quickSet()
+
+
         formData.append('importComponents', file.file);
         const uploading = Loading.service({
           lock: true,
           text: 'Loading',
           spinner: 'el-icon-loading'
         })
+        // uploading.close()
 
         importComp(this.userData, formData).then(() => {
           uploading.close()
