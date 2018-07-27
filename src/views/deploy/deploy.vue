@@ -6,11 +6,10 @@
 
     </div>
 
-    <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row
-              style="width: 100%">
+    <el-table :key='tableKey' :data="listA" v-loading="listLoading" element-loading-text="给我一点时间" border fit highlight-current-row>
       <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
 
-      <el-table-column align="center" :label="$t('table.deviceName')" width="100">
+      <el-table-column align="center" :label="$t('table.deviceName')">
         <template slot-scope="scope">
           <span>{{scope.row.name}}</span>
         </template>
@@ -31,9 +30,9 @@
           <span class="el-tag el-tag--primary" v-else>在线</span>
         </template>
       </el-table-column>
-      <el-table-column width="210px" align="center" :label="$t('table.deployProgress')">
+      <el-table-column width="240px" align="left" :label="$t('table.deployProgress')">
         <template slot-scope="scope">
-          <el-progress :percentage="scope.row.progress"></el-progress>
+          <el-progress :percentage="Math.round(scope.row.progress*10)/10"></el-progress>
         </template>
       </el-table-column>
       <el-table-column width="145px" align="center" :label="$t('table.deployDetail')">
@@ -147,8 +146,11 @@
         }
 
         if (online) {
-          let msg = "您确定部署吗？";
-          if (confirm(msg) === true) {
+          this.$confirm('确认部署吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
 
             doDeploy(this.userData, this.deployPlanId, id).then(() => {
               this.dialogFormVisible = false
@@ -165,21 +167,23 @@
               this.setProjectNum(this.listLength)
             }).catch(err => {
               console.log("提示---------");
-              console.log(err.response.data.data);
-              if(err.response.data.data.length != 0){
+              /*if(err.response.data.data.length != 0){
                 this.$notify({
                   title: '失败',
                   message: err.response.data.data,
                   type: 'error',
                   duration: 2000
                 })
-              }
+              }*/
             })
 
 
-          } else {
-            return false;
-          }
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消部署'
+            })
+          })
         } else {
           this.$message({
             message: '设备离线!',
