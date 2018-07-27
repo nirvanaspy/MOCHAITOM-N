@@ -30,7 +30,7 @@
 
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+      <el-form :rules="proRules" ref="dataForm" :model="temp" label-position="right" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.projectName')" prop="name">
           <el-input v-model="temp.name"></el-input>
         </el-form-item>
@@ -100,6 +100,9 @@
         },
         dialogPvVisible: false,
         pvData: [],
+        proRules: {
+          name: [{ required: true, message: '请输入项目名', trigger: 'blur' }]
+        },
         rules: {
           type: [{ required: true, message: 'type is required', trigger: 'change' }],
           timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
