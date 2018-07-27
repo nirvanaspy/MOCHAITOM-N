@@ -23,7 +23,7 @@
       </el-table-column>
       <el-table-column align="center" width="100px" :label="$t('table.deployBindDetail')">
         <template slot-scope="scope">
-            <router-link class="pan-btn tiffany-btn" :to='{name:"deployPlanDetail",params:{id:scope.row.id}}'>查看</router-link>
+            <router-link class="pan-btn tiffany-btn" :to='{name:"deployPlanDetail",params:{id:scope.row.id}}' style="margin-right: 0">查看</router-link>
         </template>
       </el-table-column>
       <el-table-column align="center" :label="$t('table.actions')" width="380" class-name="small-padding fixed-width">
@@ -33,7 +33,7 @@
           <!--<el-button size="mini" type="success">设计</el-button>-->
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
           <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}</el-button>
-          <el-button size="mini" type="info">基线</el-button>
+          <el-button size="mini" type="info" @click="handleCreateBaseline(scope.row)">基线</el-button>
         </template>
       </el-table-column>
 
@@ -45,7 +45,7 @@
     </div>-->
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+      <el-form :rules="deployRules" ref="dataForm" :model="temp" label-position="right" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.deployPlanName')" prop="name">
           <el-input v-model="temp.name"></el-input>
         </el-form-item>
@@ -59,12 +59,28 @@
         <el-button v-else type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
       </div>
     </el-dialog>
+    <!--基线新建对话框-->
+    <el-dialog title="请填写基线信息" :visible.sync="baselineVisible">
+      <el-form :rules="baselineRules" ref="baselineForm" :model="baselineTemp" label-position="right" label-width="70px" style='width: 400px; margin-left:50px;'>
+        <el-form-item label="名称" prop="name">
+          <el-input v-model="baselineTemp.name"></el-input>
+        </el-form-item>
+        <el-form-item label="描述" prop="desc">
+          <el-input v-model="baselineTemp.description"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="baselineVisible = false">{{$t('table.cancel')}}</el-button>
+        <el-button type="primary" @click="createBaseline">{{$t('table.confirm')}}</el-button>
+      </div>
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
   import { deployplanList, createDeployplan, updateDeployplan, deleteDeployplan } from '@/api/deployplan'
+  import { saveDeploymentDesignSnapshots } from '@/api/baseline'
   import waves from '@/directive/waves' // 水波纹指令
   import Sortable from 'sortablejs'
 
@@ -76,11 +92,21 @@
     },
     data() {
       return {
+        userData:{
+          username: '',
+          password: ''
+        },
         selectedId: '',
         tableKey: 0,
         list: [],
         total: null,
         listLoading: true,
+        deployRules: {
+          name: [{ required: true, message: '请输入设备名', trigger: 'blur' }]
+        },
+        baselineRules: {
+          name: [{ required: true, message: '请输入基线名', trigger: 'blur' }]
+        },
         listQuery: {
           page: 1,
           limit: 10,
@@ -98,7 +124,13 @@
           name: '',
           description: ''
         },
+        baselineTemp: {
+          id: '',
+          name: '',
+          description: ''
+        },
         dialogFormVisible: false,
+        baselineVisible: false,
         dialogStatus: '',
         textMap: {
           update: '编辑',
@@ -117,6 +149,8 @@
       }
     },
     created() {
+      this.userData.username = this.getCookie('username')
+      this.userData.password = this.getCookie('password')
       if(this.getCookie('projectId')) {
         this.getList()
       } else {
@@ -128,7 +162,7 @@
         this.listLoading = true;
         let projectId = this.getCookie('projectId');
 
-        deployplanList(projectId).then(response => {
+        deployplanList(projectId,this.userData).then(response => {
           this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
@@ -183,7 +217,7 @@
             formData.append('name', this.temp.name);
             formData.append('description', this.temp.description);
 
-            createDeployplan(formData, projectId).then(() => {
+            createDeployplan(formData, projectId, this.userData).then(() => {
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.$notify({
@@ -221,7 +255,7 @@
             const id = this.selectedId;
 
             let deployplanData = qs.stringify(data);
-            updateDeployplan(deployplanData, id).then(() => {
+            updateDeployplan(deployplanData, id, this.userData).then(() => {
               for (const v of this.list) {
                 if (v.id === this.temp.id) {
                   const index = this.list.indexOf(v)
@@ -268,7 +302,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteDeployplan(id).then(() => {
+          deleteDeployplan(id, this.userData).then(() => {
             this.$notify({
               title: '成功',
               message: '删除成功',
@@ -276,13 +310,46 @@
               duration: 2000
             })
             this.getList()
-            this.setProjectNum(this.listLength)
+            // this.setProjectNum(this.listLength)
+          }).catch(() => {
+            this.$notify({
+              title: '失败',
+              message: '删除失败',
+              type: 'error',
+              duration: 2000
+            })
           })
         }).catch(() => {
           this.$message({
             type: 'info',
             message: '已取消删除'
           })
+        })
+      },
+      handleCreateBaseline(row) {
+        this.baselineVisible = true
+        this.selectedId = row.id
+        this.$nextTick(() => {
+          this.$refs['baselineForm'].clearValidate()
+        })
+      },
+      createBaseline() {
+        this.$refs['baselineForm'].validate((valid) => {
+          if(valid) {
+            let formData = new FormData();
+
+            formData.append('name', this.baselineTemp.name);
+            formData.append('description', this.baselineTemp.description);
+            saveDeploymentDesignSnapshots(this.selectedId,formData,this.userData).then(() => {
+              this.baselineVisible = false
+              this.$notify({
+                title: '成功',
+                message: '基线创建成功',
+                type: 'success',
+                duration: 2000
+              })
+            })
+          }
         })
       }
     },
@@ -309,11 +376,12 @@
   .pan-btn {
     font-size: 12px;
     color: #fff;
-    padding: 3px 15px;
+    height: 28px;
+    padding: 4px 15px;
     border-radius: 2px;
     border: none;
     outline: none;
-    margin-right: 0;
+    margin-right: 10px;
     transition: all .6s ease;
     position: relative;
     display: inline-block;
