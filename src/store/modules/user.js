@@ -1,6 +1,6 @@
+/*eslint-disable*/
 import { loginByUsername, logout, getUserInfo } from '@/api/login'
-import { getToken, setToken, removeToken, removeProID, removeProName, removeProExist, removeUser, removePass } from '@/utils/auth'
-
+import { getToken, setToken, removeToken, setUserId, removeProID, removeProName, removeProExist, getUser, removeUser, getPass, removePass } from '@/utils/auth'
 const user = {
   state: {
     user: '',
@@ -75,9 +75,11 @@ const user = {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         loginByUsername(username, userInfo.password).then(response => {
-          const data = response.data
+          const data = response.data.data
+          console.log(data, 'hhhhhh')
           commit('SET_TOKEN', 'admin')
           setToken('admin')
+          setUserId(data.id)
           resolve()
         }).catch(error => {
           reject(error)
@@ -105,11 +107,13 @@ const user = {
     },*/
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
-        getUserInfo(state.token).then(response => {
-          console.log('getUserInfosuccess')
+        let userData = {
+          username: getUser(),
+          password: getPass()
+        }
+        getUserInfo(userData).then(response => {
           if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
             reject('error')
-            /*console.log('getUserInfoError')*/
           }
           const data = response.data
           console.log(data)
@@ -120,7 +124,6 @@ const user = {
           commit('SET_INTRODUCTION', '')
           resolve(response)
         }).catch(error => {
-          console.log('getuserinfoerror')
           reject(error)
         })
       })
@@ -160,7 +163,7 @@ const user = {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
         removeToken()
-        removeUser()
+        // removeUser()
         removePass()
         removeProID()
         removeProExist()
@@ -174,7 +177,11 @@ const user = {
       return new Promise(resolve => {
         commit('SET_TOKEN', role)
         setToken(role)
-        getUserInfo(role).then(response => {
+        let userData = {
+          username: getUser(),
+          password: getPass()
+        }
+        getUserInfo(userData).then(response => {
           const data = response.data
           commit('SET_ROLES', data.roles)
           commit('SET_NAME', data.name)

@@ -13,6 +13,11 @@ export function setToken(token) {
 export function removeToken() {
   return Cookies.remove(TokenKey)
 }
+
+export function setUserId(userId) {
+  return Cookies.set('userId', userId)
+}
+
 export function getIp() {
   return Cookies.get('ip')
 }
@@ -35,6 +40,14 @@ export function removeProExist() {
 
 export function removeUser() {
   return Cookies.remove('username')
+}
+
+export function getUser() {
+  return Cookies.get('username')
+}
+
+export function getPass() {
+  return Cookies.get('password')
 }
 
 export function removePass() {
