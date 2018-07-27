@@ -289,7 +289,7 @@
            let formData = new FormData();
            formData.append('componentIds', this.componentIds);
 
-           doDeployBind(this.deployPlanId, this.deviceCHId, formData).then(() => {
+           doDeployBind(this.deployPlanId, this.deviceCHId, formData, this.userData).then(() => {
              this.$notify({
                title: '成功',
                message: '绑定成功',
@@ -305,13 +305,24 @@
              /*this.getListComp();*/
 
            })
-             .catch(() =>{
-             this.$notify({
-               title: '失败',
-               message: '绑定失败',
-               type: 'error',
-               duration: 2000
-             })
+             .catch(error =>{
+               // alert(error.response.data.data)
+             if(error.response.data.data.indexOf('已存在') > -1) {
+               this.$notify({
+                 title: '失败',
+                 message: '组件已绑定',
+                 type: 'error',
+                 duration: 2000
+               })
+             } else {
+               this.$notify({
+                 title: '失败',
+                 message: '绑定失败',
+                 type: 'error',
+                 duration: 2000
+               })
+             }
+
            })
          }else{
            this.$message({
