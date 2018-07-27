@@ -78,6 +78,23 @@ export default {
   components: { LangSelect },
   name: 'login',
   data() {
+    const validateIP = (rule, value, callback) => {
+      var exp = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+      var reg = value.match(exp);
+      if(reg == null) {
+        callback(new Error('IP地址不合法！'))
+      }
+      else{
+        callback()
+      }
+    }
+    const validatePort = (rule, value, callback) => {
+      if (value.length == 0) {
+        callback(new Error('请输入正确的端口号！'))
+      } else {
+        callback()
+      }
+    }
     const validateUsername = (rule, value, callback) => {
       if (!isvalidUsername(value)) {
         callback(new Error('请输入正确的用户名！'))
@@ -95,11 +112,13 @@ export default {
     return {
       loginForm: {
         username: 'admin',
-        password: 'admin',
+        password: '',
         ipConfig: '192.168.0.117',
         port: '8080'
       },
       loginRules: {
+        ipConfig: [{ required: true, trigger: 'blur', validator: validateIP }],
+        port: [{ required: true, trigger: 'blur', validator:validatePort }],
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
@@ -118,9 +137,6 @@ export default {
       } else {
         this.passwordType = 'password'
       }
-    },
-    testLogin() {
-
     },
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
@@ -247,7 +263,6 @@ export default {
             this.$router.replace('/')
           })*/
           let userData = res.data
-          console.log(2)
           //将用户名、密码的值存入cookie中
           console.log(username)
           this.setCookie('username', username, expireDays);
@@ -296,6 +311,15 @@ export default {
     })
   },
   created() {
+    if(this.getCookie('ip')) {
+      this.loginForm.ipConfig = this.getCookie('ip')
+    }
+    if(this.getCookie('port')) {
+      this.loginForm.port = this.getCookie('port')
+    }
+    if(this.getCookie('username')) {
+      this.loginForm.username = this.getCookie('username')
+    }
     this.setIP(this.loginForm.ipConfig)
     this.setPort(this.loginForm.port)
     // window.addEventListener('hashchange', this.afterQRScan)
