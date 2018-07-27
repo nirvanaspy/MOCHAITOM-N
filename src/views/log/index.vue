@@ -40,12 +40,14 @@
       </el-table-column>
       <el-table-column width="180px" align="center" :label="$t('table.startTime')">
          <template slot-scope="scope">
-           <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
+           <!--<span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>-->
+           <span>{{scope.row.createTime}}</span>
          </template>
        </el-table-column>
       <el-table-column width="180px" align="center" :label="$t('table.endTime')">
         <template slot-scope="scope">
-          <span>{{scope.row.finishTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
+          <!--<span>{{scope.row.finishTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>-->
+          <span>{{scope.row.finishTime}}</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" align="center" :label="$t('table.fileSize')">
@@ -90,6 +92,10 @@
     },
     data() {
       return {
+        userData:{
+          username: '',
+          password: ''
+        },
         tableKey: 0,
         list: [],
         total: null,
@@ -180,10 +186,12 @@
       }
     },
     created() {
+      this.userData.username = this.getCookie('username')
+      this.userData.password = this.getCookie('password')
       this.getList()
     },
     methods: {
-      deleteuser(event) {
+      /*deleteuser(event) {
         console.log(event.target.tagName)
         const target_btn = event.target
         this.$confirm('确认删除吗？', '提示', {
@@ -208,21 +216,18 @@
             message: '已取消删除'
           })
         })
-      },
+      },*/
       getList() {
         this.listLoading = true
-        logList(this.listQuery).then(response => {
+        console.log(this.userData)
+        logList(this.userData).then(response => {
           this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
         })
       },
       searchAll: function() {
-        console.log(this.value4)
-        console.log(this.value4.length)
-        console.log('A')
         if (this.value4.length != 0){
-          console.log("空不该进")
           this.startTime = this.value4[0];
           this.endTime = this.value4[1];
 
@@ -231,13 +236,7 @@
 
           let start = parseInt(this.startTimeTemp);
           let end = parseInt(this.endTimeTemp);
-
-          console.log(typeof(this.startTimeTemp));
-          console.log(this.startTimeTemp);
         }
-
-        console.log("B");
-
         //  /deploylogs
 
         let username = this.getCookie('username');
@@ -250,8 +249,6 @@
 
 
         let state = this.selected;
-        console.log(this.selected);
-        console.log(state.length);
 
         if (state.length > 0) {
           if (state == "部署异常") {
@@ -297,8 +294,7 @@
           searchObj.endTime = new Date(this.endTime).getTime();
         }
 
-        console.log(searchObj);
-        logSearchList(searchObj).then(response => {
+        logSearchList(searchObj, this.userData).then(response => {
           this.list = response.data.data
           this.listLoading = false
         })
