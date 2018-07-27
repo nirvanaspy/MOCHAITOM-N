@@ -41,6 +41,10 @@
     },
     data() {
       return {
+        userData:{
+          username: '',
+          password: ''
+        },
         tableKey: 0,
         list: [],
         deployPlanId: '',       //所选部署设计的id
@@ -60,6 +64,8 @@
       }
     },
     created() {
+      this.userData.username = this.getCookie('username')
+      this.userData.password = this.getCookie('password')
       this.getList()
     },
     methods: {
@@ -69,7 +75,7 @@
         this.deployPlanId = this.$route.params.id;  //所选择的部署设计的id
         console.log(this.deployPlanId);
 
-        bindDetailList(this.deployPlanId).then(response => {
+        bindDetailList(this.deployPlanId,this.userData).then(response => {
           this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
