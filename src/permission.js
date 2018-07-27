@@ -15,7 +15,7 @@ function hasPermission(roles, permissionRoles) {
   return roles.some(role => permissionRoles.indexOf(role) >= 0)
 }
 const whiteList = ['/login', '/authredirect', '/register']// no redirect whitelist
-/*router.beforeEach((to, from, next) => {
+/* router.beforeEach((to, from, next) => {
 /!*  if (to.path === './login') {
     next({path: '/login'})
     return
@@ -55,8 +55,8 @@ const whiteList = ['/login', '/authredirect', '/register']// no redirect whiteli
   }
 })*/
 router.beforeEach((to, from, next) => {
- console.log('刷新了')
-  console.log(getCookies('username'),1)
+  console.log('刷新了')
+  console.log(getCookies('username') ,1)
   NProgress.start() // start progress bar
   if (getToken()) { // determine if there has token
     console.log(getToken())

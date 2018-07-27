@@ -25,7 +25,6 @@
         </span>
         <el-input name="username" type="text" v-model="loginForm.username" autoComplete="on" placeholder="请输入用户名" />
       </el-form-item>
-
       <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password" />
@@ -35,11 +34,11 @@
           <svg-icon icon-class="eye" />
         </span>
       </el-form-item>
-      <el-form-item prop="password">
+      <el-form-item prop="againPassword">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
-        <el-input name="password" :type="passwordType" @keyup.enter.native="handleLogin" v-model="loginForm.againPassword" autoComplete="on" placeholder="再次输入密码" />
+        <el-input name="againPassword" :type="passwordType" @keyup.enter.native="registerUser" v-model="loginForm.againPassword" autoComplete="on" placeholder="再次输入密码" />
         <span class="show-pwd" @click="showPwd">
           <svg-icon icon-class="eye" />
         </span>
@@ -88,6 +87,23 @@
     /* components: { LangSelec },*/
     name: 'login',
     data() {
+      const validateIP = (rule, value, callback) => {
+        var exp = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+        var reg = value.match(exp);
+        if(reg == null) {
+          callback(new Error('IP地址不合法！'))
+        }
+        else{
+          callback()
+        }
+      }
+      const validatePort = (rule, value, callback) => {
+        if (value.length == 0) {
+          callback(new Error('请输入正确的端口号！'))
+        } else {
+          callback()
+        }
+      }
       const validateUsername = (rule, value, callback) => {
         if (!isvalidUsername(value)) {
           callback(new Error('请输入正确的用户名！'))
@@ -97,7 +113,16 @@
       }
       const validatePassword = (rule, value, callback) => {
         if (value.length < 6) {
-          callback(new Error('请输入正确的密码！'))
+          callback(new Error('请输入正确的密码,至少6位！'))
+        } else {
+          callback()
+        }
+      }
+      const validatePasswordAgain = (rule, value, callback) => {
+        if (value.length < 6) {
+          callback(new Error('请输入正确的密码,至少6位！'))
+        } else if(this.loginForm.againPassword !== this.loginForm.password) {
+          callback(new Error('两次密码输入不一致，请再次输入新密码！'))
         } else {
           callback()
         }
@@ -111,9 +136,11 @@
           againPassword: ''
         },
         loginRules: {
+          ipConfig: [{ required: true, trigger: 'blur', validator: validateIP }],
+          port: [{ required: true, trigger: 'blur', validator:validatePort }],
           username: [{ required: true, trigger: 'blur', validator: validateUsername }],
           password: [{ required: true, trigger: 'blur', validator: validatePassword }],
-          againPassword: [{ required: true, trigger: 'blur', validator: validatePassword }]
+          againPassword: [{ required: true, trigger: 'blur', validator: validatePasswordAgain }]
         },
         passwordType: 'password',
         loading: false,
@@ -131,8 +158,8 @@
           this.passwordType = 'password'
         }
       },
-      handleLogin() {
-        this.$refs.loginForm.validate(valid => {
+      /*handleLogin() {
+        this.$refs['loginForm'].validate(valid => {
           if (valid) {
             this.loading = true
             this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
@@ -146,33 +173,53 @@
             return false
           }
         })
-      },
+      },*/
       registerUser: function () {
-        var qs = require('qs')
-        let data = {
-          'username': this.loginForm.username,
-          'password': this.loginForm.password
-        }
-        let datapost = qs.stringify(data)
-        let ip = this.loginForm.ipConfig
-        let port = this.loginForm.port
-        /*  this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'*/
-        service.defaults.baseURL = 'http://' + ip + ':' + port
-        addUser(datapost).then((res) => {
-         this.$notify({
-            title: '成功',
-            message: '注册成功',
-            type: 'success',
-            duration: 2000
-          })
-         this.$router.replace('/login')
-          /* this.getList()*/
+        this.$refs['loginForm'].validate((valid) => {
+          if (valid) {
+            var qs = require('qs')
+            let data = {
+              'username': this.loginForm.username,
+              'password': this.loginForm.password
+            }
+            let datapost = qs.stringify(data)
+            let ip = this.loginForm.ipConfig
+            let port = this.loginForm.port
+            /*  this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+                this.temp.author = 'vue-element-admin'*/
+            service.defaults.baseURL = 'http://' + ip + ':' + port
+            addUser(datapost).then((res) => {
+              this.setCookie('ip',this.loginForm.ipConfig)
+              this.setCookie('port',this.loginForm.port)
+              this.setCookie('username', this.loginForm.username)
+              this.$notify({
+                title: '成功',
+                message: '注册成功',
+                type: 'success',
+                duration: 2000
+              })
+              this.$router.replace('/login')
+              /* this.getList()*/
+            }).catch(() => {
+              this.$notify({
+                title: '失败',
+                message: '注册失败',
+                type: 'error',
+                duration: 2000
+              })
+            })
+          }
         })
       }
     },
     created() {
       // window.addEventListener('hashchange', this.afterQRScan)
+      if(this.getCookie('ip')) {
+        this.loginForm.ipConfig = this.getCookie('ip')
+      }
+      if(this.getCookie('port')) {
+        this.loginForm.port = this.getCookie('port')
+      }
     },
     destroyed() {
       // window.removeEventListener('hashchange', this.afterQRScan)
