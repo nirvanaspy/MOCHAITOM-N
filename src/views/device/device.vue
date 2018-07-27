@@ -12,7 +12,7 @@
               style="width: 100%">
       <!-- <el-table :data="list" row-key="id"  v-loading.body="listLoading" border fit highlight-current-row style="width: 100%">-->
 
-      <el-table-column align="center" :label="$t('table.deviceName')" width="100">
+      <el-table-column align="center" :label="$t('table.deviceName')">
         <template slot-scope="scope">
           <span class="link-type" @click="handleUpdate(scope.row)">{{scope.row.name}}</span>
         </template>
@@ -27,15 +27,19 @@
           <span>{{scope.row.deployPath}}</span>
         </template>
       </el-table-column>
+
+      <!--暂时隐藏-->
       <el-table-column min-width="100px" label="CPU">
         <template slot-scope="scope">
           <span v-if="!scope.row.online">--</span>
           <span v-else>{{Math.floor((scope.row.cpuclock/1000)*100)/100}}GHz</span>
         </template>
       </el-table-column>
-      <el-table-column min-width="100px" :label="$t('table.memorySize')">
+      <el-table-column min-width="100px" label="内存占用率">
         <template slot-scope="scope">
-          <span>{{Math.floor((scope.row.ramsize/1024)*100)/100}}G</span>
+          <span v-if="!scope.row.online">--</span>
+          <!--<span v-else>{{Math.floor((scope.row.ramsize/1024)*100)/100}}G</span>-->
+          <span v-else>{{Math.floor((scope.row.ramsize - scope.row.freeRAMSize)/scope.row.ramsize*1000)/10}}%</span>
         </template>
       </el-table-column>
       <el-table-column width="110px" align="center" :label="$t('table.deviceState')">
@@ -45,14 +49,14 @@
           <span class="el-tag el-tag--primary" v-else>在线</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" :label="$t('table.check')" width="180" class-name="small-padding fixed-width">
+      <!--<el-table-column align="center" :label="$t('table.check')" width="180" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" v-if="scope.row.online && !scope.row.virtual" @click="handleProcess(scope.row)">{{$t('table.deviceProcess')}}</el-button>
           <el-button size="mini" type="success" v-if="scope.row.online && !scope.row.virtual" @click="handleDisk(scope.row)">{{$t('table.disk')}}</el-button>
           <el-button type="primary" disabled="disabled" v-if="!scope.row.online || scope.row.virtual" size="mini">{{$t('table.deviceProcess')}}</el-button>
           <el-button size="mini" disabled="disabled" v-if="!scope.row.online || scope.row.virtual" type="success">{{$t('table.disk')}}</el-button>
         </template>
-      </el-table-column>
+      </el-table-column>-->
       <el-table-column align="center" :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" v-if="!scope.row.virtual" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
@@ -72,15 +76,15 @@
     </div>-->
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+      <el-form :rules="deviceRules" ref="dataForm" :model="temp" label-position="right" label-width="70px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.deviceName')" prop="name">
           <el-input v-model="temp.name"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.deviceIP')" prop="ip">
-          <el-input v-model="temp.ip"></el-input>
+          <el-input v-model="temp.ip" placeholder="如192.168.0.106"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('table.devicePath')" prop="path">
-          <el-input v-model="temp.deployPath"></el-input>
+        <el-form-item :label="$t('table.devicePath')" prop="deployPath">
+          <el-input v-model="temp.deployPath" placeholder="如D:/test/，必须以盘符开头"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.deviceDesc')" prop="description">
           <el-input v-model="temp.description"></el-input>
@@ -140,9 +144,9 @@
       </div>
     </el-dialog>
     <el-dialog title="请填写路径" :visible.sync="reportDialogVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item label="路径" prop="name">
-          <el-input v-model="reportPath"></el-input>
+      <el-form :rules="deviceRules" ref="dataForm" :model="temp" label-position="right" label-width="70px" style='width: 400px; margin-left:50px;'>
+        <el-form-item label="路径" prop="deployPath">
+          <el-input v-model="reportPath" placeholder="如D:/，必须以盘符开头"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -166,6 +170,7 @@
     },
     data() {
       return {
+        timer: null,
         tableKey: 0,
         list: [],
         total: null,
@@ -214,6 +219,11 @@
         },
         dialogPvVisible: false,
         pvData: [],
+        deviceRules: {
+          name: [{ required: true, message: '请输入设备名', trigger: 'blur' }],
+          ip: [{ required: true, message: '请输入ip', trigger: 'blur' }],
+          deployPath: [{ required: true, message: '请输入路径', trigger: 'blur' }]
+        },
         rules: {
           type: [{ required: true, message: 'type is required', trigger: 'change' }],
           timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
@@ -238,12 +248,23 @@
       this.userData.username = this.getCookie('username')
       this.userData.password = this.getCookie('password')
       this.proId = this.getCookie('projectId')
+      clearInterval(this.timer)
+      this.timer = setInterval(() => {
+        if(this.proId) {
+          getDevices(this.proId, this.userData).then(response => {
+            this.list = response.data.data
+          })
+        }
+      }, 10*1000)
       if(this.proId) {
         this.getList()
       }
       else {
         this.loadingText = '请先选择项目'
       }
+    },
+    destroyed() {
+      clearInterval(this.timer)
     },
     methods: {
       getList() {
@@ -410,20 +431,6 @@
           })
         })
       },
-      copyDevice1(row) {
-        let copyId = row.id
-        let qs = require('qs');
-        let copyData = qs.stringify({
-          "name": row.name
-        })
-        copyDevices(copyId, this.userData, copyData).then((res) => {
-          this.$message({
-            type: 'success',
-            message: '复制成功!'
-          })
-          this.getList()
-        })
-      },
       copyDevice(row) {
         let qs = require('qs');
         let id = row.id;
@@ -432,7 +439,7 @@
           'name': this.temp.name
         };
         let proData = qs.stringify(data);
-        copyDevices(proData, id).then(() => {
+        copyDevices(proData, id, this.userData).then(() => {
           this.list.unshift(this.temp)
           /* this.dialogFormVisible = false */
           this.$notify({
