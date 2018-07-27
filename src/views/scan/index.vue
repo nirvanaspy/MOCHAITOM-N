@@ -193,7 +193,7 @@
         <div class="showDetail">
           <el-table :key='tableKey'
                     v-loading="listLoading"
-                    element-loading-text="请先选择部署设计并选择设备及组件"
+                    :element-loading-text="loadingText"
                     border fit highlight-current-row
                     :data="componentEntityA"
                     height="650"
@@ -254,8 +254,10 @@
           </el-button>
           <el-button class="pan-btn light-blue-btn" style="width:150px" @click="scanQuick1"><svg-icon icon-class="lightning"></svg-icon>快速扫描
           </el-button>
-          <el-button class="pan-btn green-btn" type="primary" style="width:130px; float: right;margin-right: 0"><svg-icon icon-class="upload"></svg-icon>上传
+          <!--<el-button class="pan-btn green-btn" type="primary" @click="checkComponentStatus" style="width:160px; float: right;margin-right: 0"><svg-icon icon-class="upload"></svg-icon>查看组件状态
           </el-button>
+          <el-button class="pan-btn green-btn" type="primary" style="width:130px; float: right;margin-right: 0"><svg-icon icon-class="upload"></svg-icon>上传
+          </el-button>-->
         </div>
         <!-- <div class="btn-group pull-right" style="margin-top: 20px;">
            <button class="btn-glow success" style="width:130px"><i class="icon-cloud-upload"></i>上传
@@ -460,6 +462,7 @@
     /* eslint-disable */
     data() {
       return {
+        loadingText: '请先选择部署设计',
         list: [],
         searchQuery: '',
         componentEntity: [],
@@ -475,7 +478,6 @@
         dialogFormVisible: false,
         type1: '',
         typeSuggest: [{value:'pdf'}, {value:'txt'}, {value:'sig'}],
-        loadingText: '给我一点时间'
       };
     },
     created() {
@@ -487,8 +489,8 @@
         $.fn.zTree.init($("#treeDemo"), setting, zNodes);
       });
       if(this.projectId){
-        this.loadingText = '给我一点时间'
-        deployplanList(this.projectId).then((res) => {
+        this.loadingText = '请先选择部署设计'
+        deployplanList(this.projectId, this.userData).then((res) => {
           for (let i = 0; i < res.data.data.length; i++) {
             this.deployplanInfos.push({
               id: res.data.data[i].id,
@@ -621,6 +623,7 @@
             password: password
           }
         }).then(res => {
+          this.loadingText = '请双击设备或组件'
 
           let item;
 
@@ -750,6 +753,7 @@
 
       //双击动作
       zTreeOnDblClick: function (e, treeId, treeNode) {
+        this.listLoading = false
         let username = this.getCookie('username');
         let password = this.getCookie('password');
 
@@ -876,8 +880,8 @@
                 username: username,
                 password: password
               }
-            }).then(
-            /*compSingle(componentNodeId, this.userData).then(*/ res => {
+            }).then(res => {
+            /*compSingle(componentNodeId, this.userData).then(*/
               this.listLoading = false
               for (let i = 0; i < res.data.data.componentDetailEntities.length; i++) {
                 res.data.data.componentDetailEntities[i].state = "--";
@@ -925,6 +929,7 @@
           } else if (zTree.getSelectedNodes()[0].hasOwnProperty("children")) {//除设备和组件之外的文件夹
 
             this.componentEntity.splice(0, this.componentEntity.length);
+            this.listLoading = false
 
             for (let i = 0; i < zTree.getSelectedNodes()[0].children.length; i++) {
               if (zTree.getSelectedNodes()[0].children[i].hasOwnProperty("children") == false) {
@@ -946,6 +951,7 @@
           } else if (zTree.getSelectedNodes()[0].hasOwnProperty("children") == false) {//没有孩子的单个文件
 
             this.componentEntity.splice(0, this.componentEntity.length);
+            this.listLoading = false
 
             for (let j = 0; j < childrenInfo.length; j++) {
               if (childrenInfo[j].id == zTree.getSelectedNodes()[0].id) {
@@ -1070,6 +1076,7 @@
                         this.componentEntity[k].state = '√';
 
                         correct.push(this.componentEntity[k]);
+                        console.log(correct,'1111')
 
                         break;
                       }
@@ -1152,9 +1159,7 @@
               }
 
 
-            }
-            ;
-
+            };
 
             //扫描完后，添加软件状态
             for (let i = 0; i < zNodes.length; i++) {
@@ -1626,6 +1631,10 @@
             });
           }
         }
+      },
+
+      // 查看组件运行状态
+      checkComponentStatus () {
       }
     },
     computed: {
@@ -1642,7 +1651,9 @@
     },
     watch: {
       listenProId: function (a, b) {
-        window.location.reload()
+        this.loadingText = '请先选择部署设计'
+        // alert(this.loadingText)
+        //window.location.reload()
        /* this.projectId = this.getCookie('projectId')
         this.selected = {}
         this.deployplanInfos = []
