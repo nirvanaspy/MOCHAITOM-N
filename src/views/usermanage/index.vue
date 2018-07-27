@@ -24,24 +24,33 @@
       </el-table-column>
     </el-table>
 
-    <div class="pagination-container">
+    <!--<div class="pagination-container">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="listQuery.page" :page-sizes="[10,20,30, 50]" :page-size="listQuery.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
-
+-->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
+      <el-form :rules="modifyRules" ref="dataForm" :model="temp" label-width="120px" style='width: 400px; margin-left:50px;'>
         <el-form-item :label="$t('table.username')" prop="username" v-if="dialogStatus=='create'">
           <el-input v-model="temp.username"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.password')" prop="password" v-if="dialogStatus=='create'">
-          <el-input v-model="temp.password" type="password"></el-input>
+          <el-input v-model="temp.password" :type="passwordType"></el-input>
+          <span class="show-pwd" @click="showPwd">
+            <svg-icon icon-class="eye" />
+          </span>
         </el-form-item>
-        <el-form-item :label="$t('table.newpassword')" prop="password" v-if="dialogStatus=='update'">
-          <el-input v-model="temp.newpassword" type="password"></el-input>
+        <el-form-item :label="$t('table.newpassword')" prop="newpassword" v-if="dialogStatus=='update'">
+          <el-input v-model="temp.newpassword" :type="passwordType"></el-input>
+          <span class="show-pwd" @click="showPwd">
+            <svg-icon icon-class="eye" />
+          </span>
         </el-form-item>
-        <el-form-item :label="$t('table.passwordAgain')" prop="password" v-if="dialogStatus=='update'">
-          <el-input v-model="temp.passwordAgain" type="password"></el-input>
+        <el-form-item :label="$t('table.passwordAgain')" prop="passwordAgain" v-if="dialogStatus=='update'">
+          <el-input v-model="temp.passwordAgain" :type="passwordTypeAgain"></el-input>
+          <span class="show-pwd" @click="showPwdAgain">
+            <svg-icon icon-class="eye" />
+          </span>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -50,36 +59,11 @@
         <el-button v-else type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
       </div>
     </el-dialog>
-<!--    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" v-if="dialogStatus=='Edit'">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px" style='width: 400px; margin-left:50px;'>
-        <el-form-item :label="$t('table.password')" prop="username">
-          <el-input v-model="temp.password"></el-input>
-        </el-form-item>
-        <el-form-item :label="$t('table.newpassword')" prop="password">
-          <el-input v-model="temp.newpassword" type="password"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">{{$t('table.cancel')}}</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="createData">{{$t('table.confirm')}}</el-button>
-        <el-button v-else type="primary" @click="updateData">{{$t('table.confirm')}}</el-button>
-      </div>
-    </el-dialog>-->
-
-    <el-dialog title="Reading statistics" :visible.sync="dialogPvVisible">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel"> </el-table-column>
-        <el-table-column prop="pv" label="Pv"> </el-table-column>
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">{{$t('table.confirm')}}</el-button>
-      </span>
-    </el-dialog>
-
   </div>
 </template>
 
 <script>
+  /*eslint-disable*/
   import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
   import waves from '@/directive/waves' // 水波纹指令
   import { parseTime } from '@/utils'
@@ -105,7 +89,42 @@
       waves
     },
     data() {
+      const validatePassword = (rule, value, callback) => {
+        if (value.length < 6) {
+          callback(new Error('请输入正确的密码,至少六位！'))
+          // this.btnConfirm = true
+          // this.passwordValidate = false
+        } else {
+          callback()
+          /* this.passwordValidate = true
+          if(this.passwordValidate && this.pasAgainValidate) {
+            this.btnConfirm = false
+          }*/
+        }
+
+      }
+      const validatePasswordAgain = (rule, value, callback) => {
+        if (value.length < 6) {
+          callback(new Error('请输入正确的密码,至少六位！'))
+          // this.btnConfirm = true
+          // this.pasAgainValidate = false
+        } else if(this.temp.passwordAgain !== this.temp.newpassword) {
+          // this.btnConfirm = true
+          // this.pasAgainValidate = false
+          callback(new Error('两次密码输入不一致，请再次输入新密码！'))
+        } else {
+          callback()
+          /*this.pasAgainValidate = true
+          if(this.passwordValidate && this.pasAgainValidate) {
+            this.btnConfirm = false
+          }*/
+        }
+      }
       return {
+        userData: {
+          username: '',
+          password: ''
+        },
         selectedId: '',
         deleteId: '',
         tableKey: 0,
@@ -126,19 +145,11 @@
           self:[]
         },
         searchQuery: '',
-        importanceOptions: [1, 2, 3],
-        calendarTypeOptions,
-        sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-        statusOptions: ['published', 'draft', 'deleted'],
-        showReviewer: false,
         temp: {
-          id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          type: '',
-          status: 'published'
+          username: '',
+          password: '',
+          newpassword: '',
+          passwordAgain: ''
         },
         dialogFormVisible: false,
         dialogStatus: '',
@@ -147,11 +158,13 @@
           create: '新建'
         },
         dialogPvVisible: false,
-        pvData: [],
-        rules: {
-          type: [{ required: true, message: 'type is required', trigger: 'change' }],
-          timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-          title: [{ required: true, message: 'title is required', trigger: 'blur' }]
+        passwordType: 'password',
+        passwordTypeAgain: 'password',
+        modifyRules: {
+          username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+          password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+          newpassword: [{ required: true, trigger: 'blur', validator: validatePassword }],
+          passwordAgain: [{ required: true, trigger: 'blur', validator: validatePasswordAgain }]
         },
         downloadLoading: false,
         usernameFlag: ''
@@ -171,12 +184,27 @@
       }
     },
     created() {
+      this.userData.username = this.getCookie('username')
+      this.userData.password = this.getCookie('password')
       this.getList()
       this.usernameFlag = getCookies('username')
     },
     methods: {
+      showPwd() {
+        if (this.passwordType === 'password') {
+          this.passwordType = ''
+        } else {
+          this.passwordType = 'password'
+        }
+      },
+      showPwdAgain() {
+        if (this.passwordTypeAgain === 'password') {
+          this.passwordTypeAgain = ''
+        } else {
+          this.passwordTypeAgain = 'password'
+        }
+      },
       deleteuser(row) {
-       /* console.log(this.getIP())*/
         this.deleteId = row.id
         let id = this.deleteId
         this.$confirm('确认删除吗？', '提示', {
@@ -184,7 +212,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          deleteUser(id).then(() => {
+          deleteUser(id, this.userData).then(() => {
             this.$notify({
               title: '成功',
               message: '删除成功',
@@ -194,33 +222,10 @@
             this.getList()
           })
         })
-    /*    const target_btn = event.target
-        this.$confirm('确认删除吗？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          console.log(target_btn.parentNode.parentNode.parentNode)
-          const target_tr = target_btn.parentNode.parentNode.parentNode
-          if (target_tr.tagName.toLowerCase() === 'tr') {
-            target_tr.style.display = 'none'
-          } else if (target_tr.parentNode.tagName.toLowerCase() === 'tr') {
-            target_tr.parentNode.style.display = 'none'
-          }
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })
-        })*/
       },
       getList() {
         this.listLoading = true
-        UserList(this.listQuery).then(response => {
+        UserList(this.userData).then(response => {
           this.list = response.data.data
           this.total = response.data.total
           this.listLoading = false
@@ -247,14 +252,13 @@
       },
       resetTemp() {
         this.temp = {
-          id: undefined,
-          importance: 1,
-          remark: '',
-          timestamp: new Date(),
-          title: '',
-          status: 'published',
-          type: ''
+          username: '',
+          password: '',
+          newpassword: '',
+          passwordAgain: ''
         }
+        this.passwordTypeAgain = 'password'
+        this.passwordType = 'password'
       },
       handleCreate() {
         this.resetTemp()
@@ -273,9 +277,9 @@
               'password': this.temp.password
             }
             let datapost = qs.stringify(data)
-          /*  this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
+            /* this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
             this.temp.author = 'vue-element-admin'*/
-            addUser(datapost).then((res) => {
+            addUser(datapost, this.userData).then((res) => {
               this.list.unshift(this.temp)
               this.dialogFormVisible = false
               this.temp.id = res.data.data.id
@@ -285,19 +289,17 @@
                 type: 'success',
                 duration: 2000
               })
-             /* this.getList()*/
             })
           }
         })
       },
       handleUpdate(row) {
-        console.log(row)
-        this.selectedId = row.id,
-          console.log(this.selectedId)
-        this.temp = Object.assign({}, row) // copy obj
-        this.temp.timestamp = new Date(this.temp.timestamp)
+        this.resetTemp()
+        this.selectedId = row.id
         this.dialogStatus = 'update'
-        this.dialogFormVisible = true
+        if (row.username !== 'admin') {
+          this.dialogFormVisible = true
+        }
         this.$nextTick(() => {
           this.$refs['dataForm'].clearValidate()
         })
@@ -313,7 +315,7 @@
             let dataPost = qs.stringify(data)
             const tempData = Object.assign({}, this.temp)
             tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-            updateUser(dataPost, id).then(() => {
+            updateUser(dataPost, id, this.userData).then(() => {
               for (const v of this.list) {
                 if (v.id === this.temp.id) {
                   const index = this.list.indexOf(v)
@@ -341,31 +343,6 @@
         })
         const index = this.list.indexOf(row)
         this.list.splice(index, 1)
-      },
-      handleFetchPv(pv) {
-        fetchPv(pv).then(response => {
-          this.pvData = response.data.pvData
-          this.dialogPvVisible = true
-        })
-      },
-      handleDownload() {
-        this.downloadLoading = true
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-          const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
-          const data = this.formatJson(filterVal, this.list)
-          excel.export_json_to_excel(tHeader, data, 'table-list')
-          this.downloadLoading = false
-        })
-      },
-      formatJson(filterVal, jsonData) {
-        return jsonData.map(v => filterVal.map(j => {
-          if (j === 'timestamp') {
-            return parseTime(v[j])
-          } else {
-            return v[j]
-          }
-        }))
       }
     },
     computed: {
@@ -378,3 +355,13 @@
     }
   }
 </script>
+<style scoped>
+  .show-pwd {
+    position: absolute;
+    right: 10px;
+    top: 2px;
+    font-size: 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+</style>
