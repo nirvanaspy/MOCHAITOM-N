@@ -61,10 +61,10 @@
       </el-table-column>
       <el-table-column :label="$t('table.actions')" width="280" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">{{$t('table.edit')}}</el-button>
-          <el-button size="mini" type="success" @click="compCopy(scope.row)">复制</el-button>
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" style="margin-left: 10px">{{$t('table.edit')}}</el-button>
+          <el-button size="mini" type="success" @click="compCopy(scope.row)" style="margin-left: 0">复制</el-button>
           <a @click="exportLink(scope.row)">
-            <el-button size="mini" type="info">导出</el-button>
+            <el-button size="mini" type="primary">导出</el-button>
           </a>
           <el-button size="mini" type="danger" @click="handleDelete(scope.row)">{{$t('table.delete')}}
           </el-button>
@@ -83,7 +83,8 @@
     <!-- 创建 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="10vh" width="60%"
                v-if="dialogStatus=='create'">
-      <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px"
+      <!--<iframe src="ftp://192.168.0.124" frameborder="0" style="width:100%;height: 400px"></iframe>-->
+      <el-form :rules="componentRules" ref="dataForm" :model="temp" label-position="right" label-width="80px"
                style='height: 400px;overflow-y: auto;padding-right: 10%;padding-left: 10%;'>
         <el-form-item :label="$t('table.compName')" prop="name">
           <el-input v-model="temp.name"></el-input>
@@ -91,8 +92,8 @@
         <el-form-item :label="$t('table.compVersion')" prop="version">
           <el-input v-model="temp.version"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('table.compPath')" prop="path">
-          <el-input v-model="temp.deployPath"></el-input>
+        <el-form-item :label="$t('table.compPath')" prop="deployPath">
+          <el-input v-model="temp.deployPath" placeholder="如/test/，必须以斜杠开头，斜杠结尾"></el-input>
         </el-form-item>
         <el-form-item :label="$t('table.compDesc')" prop="desc">
           <el-input v-model="temp.description"></el-input>
@@ -124,7 +125,7 @@
     <!-- 修改 -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" top="7vh" width="80%" v-else>
 
-        <el-form :rules="rules" ref="dataForm" :model="temp" label-position="left" label-width="70px"
+        <el-form :rules="componentRules" ref="dataForm" :model="temp" label-position="right" label-width="80px"
                  style='width: 100%;'>
           <div style="height: 400px;overflow-y: auto;width: 60%;float: left;border-right: 1px solid lightgrey;padding-right: 30px;">
             <el-form-item :label="$t('table.compName')" prop="name">
@@ -133,8 +134,8 @@
             <el-form-item :label="$t('table.compVersion')" prop="version">
               <el-input v-model="temp.version"></el-input>
             </el-form-item>
-            <el-form-item :label="$t('table.compPath')" prop="path">
-              <el-input v-model="temp.deployPath"></el-input>
+            <el-form-item :label="$t('table.compPath')" prop="deployPath">
+              <el-input v-model="temp.deployPath" placeholder="/test/，必须以斜杠开头，斜杠结尾"></el-input>
             </el-form-item>
             <el-form-item :label="$t('table.compDesc')" prop="desc">
               <el-input v-model="temp.description"></el-input>
@@ -240,6 +241,13 @@
       waves
     },
     data() {
+      const validateExist = (rule, value, callback) => {
+        if (value.length < 1) {
+          callback(new Error('请输入正确的参数！'))
+        } else {
+          callback()
+        }
+      }
       return {
         selectedId: '',
         treeInfo: [],
@@ -278,6 +286,12 @@
         },
         dialogPvVisible: false,
         pvData: [],
+        componentRules: {
+          name: [{ required: true, message: '请输入组件名', trigger: 'blur' }],
+          version: [{ required: true, message: '请输入版本', trigger: 'blur' }],
+          deployPath: [{ required: true, message: '请输入相对路径', trigger: 'blur' }]
+          // description: [{ required: true, message: 'description is required', trigger: 'blur' }]
+        },
         rules: {
           type: [{required: true, message: 'type is required', trigger: 'change'}],
           timestamp: [{type: 'date', required: true, message: 'timestamp is required', trigger: 'change'}],
@@ -712,6 +726,17 @@
                 type: 'success',
                 duration: 2000
               })
+              this.getList()
+            }).catch(() => {
+              updateloading.close()
+              this.dialogFormVisible = false
+
+              this.$notify({
+                title: '失败',
+                message: '更新失败',
+                type: 'error',
+                duration: 2000
+              })
             })
           }
         })
@@ -750,6 +775,13 @@
               duration: 2000
             })
             this.getList()
+          }).catch(() => {
+            this.$notify({
+              title: '失败',
+              message: '删除失败',
+              type: 'error',
+              duration: 2000
+            })
           })
         }).catch(() => {
           this.$message({
@@ -846,7 +878,7 @@
           }
         }
 
-      },
+      }
     },
     computed: {
       listA: function () {
