@@ -34,7 +34,7 @@ export const constantRouterMap = [
   { path: '/authredirect', component: _import('login/authredirect'), hidden: true },
   { path: '/404', component: _import('errorPage/404'), hidden: true },
   { path: '/401', component: _import('errorPage/401'), hidden: true },
-  {
+  /* {
     path: '',
     component: Layout,
     redirect: 'dashboard',
@@ -43,6 +43,17 @@ export const constantRouterMap = [
       component: _import('dashboard/index'),
       name: 'dashboard',
       meta: { title: 'dashboard', icon: 'dashboard', noCache: true }
+    }]
+  },*/
+  {
+    path: '',
+    component: Layout,
+    redirect: 'dashboard',
+    children: [{
+      path: 'dashboard',
+      component: _import('project/project'),
+      name: 'dashboard',
+      meta: { title: 'project', icon: 'excel', noCache: true }
     }]
   }
 /*  {
@@ -252,15 +263,16 @@ export const asyncRouterMap = [
 
 //  以上都不用
   { path: '*', redirect: '/404', hidden: true },
-  {
+  // 暂时去除
+  /* {
     path: '/project',
     component: Layout,
     children: [{ path: 'project', component: _import('project/project'), name: 'project', meta: { title: 'project', icon: 'excel' }}]
-  },
+  },*/
   {
     path: '/components',
     component: Layout,
-    children: [{ path: 'index', component: _import('components/index'), name: 'components', meta: { title: 'components', icon: 'components1' }}]
+    children: [{ path: 'index', component: _import('components/index'), name: 'components', meta: { title: 'components', icon: 'components1', noCache: true }}]
   },
   {
     path: '/device',
@@ -276,32 +288,33 @@ export const asyncRouterMap = [
     path: '/deployPlanDetail',
     component: Layout,
     hidden: true,
-    children: [{ path: 'deployPlanDetail/:id', component: _import('deployPlanDetail/deployPlanDetail'), name: 'deployPlanDetail', meta: { title: 'deployPlanDetail', icon: 'example' }}]
+    children: [{ path: 'deployPlanDetail/:id', component: _import('deployPlanDetail/deployPlanDetail'), name: 'deployPlanDetail', meta: { title: 'deployPlanDetail', icon: 'example', noCache: true }}]
   },
   {
     path: '/deployBind',
     component: Layout,
     hidden: true,
-    children: [{ path: 'deployBind/:id', component: _import('deployBind/deployBind'), name: 'deployBind', meta: { title: 'deployBind', icon: 'example' }}]
+    children: [{ path: 'deployBind/:id', component: _import('deployBind/deployBind'), name: 'deployBind', meta: { title: 'deployBind', icon: 'example', noCache: true }}]
   },
   {
     path: '/deploy',
     component: Layout,
     hidden: true,
-    children: [{ path: 'deploy/:id', component: _import('deploy/deploy'), name: 'deploy', meta: { title: 'deploy', icon: 'excel' }}]
+    children: [{ path: 'deploy/:id', component: _import('deploy/deploy'), name: 'deploy', meta: { title: 'deploy', icon: 'excel', noCache: true }}]
   },
   {
     path: '/scan',
     component: Layout,
-    children: [{ path: 'index', component: _import('scan/index'), name: 'scan', meta: { title: 'scan', icon: 'scan2' }}]
+    children: [{ path: 'index', component: _import('scan/index'), name: 'scan', meta: { title: 'scan', icon: 'scan2', noCache: true }}]
   },
   {
     path: '/log',
     component: Layout,
-    children: [{ path: 'index', component: _import('log/index'), name: 'log', meta: { title: 'log', icon: 'log' }}]
+    children: [{ path: 'index', component: _import('log/index'), name: 'log', meta: { title: 'log', icon: 'log', noCache: true }}]
   },
   {
     path: '/cabins',
+    hidden: true,
     component: Layout,
     children: [{ path: 'cabins', component: _import('cabins/cabins'), name: 'cabins', meta: { title: 'cabins', icon: 'ship' }}]
   },
@@ -318,16 +331,16 @@ export const asyncRouterMap = [
       title: 'usermanage',
       roles: ['admin'] // or you can only set roles in sub nav
     },
-    children: [{ path: 'index', component: _import('usermanage/index'), name: 'usermanage', meta: { title: 'usermanage', icon: 'peoples' }}]
+    children: [{ path: 'index', component: _import('usermanage/index'), name: 'usermanage', meta: { title: 'usermanage', icon: 'peoples',  noCache: true }}]
   },
   {
     path: '/softPackage',
     component: Layout,
-    children: [{ path: 'index', component: _import('softPackage/index'), name: 'softPackage', meta: { title: 'softPackage', icon: 'package' }}]
+    children: [{ path: 'index', component: _import('softPackage/index'), name: 'softPackage', meta: { title: 'softPackage', icon: 'package', noCache: true}}]
   },
   {
     path: '/baseline',
     component: Layout,
-    children: [{ path: 'baseline', component: _import('baseline/baseline'), name: 'baseline', meta: { title: 'baseline', icon: 'example' }}]
+    children: [{ path: 'baseline', component: _import('baseline/baseline'), name: 'baselines', meta: { title: 'baseline', icon: 'table', noCache: true }}]
   }
 ]
