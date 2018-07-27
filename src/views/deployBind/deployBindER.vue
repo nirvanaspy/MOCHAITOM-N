@@ -99,6 +99,7 @@
               label: {
                 normal: {
                   show: true,
+                  position: 'top',
                   /*formatter: function (name) {
                     return '{name|' + name + '}';
                   },
@@ -181,9 +182,14 @@
             symbolSize: 40,
             itemStyle: {
               normal: {
-                color: '#42b983',
+                color: '#42b983'
               }
             },
+            /*label: {
+              normal: {
+                position: 'inside'
+              }
+            },*/
             deviceInfo: this.list[0].deviceEntity
           }
         }
@@ -209,8 +215,6 @@
           this.dataList.push(this.dataItem)
           this.linksList.push(this.linksItem)
         }
-        console.log(this.dataList,'jjjjjj')
-        console.log(this.linksList, 'lllll')
         if(this.linksList.length > 0) {
           this.title = '设备组件关系图'
         } else {
@@ -220,8 +224,6 @@
     },
     watch: {
       detaillist () {
-        console.log('我变啦！！')
-        console.log(this.detaillist)
         this.list = this.detaillist
         this.initConfig()
         this.initChart()
