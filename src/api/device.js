@@ -48,13 +48,13 @@ export function updateDevice(id, userData, data) {
   })
 }
 
-export function copyDevices(data, id) {
+export function copyDevices(data, id, userData) {
   return request({
     url: '/devices/' + id + '/copy',
     method: 'post',
     auth: {
-      username: 'admin',
-      password: 'admin'
+      username: userData.username,
+      password: userData.password
     },
     headers: {
       'content-type': 'application/x-www-form-urlencoded'
@@ -73,7 +73,7 @@ export function getDisks(id, userData) {
     auth: {
       username: userData.username,
       password: userData.password
-     /* username: 'admin',
+      /* username: 'admin',
       password: 'admin'*/
     }
   })

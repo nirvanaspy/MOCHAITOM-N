@@ -1,13 +1,17 @@
 import request from '../utils/request'
 
-export function doDeployBind(deployPlanId, deviceCHId, data) {
+export function doDeployBind(deployPlanId, deviceCHId, data, userData) {
   return request({
     url: 'deploymentdesigns/' + deployPlanId + '/deploymentdesigndetails/devices/' + deviceCHId,
     method: 'post',
     auth: {
+      username: userData.username,
+      password: userData.password
+    },
+    /* auth: {
       username: 'admin',
       password: 'admin'
-    },
+    }*/
     headers: {
       'content-type': 'application/x-www-form-urlencoded'
     },
