@@ -46,10 +46,10 @@ export function addUser(data, userData) {
     params: { // get请求在第二个位置，post在第三个位置
       isAdmin: false
     },
-    auth: {
+    /* auth: {
       username: userData.username,
       password: userData.password
-    },
+    },*/
     data
   })
 }
