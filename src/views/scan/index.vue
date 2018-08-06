@@ -1002,7 +1002,6 @@
         let username = this.getCookie('username');
         let password = this.getCookie('password');
 
-
         if (zTree.getSelectedNodes()[0].state == false) {//设备不在线，无法扫描
           /*layer.msg("设备离线！");*/
           this.$message({

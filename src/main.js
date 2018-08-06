@@ -1,10 +1,9 @@
 import Vue from 'vue'
 import uploader from 'vue-simple-uploader'
 import axios from 'axios'
-Vue.prototype.$axios = axios;
+Vue.prototype.$axios = axios
 /* eslint-disable */
 Vue.use(uploader)
-
 import 'normalize.css/normalize.css'// A modern alternative to CSS resets
 
 import Element from 'element-ui'
@@ -32,6 +31,16 @@ import '@/ztree/js/jquery-1.4.4.min.js'
 import '@/ztree/js/jquery.ztree.core'
 import '@/ztree/js/jquery.ztree.excheck'
 
+// webix filemanager
+// import '../static/codebase/webix/codebase/webix.css'
+import 'webix/webix.css'
+// import webix from '../static/codebase/webix/codebase/webix'
+import webix from 'webix'
+import vueWebix from 'vue-webix'
+import '../static/codebase/filemanager/codebase/filemanager'
+import '../static/codebase/filemanager/codebase/filemanager.css'
+// import '../static/codebase/webix/codebase/i18n/zh'
+import 'webix/i18n/zh'
 
 // add
 Vue.prototype.GLOBAL = global
