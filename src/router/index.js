@@ -342,5 +342,20 @@ export const asyncRouterMap = [
     path: '/baseline',
     component: Layout,
     children: [{ path: 'baseline', component: _import('baseline/baseline'), name: 'baselines', meta: { title: 'baseline', icon: 'table', noCache: true }}]
+  },
+  {
+    path: '/filemanager',
+    component: Layout,
+    children: [{ path: 'filemanager', component: _import('fileManager/fileManager'), name: 'fileManager', meta: { title: 'filemanage', icon: 'table', noCache: true }}]
+  },
+  {
+    path: '/simulation',
+    component: Layout,
+    children: [{ path: 'simulation', component: _import('simulation/simulation'), name: 'simulation', meta: { title: 'simulation', icon: 'table', noCache: true }}]
+  },
+  {
+    path: '/newfiles',
+    component: Layout,
+    children: [{ path: 'newfiles', component: _import('fileManager/index'), name: 'files', meta: { title: 'files', icon: 'table', noCache: true }}]
   }
 ]

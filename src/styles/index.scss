@@ -191,3 +191,12 @@ code {
 .multiselect--active {
   z-index: 1000 !important;
 }
+
+
+.simulation-container textarea{
+  background-color: #333;
+  color:#fff;
+}
+.simulation-container .el-tabs__header{
+  margin-bottom: 0;
+}
